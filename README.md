@@ -171,6 +171,14 @@
 
 ---
 
+## Documentation
+
+| Doc | Description |
+|---|---|
+| [MCP Servers](docs/mcp-servers.md) | How to connect Claude to your database, GitHub, and other tools |
+
+---
+
 ## Local Development Setup
 
 See the [dev environment setup guide](#) for instructions on running the frontend and backend locally.
