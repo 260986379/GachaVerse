@@ -12,6 +12,18 @@ export const GAMES = [
       "A stylish action RPG set in New Eridu, humanity's last urban sanctuary against the supernatural Hollow invasion.",
   },
   {
+    id: "nikke",
+    name: "NIKKE",
+    genre: "Shooter RPG",
+    developer: "Level Infinite",
+    tags: ["Shooter", "Sci-Fi", "Post-Apocalyptic"],
+    color1: "#991b1b",
+    color2: "#0f0505",
+    youtubeId: "6lRHrO2rfPA",
+    description:
+      "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from alien invaders.",
+  },
+  {
     id: "genshin-impact",
     name: "Genshin Impact",
     genre: "Action RPG",
@@ -46,18 +58,6 @@ export const GAMES = [
     youtubeId: "JwWVgGE5b0Q",
     description:
       "Lead students of Kivotos academy in tactical battles in this anime-style mobile RPG.",
-  },
-  {
-    id: "nikke",
-    name: "NIKKE",
-    genre: "Shooter RPG",
-    developer: "Level Infinite",
-    tags: ["Shooter", "Sci-Fi", "Post-Apocalyptic"],
-    color1: "#991b1b",
-    color2: "#0f0505",
-    youtubeId: "6lRHrO2rfPA",
-    description:
-      "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from alien invaders.",
   },
   {
     id: "arknights",

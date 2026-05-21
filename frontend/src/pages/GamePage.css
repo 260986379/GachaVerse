@@ -59,17 +59,47 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, transparent 20%),
-    linear-gradient(to right, rgba(0, 0, 0, 0.88) 40%, transparent 80%),
-    linear-gradient(to top, #0a0a12 0%, transparent 50%);
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 20%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.75) 35%, transparent 75%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 50%);
+}
+
+.game-hero__bottom {
+  position: absolute;
+  bottom: 2rem;
+  left: 3rem;
+  right: 3rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.75rem;
+  z-index: 2;
+}
+
+.game-hero__poster {
+  width: 220px;
+  flex-shrink: 0;
+  aspect-ratio: 2 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.game-hero__poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.game-hero__poster-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--c1), var(--c2));
 }
 
 .game-hero__content {
-  position: absolute;
-  bottom: 2.5rem;
-  left: 3rem;
-  max-width: 540px;
-  z-index: 2;
+  max-width: 500px;
 }
 
 .back-btn {
@@ -196,31 +226,54 @@
   cursor: pointer;
 }
 
-/* ── Body sections ─────────────────────────────────────── */
+/* ── Tab bar ───────────────────────────────────────────── */
+
+.game-tabs-bar {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.game-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.game-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: #555;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.game-tab:hover {
+  color: #aaa;
+}
+
+.game-tab--active {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+/* ── Body / tab content ────────────────────────────────── */
 
 .game-body {
-  padding: 2rem 3rem 4rem;
-  max-width: 1000px;
+  padding: 2.5rem 3rem 4rem;
 }
 
-.game-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.game-section {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-
-.game-section h2 {
-  margin: 0 0 0.9rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ddd;
+.tab-panel {
+  min-height: 200px;
 }
 
 .placeholder-text {

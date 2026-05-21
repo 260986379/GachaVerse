@@ -1,8 +1,14 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './GameCard.css'
 
 export default function GameCard({ game, size = 'md' }) {
   const navigate = useNavigate()
+  const [imgFailed, setImgFailed] = useState(false)
+
+  const thumbUrl = game.youtubeId && !imgFailed
+    ? `https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg`
+    : null
 
   return (
     <div
@@ -11,7 +17,16 @@ export default function GameCard({ game, size = 'md' }) {
       style={{ '--c1': game.color1, '--c2': game.color2 }}
     >
       <div className="game-card__poster">
-        <span className="game-card__initial">{game.name[0]}</span>
+        {thumbUrl ? (
+          <img
+            className="game-card__thumb"
+            src={thumbUrl}
+            alt={game.name}
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <span className="game-card__initial">{game.name[0]}</span>
+        )}
         <div className="game-card__overlay">
           <span className="game-card__play-icon">▶</span>
         </div>

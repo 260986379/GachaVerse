@@ -4,6 +4,16 @@ import { GAMES } from '../data/games'
 import { loadYTApi } from '../utils/ytApi'
 import './GamePage.css'
 
+const TABS = ['News Feed', 'Media', 'Cast', 'Lore', 'Community', 'Guides', 'More like this']
+
+function TabPanel({ tab }) {
+  return (
+    <div className="tab-panel">
+      <p className="placeholder-text">{tab} coming soon.</p>
+    </div>
+  )
+}
+
 function VolumeIcon({ muted }) {
   return (
     <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
@@ -23,6 +33,8 @@ export default function GamePage() {
 
   const [videoVisible, setVideoVisible] = useState(false)
   const [volume, setVolume] = useState(0)
+  const [activeTab, setActiveTab] = useState(TABS[0])
+  const [posterFailed, setPosterFailed] = useState(false)
   const playerRef = useRef(null)
   const videoWrapRef = useRef(null)
 
@@ -89,61 +101,73 @@ export default function GamePage() {
     <div className="game-page">
       <div className="game-hero" style={{ '--c1': game.color1, '--c2': game.color2 }}>
         <div className="game-hero__bg" />
-
         <div
           className={`game-hero__video-wrap${videoVisible ? ' game-hero__video-wrap--visible' : ''}`}
           ref={videoWrapRef}
         />
         <div className="game-hero__shield" />
-
         <div className="game-hero__gradient" />
 
-        <div className="game-hero__content">
-          <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
-          <div className="game-hero__tags">
-            {game.tags.map((t) => (
-              <span key={t} className="game-hero__tag">{t}</span>
-            ))}
-          </div>
-          <h1 className="game-hero__title">{game.name}</h1>
-          <p className="game-hero__meta">{game.developer} · {game.genre}</p>
-          <p className="game-hero__desc">{game.description}</p>
-          <div className="game-hero__actions">
-            <div className="game-hero__volume">
-              <button
-                className="game-hero__vol-btn"
-                onClick={() => handleVolume(volume === 0 ? 60 : 0)}
-              >
-                <VolumeIcon muted={volume === 0} />
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={(e) => handleVolume(Number(e.target.value))}
-                className="game-hero__vol-slider"
+        <div className="game-hero__bottom">
+          <div className="game-hero__poster">
+            {game.youtubeId && !posterFailed ? (
+              <img
+                src={`https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg`}
+                alt={game.name}
+                className="game-hero__poster-img"
+                onError={() => setPosterFailed(true)}
               />
+            ) : (
+              <div className="game-hero__poster-fallback" />
+            )}
+          </div>
+
+          <div className="game-hero__content">
+            <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
+            <div className="game-hero__tags">
+              {game.tags.map((t) => (
+                <span key={t} className="game-hero__tag">{t}</span>
+              ))}
+            </div>
+            <h1 className="game-hero__title">{game.name}</h1>
+            <p className="game-hero__meta">{game.developer} · {game.genre}</p>
+            <p className="game-hero__desc">{game.description}</p>
+            <div className="game-hero__actions">
+              <div className="game-hero__volume">
+                <button
+                  className="game-hero__vol-btn"
+                  onClick={() => handleVolume(volume === 0 ? 60 : 0)}
+                >
+                  <VolumeIcon muted={volume === 0} />
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={(e) => handleVolume(Number(e.target.value))}
+                  className="game-hero__vol-slider"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      <nav className="game-tabs-bar">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            className={`game-tab${activeTab === tab ? ' game-tab--active' : ''}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </nav>
+
       <div className="game-body">
-        <div className="game-sections">
-          <section className="game-section">
-            <h2>Current Events</h2>
-            <p className="placeholder-text">No events tracked yet.</p>
-          </section>
-          <section className="game-section">
-            <h2>Active Banners</h2>
-            <p className="placeholder-text">No banners tracked yet.</p>
-          </section>
-          <section className="game-section">
-            <h2>Latest News</h2>
-            <p className="placeholder-text">No news yet.</p>
-          </section>
-        </div>
+        <TabPanel tab={activeTab} />
       </div>
     </div>
   )
