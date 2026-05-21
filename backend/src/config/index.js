@@ -6,4 +6,14 @@ module.exports = {
   JWT_SECRET: process.env.JWT_SECRET || 'change_this_secret_in_production',
   NODE_ENV: process.env.NODE_ENV || 'development',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
+
+  // Twitter/X API (v2 Bearer Token)
+  TWITTER_BEARER_TOKEN: process.env.TWITTER_BEARER_TOKEN || 'PLACEHOLDER_TWITTER_BEARER_TOKEN',
+  ZZZ_TWITTER_HANDLE: process.env.ZZZ_TWITTER_HANDLE || 'ZenlessZoneZero',
+  NIKKE_TWITTER_HANDLE: process.env.NIKKE_TWITTER_HANDLE || 'NIKKE_en',
+
+  // YouTube Data API v3
+  YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY || 'PLACEHOLDER_YOUTUBE_API_KEY',
+  ZZZ_YOUTUBE_CHANNEL_ID: process.env.ZZZ_YOUTUBE_CHANNEL_ID || 'UCiJ9BUgdpOIeE6Oqy5vXRgg',
+  NIKKE_YOUTUBE_CHANNEL_ID: process.env.NIKKE_YOUTUBE_CHANNEL_ID || 'UCkj8bRCF4JhKQlE6pRfuTWg',
 };

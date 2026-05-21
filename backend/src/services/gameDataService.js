@@ -85,4 +85,96 @@ const seedInitialCharacters = async () => {
   console.log('Characters seeded: ZZZ and NIKKE');
 };
 
-module.exports = { seedInitialGames, seedInitialCharacters };
+// Demo YouTube videos seeded so the Media tab works before real ingestion runs.
+// These are real video IDs from the official ZZZ and Nikke YouTube channels.
+const ZZZ_VIDEOS = [
+  { external_id: 'L5DEAV17cYY', title: 'Zenless Zone Zero — Official Launch Trailer', description: 'Welcome to New Eridu. Zenless Zone Zero is now available.', published_at: '2024-07-04T00:00:00Z' },
+  { external_id: 'b8lktGCEMXw', title: 'Zenless Zone Zero — Story Trailer "Hollow Special Operations"', description: 'The Hollows have arrived. Special operations begin.', published_at: '2024-05-15T00:00:00Z' },
+  { external_id: 'mXFKKs7cMpg', title: 'Zenless Zone Zero — Character Demo: Ellen Joe', description: 'Ice-cold precision. Ellen Joe enters the fray.', published_at: '2024-06-20T00:00:00Z' },
+  { external_id: 'bRvxkVcWL5k', title: 'Zenless Zone Zero — Version 1.1 Update Trailer', description: 'New story, new characters, new Hollows. Version 1.1 is here.', published_at: '2024-08-14T00:00:00Z' },
+];
+
+const NIKKE_VIDEOS = [
+  { external_id: '6lRHrO2rfPA', title: 'NIKKE: Goddess of Victory — Official Launch Trailer', description: 'Humanity\'s last hope. The Nikkes stand ready.', published_at: '2022-11-04T00:00:00Z' },
+  { external_id: 'ztPIEFPMzC8', title: 'NIKKE — "Overzone" Story Trailer', description: 'The battle for the surface reaches its climax.', published_at: '2023-06-01T00:00:00Z' },
+  { external_id: 'KNb3MObHMeQ', title: 'NIKKE — Character Trailer: Modernia', description: 'One of the four Nikkes of the Apocalypse awakens.', published_at: '2023-03-10T00:00:00Z' },
+];
+
+// Demo news articles — placeholder tweets pointing to official accounts.
+// Real tweet IDs will populate automatically once TWITTER_BEARER_TOKEN is set.
+const ZZZ_NEWS = [
+  { title: '🎮 Zenless Zone Zero is now officially live! Download and step into New Eridu today. #ZenlessZoneZero', source_url: 'https://twitter.com/ZenlessZoneZero', published_at: '2024-07-04T12:00:00Z' },
+  { title: '⚡ Version 1.1 is here! New story chapters, Ellen Joe & Zhu Yuan banners, and more await. #ZZZ', source_url: 'https://twitter.com/ZenlessZoneZero', published_at: '2024-08-14T10:00:00Z' },
+  { title: '🌆 Explore the Districts of New Eridu in Zenless Zone Zero. Each zone hides secrets waiting to be uncovered.', source_url: 'https://twitter.com/ZenlessZoneZero', published_at: '2024-06-25T14:00:00Z' },
+];
+
+const NIKKE_NEWS = [
+  { title: '🚀 NIKKE: Goddess of Victory global launch is LIVE! Join the resistance and reclaim the surface. #NIKKE', source_url: 'https://twitter.com/NIKKE_en', published_at: '2022-11-04T12:00:00Z' },
+  { title: '🔥 New event: Overzone — the battle for the surface intensifies. Log in and fight alongside your Nikkes!', source_url: 'https://twitter.com/NIKKE_en', published_at: '2023-06-01T10:00:00Z' },
+  { title: '💥 SSR Modernia is available in the new banner! Don\'t miss your chance to add her to your squad. #NIKKE', source_url: 'https://twitter.com/NIKKE_en', published_at: '2023-03-10T14:00:00Z' },
+];
+
+const seedNewsAndMedia = async () => {
+  const mediaCount = await query('SELECT COUNT(*) FROM media_content');
+  if (parseInt(mediaCount.rows[0].count) > 0) return;
+
+  const { rows } = await query('SELECT id, slug FROM games WHERE slug IN ($1,$2)', ['zenless-zone-zero', 'nikke']);
+  const gameMap = Object.fromEntries(rows.map((r) => [r.slug, r.id]));
+
+  for (const v of ZZZ_VIDEOS) {
+    await query(
+      `INSERT INTO media_content (game_id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
+       VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,FALSE,'published','Video')
+       ON CONFLICT (external_id) DO NOTHING`,
+      [gameMap['zenless-zone-zero'], v.title, v.description, v.external_id, `https://www.youtube.com/watch?v=${v.external_id}`, `https://img.youtube.com/vi/${v.external_id}/hqdefault.jpg`, v.published_at]
+    );
+  }
+
+  for (const v of NIKKE_VIDEOS) {
+    await query(
+      `INSERT INTO media_content (game_id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
+       VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,FALSE,'published','Video')
+       ON CONFLICT (external_id) DO NOTHING`,
+      [gameMap['nikke'], v.title, v.description, v.external_id, `https://www.youtube.com/watch?v=${v.external_id}`, `https://img.youtube.com/vi/${v.external_id}/hqdefault.jpg`, v.published_at]
+    );
+  }
+
+  for (const n of ZZZ_NEWS) {
+    await query(
+      `INSERT INTO news_articles (game_id, title, external_platform, source_url, published_at, is_automated, status)
+       VALUES ($1,$2,'TwitterX',$3,$4,FALSE,'published')`,
+      [gameMap['zenless-zone-zero'], n.title, n.source_url, n.published_at]
+    );
+  }
+
+  for (const n of NIKKE_NEWS) {
+    await query(
+      `INSERT INTO news_articles (game_id, title, external_platform, source_url, published_at, is_automated, status)
+       VALUES ($1,$2,'TwitterX',$3,$4,FALSE,'published')`,
+      [gameMap['nikke'], n.title, n.source_url, n.published_at]
+    );
+  }
+
+  console.log('Demo news and media seeded for ZZZ and NIKKE');
+};
+
+const ensureInitialGameAndIngestionLogs = async () => {
+  await seedInitialGames();
+  await seedInitialCharacters();
+  await seedNewsAndMedia();
+
+  const { rows } = await query('SELECT id, slug FROM games WHERE slug IN ($1,$2)', ['zenless-zone-zero', 'nikke']);
+  const gameMap = Object.fromEntries(rows.map((r) => [r.slug, r.id]));
+
+  for (const [slug, gameId] of Object.entries(gameMap)) {
+    for (const platform of ['TwitterX', 'YouTube']) {
+      await query(
+        `INSERT INTO ingestion_logs (game_id, platform, status) VALUES ($1,$2,'pending')
+         ON CONFLICT (game_id, platform) DO NOTHING`,
+        [gameId, platform]
+      );
+    }
+  }
+};
+
+module.exports = { seedInitialGames, seedInitialCharacters, ensureInitialGameAndIngestionLogs };

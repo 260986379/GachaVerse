@@ -2,11 +2,15 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { GAMES } from '../data/games'
 import { loadYTApi } from '../utils/ytApi'
+import NewsFeedTab from '../components/game/NewsFeedTab'
+import MediaTab from '../components/game/MediaTab'
 import './GamePage.css'
 
 const TABS = ['News Feed', 'Media', 'Cast', 'Lore', 'Community', 'Guides', 'More like this']
 
-function TabPanel({ tab }) {
+function TabPanel({ tab, gameId }) {
+  if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} />
+  if (tab === 'Media') return <MediaTab gameId={gameId} />
   return (
     <div className="tab-panel">
       <p className="placeholder-text">{tab} coming soon.</p>
@@ -186,7 +190,7 @@ export default function GamePage() {
           ))}
         </aside>
         <div className="game-body__main">
-          <TabPanel tab={activeTab} />
+          <TabPanel tab={activeTab} gameId={game.id} />
         </div>
       </div>
     </div>

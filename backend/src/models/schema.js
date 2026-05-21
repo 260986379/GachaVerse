@@ -81,6 +81,53 @@ const CREATE_USER_GAMES = `
   );
 `;
 
+const CREATE_NEWS_ARTICLES = `
+  CREATE TABLE IF NOT EXISTS news_articles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    title TEXT,
+    content TEXT,
+    external_platform VARCHAR(50),
+    external_id VARCHAR(255) UNIQUE,
+    source_url VARCHAR(500),
+    thumbnail_url VARCHAR(500),
+    published_at TIMESTAMP,
+    is_automated BOOLEAN DEFAULT FALSE,
+    status VARCHAR(20) DEFAULT 'published',
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+`;
+
+const CREATE_MEDIA_CONTENT = `
+  CREATE TABLE IF NOT EXISTS media_content (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    title VARCHAR(500),
+    description TEXT,
+    external_platform VARCHAR(50),
+    external_id VARCHAR(255) UNIQUE,
+    source_url VARCHAR(500),
+    thumbnail_url VARCHAR(500),
+    published_at TIMESTAMP,
+    is_automated BOOLEAN DEFAULT FALSE,
+    status VARCHAR(20) DEFAULT 'published',
+    category VARCHAR(50) DEFAULT 'Video',
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+`;
+
+const CREATE_INGESTION_LOGS = `
+  CREATE TABLE IF NOT EXISTS ingestion_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id UUID REFERENCES games(id) ON DELETE CASCADE,
+    platform VARCHAR(50),
+    last_fetched_id VARCHAR(255),
+    last_run_at TIMESTAMP DEFAULT NOW(),
+    status VARCHAR(20) DEFAULT 'pending',
+    UNIQUE (game_id, platform)
+  );
+`;
+
 const ALL_TABLES = [
   CREATE_USERS,
   CREATE_GAMES,
@@ -88,6 +135,9 @@ const ALL_TABLES = [
   CREATE_POSTS,
   CREATE_COMMENTS,
   CREATE_USER_GAMES,
+  CREATE_NEWS_ARTICLES,
+  CREATE_MEDIA_CONTENT,
+  CREATE_INGESTION_LOGS,
 ];
 
 module.exports = { ALL_TABLES };
