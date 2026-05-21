@@ -1,21 +1,19 @@
-import { useState, useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import ExplorePage from './pages/ExplorePage'
+import GamePage from './pages/GamePage'
+import AccountPage from './pages/AccountPage'
+import './App.css'
 
-function App() {
-  const [message, setMessage] = useState('Loading...')
-
-  useEffect(() => {
-    fetch('/api/hello')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch(() => setMessage('Backend not reachable. Is the server running?'))
-  }, [])
-
+export default function App() {
   return (
-    <div style={{ fontFamily: 'sans-serif', textAlign: 'center', marginTop: '4rem' }}>
-      <h1>Hello from GachaVerse Frontend!</h1>
-      <p>Backend says: <strong>{message}</strong></p>
-    </div>
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<ExplorePage />} />
+        <Route path="/game/:gameId" element={<GamePage />} />
+        <Route path="/account" element={<AccountPage />} />
+      </Routes>
+    </>
   )
 }
-
-export default App

@@ -1,0 +1,379 @@
+/* ── Spotlight ─────────────────────────────────────────── */
+
+.spotlight {
+  position: relative;
+  width: 100%;
+  height: 72vh;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+.spotlight__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  opacity: 0.85;
+}
+
+/* YT IFrame API injects an iframe inside .spotlight__video-wrap */
+.spotlight__video-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.spotlight__video-wrap--visible {
+  opacity: 1;
+}
+
+.spotlight__video-wrap iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Cover both dimensions for any viewport */
+  width: 100vw;
+  height: 56.25vw; /* 16:9 at full viewport width */
+  min-height: 100%;
+  min-width: 177.78%; /* 16:9 at full container height */
+  transform: translate(-50%, -50%);
+  border: none;
+  pointer-events: none;
+}
+
+.spotlight__gradient-left {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.92) 35%, rgba(0, 0, 0, 0.3) 65%, transparent 100%);
+}
+
+.spotlight__gradient-bottom {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #0a0a12 0%, transparent 50%);
+}
+
+.spotlight__gradient-top {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 25%);
+}
+
+/* Covers the full spotlight to block YouTube hover/click UI.
+   z-index 1 puts it above the gradients but below content/arrows (z-index 2-3) */
+.spotlight__shield {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.spotlight__content {
+  position: absolute;
+  bottom: 5rem;
+  left: 3.5rem;
+  max-width: 520px;
+  z-index: 2;
+}
+
+.spotlight__tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.spotlight__tag {
+  font-size: 0.72rem;
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.spotlight__title {
+  margin: 0 0 0.5rem;
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.spotlight__dev {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.spotlight__desc {
+  margin: 0 0 1.5rem;
+  font-size: 0.92rem;
+  color: #bbb;
+  line-height: 1.6;
+  max-width: 440px;
+}
+
+.spotlight__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spotlight__volume {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spotlight__vol-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.spotlight__vol-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.spotlight__vol-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  opacity: 0;
+  max-width: 0;
+  transition: opacity 0.2s ease, max-width 0.2s ease, background 0.15s;
+}
+
+.spotlight__volume:hover .spotlight__vol-slider {
+  opacity: 1;
+  max-width: 80px;
+}
+
+.spotlight__vol-slider:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.spotlight__vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+
+.spotlight__vol-slider::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+
+.spotlight__btn {
+  padding: 0.65rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.spotlight__btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.spotlight__btn--primary {
+  background: #fff;
+  color: #0a0a12;
+}
+
+.spotlight__btn--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.spotlight__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.15s;
+  padding: 0;
+}
+
+.spotlight__arrow:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.spotlight__arrow--left { left: 1.5rem; }
+.spotlight__arrow--right { right: 1.5rem; }
+
+.spotlight__dots {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 3;
+}
+
+.spotlight__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.spotlight__dot--active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+/* ── Content below spotlight ───────────────────────────── */
+
+.explore-content {
+  padding: 0 2.5rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Section shared styles ─────────────────────────────── */
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #e5e5e5;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.section-arrows {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.section-arrow {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  font-size: 1.4rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.section-arrow:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* ── Trending row ──────────────────────────────────────── */
+
+.trending-section {
+  margin-top: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.trending-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;
+}
+
+.trending-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Browse grid ───────────────────────────────────────── */
+
+.browse-section {
+  margin-bottom: 2rem;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.filter-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.filter-tab--active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.25rem 1rem;
+}

@@ -1,0 +1,64 @@
+.account-page {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #1a1a2e;
+  border-radius: 16px;
+  border: 1px solid #2a2a4a;
+  margin-bottom: 2rem;
+}
+
+.account-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #16213e, #0f3460);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.account-identity h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+}
+
+.account-identity p {
+  margin: 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.account-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.account-section {
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #2a2a4a;
+}
+
+.account-section h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.placeholder-text {
+  color: #555;
+  font-size: 0.9rem;
+  margin: 0;
+}
