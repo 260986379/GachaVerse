@@ -4,6 +4,7 @@ import { GAMES } from '../data/games'
 import { loadYTApi } from '../utils/ytApi'
 import NewsFeedTab from '../components/game/NewsFeedTab'
 import MediaTab from '../components/game/MediaTab'
+import CastTab from '../components/game/CastTab'
 import './GamePage.css'
 
 const TABS = ['News Feed', 'Media', 'Cast', 'Lore', 'Community', 'Guides', 'More like this']
@@ -11,6 +12,7 @@ const TABS = ['News Feed', 'Media', 'Cast', 'Lore', 'Community', 'Guides', 'More
 function TabPanel({ tab, gameId }) {
   if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} />
   if (tab === 'Media') return <MediaTab gameId={gameId} />
+  if (tab === 'Cast') return <CastTab gameId={gameId} />
   return (
     <div className="tab-panel">
       <p className="placeholder-text">{tab} coming soon.</p>

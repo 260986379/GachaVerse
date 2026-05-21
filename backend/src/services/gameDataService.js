@@ -26,20 +26,29 @@ const NIKKE = {
   genres: ['Shooter RPG', 'Gacha'],
 };
 
+const CDN_ZZZ = 'https://act-webstatic.hoyoverse.com/game_record/zzz/role_square_avatar/role_square_avatar_';
+const CDN_NIKKE = 'https://nikke.fandom.com/wiki/Special:Redirect/file/';
+
 const ZZZ_CHARACTERS = [
-  { name: 'Belle', rarity: 'SSR', element_type: 'Physical', description: 'The female protagonist of New Eridu, a skilled Proxy.' },
-  { name: 'Wise', rarity: 'SSR', element_type: 'Physical', description: 'The male protagonist of New Eridu, Belle\'s twin brother.' },
-  { name: 'Zhu Yuan', rarity: 'SSR', element_type: 'Ether', description: 'A cool-headed officer from the Criminal Investigation Special Response Team.' },
-  { name: 'Ellen Joe', rarity: 'SSR', element_type: 'Ice', description: 'A popular idol and deadly fighter with ice-based abilities.' },
-  { name: 'Soldier 11', rarity: 'SSR', element_type: 'Fire', description: 'A fierce warrior from Victoria Housekeeping, wielding fire and a greatsword.' },
+  { name: 'Ellen Joe',    rarity: 'SSR', element_type: 'Ice',      icon_url: `${CDN_ZZZ}1181.png`, description: 'A celebrated idol by day, a razor-sharp fighter by night. Ellen commands ice with effortless precision.' },
+  { name: 'Zhu Yuan',    rarity: 'SSR', element_type: 'Ether',    icon_url: `${CDN_ZZZ}1141.png`, description: 'A sharp-witted Special Response officer who cuts through Hollows — and red tape — with equal efficiency.' },
+  { name: 'Von Lycaon',  rarity: 'SSR', element_type: 'Ice',      icon_url: `${CDN_ZZZ}1101.png`, description: 'Victoria Housekeeping\'s impeccably mannered butler conceals a wolf\'s ferocity beneath a polished exterior.' },
+  { name: 'Rina',        rarity: 'SSR', element_type: 'Electric', icon_url: `${CDN_ZZZ}1081.png`, description: 'A doll-like performer who orchestrates battles through her twin marionette partners, Drusilla and Anastella.' },
+  { name: 'Soldier 11',  rarity: 'SSR', element_type: 'Fire',     icon_url: `${CDN_ZZZ}1061.png`, description: 'A Victoria Housekeeping operative of few words and massive impact, greatsword blazing with every strike.' },
+  { name: 'Belle',       rarity: 'SSR', element_type: 'Physical', icon_url: `${CDN_ZZZ}1010.png`, description: 'The Proxy of New Eridu — resourceful, adaptable, and drawn into conflicts far larger than any one Hollow.' },
+  { name: 'Nicole',      rarity: 'SR',  element_type: 'Ether',    icon_url: `${CDN_ZZZ}1031.png`, description: 'Leader of the Cunning Hares. Sharp instincts and a gambler\'s nerve make her one of New Eridu\'s best fixers.' },
+  { name: 'Soukaku',     rarity: 'SR',  element_type: 'Ice',      icon_url: `${CDN_ZZZ}1021.png`, description: 'A miko from the Hollow Research Commission who channels ancient wind and ice arts into devastating assaults.' },
 ];
 
 const NIKKE_CHARACTERS = [
-  { name: 'Rapi', rarity: 'SSR', element_type: 'Electric', description: 'A serious and disciplined Nikke who serves as the squad leader of Counters.' },
-  { name: 'Anis', rarity: 'SR', element_type: 'Electric', description: 'An energetic and cheerful Nikke who loves having fun and teasing her squadmates.' },
-  { name: 'Neon', rarity: 'SR', element_type: 'Fire', description: 'A lively Nikke obsessed with money and treasure, always chasing the next big score.' },
-  { name: 'Yuni', rarity: 'SR', element_type: 'Wind', description: 'A gentle Nikke with a calm personality and a love for all living things.' },
-  { name: 'Modernia', rarity: 'SSR', element_type: 'Fire', description: 'One of the four Nikkes of the Apocalypse, wielding immense destructive power.' },
+  { name: 'Modernia',  rarity: 'SSR', element_type: 'Fire',     icon_url: `${CDN_NIKKE}Modernia_icon.png`,  description: 'One of the four Nikkes of the Apocalypse. Modernia\'s minigun pours out firepower at a terrifying scale.' },
+  { name: 'Scarlet',   rarity: 'SSR', element_type: 'Fire',     icon_url: `${CDN_NIKKE}Scarlet_icon.png`,   description: 'Called the Black Hurricane, Scarlet is a legendary Nikke whose relentless blade leaves no opening.' },
+  { name: 'Alice',     rarity: 'SSR', element_type: 'Electric', icon_url: `${CDN_NIKKE}Alice_icon.png`,     description: 'A Nikke who perceives the world through her own peculiar logic, inspired by a story of a white rabbit.' },
+  { name: 'Rapi',      rarity: 'SSR', element_type: 'Electric', icon_url: `${CDN_NIKKE}Rapi_icon.png`,      description: 'Squad leader of Counters. Stoic and decisive, Rapi shoulders the mission with iron resolve.' },
+  { name: 'Blanc',     rarity: 'SSR', element_type: 'Water',    icon_url: `${CDN_NIKKE}Blanc_icon.png`,     description: 'One half of a synchronized duo. Blanc\'s calm tactical mind complements her partner Noir perfectly.' },
+  { name: 'Anis',      rarity: 'SR',  element_type: 'Electric', icon_url: `${CDN_NIKKE}Anis_icon.png`,      description: 'The squad\'s explosive wildcard. Anis charges into every battle with a grin and an oversized hammer.' },
+  { name: 'Neon',      rarity: 'SR',  element_type: 'Fire',     icon_url: `${CDN_NIKKE}Neon_icon.png`,      description: 'Self-declared treasure hunter and the squad\'s fastest runner — especially when profit is involved.' },
+  { name: 'Yuni',      rarity: 'SR',  element_type: 'Wind',     icon_url: `${CDN_NIKKE}Yuni_icon.png`,      description: 'The gentle heart of the squad. Yuni fights to protect every life, no matter how small.' },
 ];
 
 const seedInitialGames = async () => {
@@ -62,23 +71,25 @@ const seedInitialGames = async () => {
 };
 
 const seedInitialCharacters = async () => {
-  const existing = await query('SELECT COUNT(*) FROM characters');
-  if (parseInt(existing.rows[0].count) > 0) return;
-
   const { rows } = await query('SELECT id, slug FROM games WHERE slug IN ($1, $2)', ['zenless-zone-zero', 'nikke']);
   const gameMap = Object.fromEntries(rows.map((r) => [r.slug, r.id]));
 
+  // Delete old rows so we can re-seed with the expanded, image-enriched data
+  await query('DELETE FROM characters WHERE game_id = ANY($1)', [Object.values(gameMap)]);
+
   for (const char of ZZZ_CHARACTERS) {
     await query(
-      `INSERT INTO characters (game_id, name, rarity, element_type, description) VALUES ($1,$2,$3,$4,$5)`,
-      [gameMap['zenless-zone-zero'], char.name, char.rarity, char.element_type, char.description]
+      `INSERT INTO characters (game_id, name, rarity, element_type, description, icon_url)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [gameMap['zenless-zone-zero'], char.name, char.rarity, char.element_type, char.description, char.icon_url]
     );
   }
 
   for (const char of NIKKE_CHARACTERS) {
     await query(
-      `INSERT INTO characters (game_id, name, rarity, element_type, description) VALUES ($1,$2,$3,$4,$5)`,
-      [gameMap['nikke'], char.name, char.rarity, char.element_type, char.description]
+      `INSERT INTO characters (game_id, name, rarity, element_type, description, icon_url)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [gameMap['nikke'], char.name, char.rarity, char.element_type, char.description, char.icon_url]
     );
   }
 
