@@ -16,6 +16,11 @@ export const GAMES = [
     youtubeId: "L5DEAV17cYY",
     description:
       "A stylish action RPG set in New Eridu, humanity's last urban sanctuary against the supernatural Hollow invasion.",
+    events: [
+      { name: "Signal Search: Jane Doe & Seth", type: "Limited Banner", ends: "May 28, 2026" },
+      { name: "Hollow Zero: Inferno Reap", type: "Story Event", ends: "Jun 11, 2026" },
+      { name: "Bangboo Banner: Luckyboo", type: "Limited Banner", ends: "Jun 4, 2026" },
+    ],
   },
   {
     id: "nikke",
@@ -34,6 +39,11 @@ export const GAMES = [
     youtubeId: "6lRHrO2rfPA",
     description:
       "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from alien invaders.",
+    events: [
+      { name: "GODDESS OF VICTORY Anniversary", type: "Anniversary", ends: "Jun 1, 2026" },
+      { name: "Burst Festival: Scarlet", type: "Limited Banner", ends: "May 30, 2026" },
+      { name: "Interception: Kraken", type: "Challenge", ends: "May 25, 2026" },
+    ],
   },
   {
     id: "genshin-impact",
@@ -52,6 +62,11 @@ export const GAMES = [
     youtubeId: "b8MsWzHvLXQ",
     description:
       "An open-world action RPG set in the magical world of Teyvat. Explore vast landscapes across 7 elemental nations.",
+    events: [
+      { name: "Wish: Columbina (Damselette)", type: "Limited Banner", ends: "Jun 4, 2026" },
+      { name: "Version 5.7: Horizon Unfurled", type: "Story Event", ends: "Jun 18, 2026" },
+      { name: "Ley Line Overflow", type: "Challenge", ends: "May 25, 2026" },
+    ],
   },
   {
     id: "honkai-star-rail",
@@ -70,6 +85,11 @@ export const GAMES = [
     youtubeId: "LkxwwIyXJxE",
     description:
       "Board a space station and embark on an intergalactic adventure across the stars in this turn-based RPG.",
+    events: [
+      { name: "Warp: The Herta", type: "Limited Banner", ends: "May 27, 2026" },
+      { name: "Trailblaze: Amphoreus Arc", type: "Story Event", ends: "Jun 15, 2026" },
+      { name: "Memory of Chaos: Darkness", type: "Challenge", ends: "Jun 2, 2026" },
+    ],
   },
   {
     id: "blue-archive",
@@ -88,6 +108,11 @@ export const GAMES = [
     youtubeId: "JwWVgGE5b0Q",
     description:
       "Lead students of Kivotos academy in tactical battles in this anime-style mobile RPG.",
+    events: [
+      { name: "Pickup: Aris (Swimsuit)", type: "Limited Banner", ends: "Jun 6, 2026" },
+      { name: "Event: Abydos Revived", type: "Story Event", ends: "Jun 8, 2026" },
+      { name: "Total Assault: Kaiten", type: "Challenge", ends: "May 25, 2026" },
+    ],
   },
   {
     id: "arknights",
@@ -106,6 +131,11 @@ export const GAMES = [
     youtubeId: "c9HakEWGL1g",
     description:
       "A strategic tower defense RPG set in a dystopian world ravaged by a mysterious disease called Oripathy.",
+    events: [
+      { name: "Headhunting: Irene", type: "Limited Banner", ends: "May 29, 2026" },
+      { name: "Side Story: Operation Originium Dust", type: "Story Event", ends: "Jun 3, 2026" },
+      { name: "Annihilation: Lungmen Outskirts", type: "Challenge", ends: "Jun 10, 2026" },
+    ],
   },
   {
     id: "wuthering-waves",
@@ -124,6 +154,11 @@ export const GAMES = [
     youtubeId: "DrkE-mw2Nxg",
     description:
       "An open-world action RPG with fast-paced combat in a post-apocalyptic world filled with mysterious Tacet Discords.",
+    events: [
+      { name: "Resonance: Carlotta", type: "Limited Banner", ends: "Jun 4, 2026" },
+      { name: "Version 2.5: Isle of Lights", type: "Story Event", ends: "Jun 20, 2026" },
+      { name: "Illusive Realm: Crownless", type: "Challenge", ends: "May 30, 2026" },
+    ],
   },
   {
     id: "reverse-1999",
@@ -142,6 +177,11 @@ export const GAMES = [
     youtubeId: "VHpScG2U77c",
     description:
       "A turn-based RPG set in a retro-surreal world where time reverses. Uncover secrets as history unwinds.",
+    events: [
+      { name: "Rituals: An-An Lee", type: "Limited Banner", ends: "May 31, 2026" },
+      { name: "A Nightmare's Echo", type: "Story Event", ends: "Jun 7, 2026" },
+      { name: "Mane's Bulletin: Frozen Moment", type: "Challenge", ends: "May 27, 2026" },
+    ],
   },
   {
     id: "limbus-company",
@@ -160,6 +200,11 @@ export const GAMES = [
     youtubeId: "HTRQgFYCXHY",
     description:
       "Command a crew of Sinners aboard the Mephistopheles in this dark and strategic turn-based RPG.",
+    events: [
+      { name: "ID: The One Who Grips", type: "Limited Banner", ends: "Jun 2, 2026" },
+      { name: "Season 5 Chapter 4", type: "Story Event", ends: "Jun 14, 2026" },
+      { name: "Mirror of the Unforgotten", type: "Challenge", ends: "May 26, 2026" },
+    ],
   },
 ];
 

@@ -15,3 +15,10 @@ backend/.env
 # Build output
 frontend/dist/
 frontend/build/
+
+# Claude Code local memory
+.claude/
+
+# One-off scripts
+verify_events.mjs
+verify_gamepage*.png

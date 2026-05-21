@@ -167,7 +167,7 @@ function TrendingRow() {
         </div>
       </div>
       <div className="trending-row" ref={rowRef}>
-        {GAMES.map((game) => (
+        {GAMES.filter((g) => g.id === 'nikke' || g.id === 'zenless-zone-zero').map((game) => (
           <GameCard key={game.id} game={game} size="md" />
         ))}
       </div>

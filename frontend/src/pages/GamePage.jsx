@@ -194,6 +194,22 @@ export default function GamePage() {
         <div className="game-body__main">
           <TabPanel tab={activeTab} gameId={game.id} />
         </div>
+        <aside className="game-events-panel">
+          <h3 className="game-events-panel__title">Important Events</h3>
+          {game.events?.length ? (
+            game.events.map((ev, i) => (
+              <div key={i} className="game-event-card">
+                <span className={`game-event-card__type game-event-card__type--${ev.type.toLowerCase().replace(/[\s/]+/g, '-')}`}>
+                  {ev.type}
+                </span>
+                <p className="game-event-card__name">{ev.name}</p>
+                <span className="game-event-card__ends">Ends {ev.ends}</span>
+              </div>
+            ))
+          ) : (
+            <p className="game-events-panel__empty">No active events.</p>
+          )}
+        </aside>
       </div>
     </div>
   )

@@ -637,3 +637,84 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ── Important Events Panel ────────────────────────────── */
+
+.game-events-panel {
+  width: 210px;
+  flex-shrink: 0;
+}
+
+.game-events-panel__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #555;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.game-events-panel__empty {
+  font-size: 0.8rem;
+  color: #444;
+  margin: 0;
+}
+
+.game-event-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.game-event-card__type {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.game-event-card__type--limited-banner {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.game-event-card__type--story-event {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+}
+
+.game-event-card__type--challenge {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.game-event-card__type--anniversary {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+.game-event-card__type--collab {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.game-event-card__name {
+  margin: 0;
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+.game-event-card__ends {
+  font-size: 0.7rem;
+  color: #555;
+}
