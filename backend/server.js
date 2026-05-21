@@ -1,37 +1,30 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
+const config = require('./src/config');
+const app = require('./src/app');
+const { testConnection } = require('./src/config/db');
+const { query } = require('./src/config/db');
+const { ALL_TABLES } = require('./src/models/schema');
+const { seedInitialGames, seedInitialCharacters } = require('./src/services/gameDataService');
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(cors({ origin: 'http://localhost:5173' }));
-app.use(express.json());
-
-// PostgreSQL connection pool
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
-
-// Test DB connection on startup
-pool.connect((err, client, release) => {
-  if (err) {
-    console.error('PostgreSQL connection error:', err.message);
-  } else {
-    console.log('PostgreSQL connected successfully');
-    release();
+const initDb = async () => {
+  for (const sql of ALL_TABLES) {
+    await query(sql);
   }
-});
+  await seedInitialGames();
+  await seedInitialCharacters();
+};
 
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from GachaVerse Backend!' });
-});
+const start = async () => {
+  await testConnection();
+  try {
+    await initDb();
+    console.log('Database schema ready');
+  } catch (err) {
+    console.error('DB init error:', err.message);
+  }
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+  app.listen(config.PORT, () => {
+    console.log(`Server running on http://localhost:${config.PORT}`);
+  });
+};
+
+start();

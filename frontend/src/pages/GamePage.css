@@ -269,7 +269,56 @@
 /* ── Body / tab content ────────────────────────────────── */
 
 .game-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
   padding: 2.5rem 3rem 4rem;
+}
+
+.game-info-panel {
+  width: 210px;
+  flex-shrink: 0;
+}
+
+.game-info-panel__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #555;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.game-info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.game-info-row__label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #444;
+}
+
+.game-info-row__value {
+  font-size: 0.85rem;
+  color: #bbb;
+  line-height: 1.4;
+}
+
+.game-info-row__value--live {
+  color: #4ade80;
+}
+
+.game-body__main {
+  flex: 1;
+  min-width: 0;
 }
 
 .tab-panel {

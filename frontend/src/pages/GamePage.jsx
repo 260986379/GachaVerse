@@ -167,7 +167,27 @@ export default function GamePage() {
       </nav>
 
       <div className="game-body">
-        <TabPanel tab={activeTab} />
+        <aside className="game-info-panel">
+          <h3 className="game-info-panel__title">Information</h3>
+          {[
+            { label: 'Status',    value: game.status,    live: true },
+            { label: 'Platform',  value: game.platform },
+            { label: 'Released',  value: game.released },
+            { label: 'Developer', value: game.developer },
+            { label: 'Publisher', value: game.publisher },
+            { label: 'Genre',     value: game.genre },
+            { label: 'Modes',     value: game.modes },
+            { label: 'Rating',    value: game.rating },
+          ].map(({ label, value, live }) => (
+            <div key={label} className="game-info-row">
+              <span className="game-info-row__label">{label}</span>
+              <span className={`game-info-row__value${live ? ' game-info-row__value--live' : ''}`}>{value}</span>
+            </div>
+          ))}
+        </aside>
+        <div className="game-body__main">
+          <TabPanel tab={activeTab} />
+        </div>
       </div>
     </div>
   )

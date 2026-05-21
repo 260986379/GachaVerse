@@ -4,3 +4,14 @@ Thumbs.db
 
 # Editor
 *.swp
+
+# Dependencies
+frontend/node_modules/
+backend/node_modules/
+
+# Environment
+backend/.env
+
+# Build output
+frontend/dist/
+frontend/build/
