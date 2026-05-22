@@ -32,7 +32,7 @@ const getCharactersByGameId = async (req, res, next) => {
     const game = await resolveGame(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
     const { rows } = await query(
-      'SELECT * FROM characters WHERE game_id=$1 ORDER BY rarity DESC, name',
+      'SELECT * FROM characters WHERE game_id=$1 ORDER BY name',
       [game.id]
     );
     res.json(rows);
@@ -75,4 +75,23 @@ const getGameMedia = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia };
+const ART_CATEGORIES = ['Cover Art', 'Wallpapers', 'Holiday Artwork']
+
+const getGameArt = async (req, res, next) => {
+  try {
+    const game = await resolveGame(req.params.id);
+    if (!game) return res.status(404).json({ message: 'Game not found' });
+    const { rows } = await query(
+      `SELECT id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category
+       FROM media_content
+       WHERE game_id=$1 AND status='published' AND category = ANY($2)
+       ORDER BY published_at DESC`,
+      [game.id, ART_CATEGORIES]
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt };

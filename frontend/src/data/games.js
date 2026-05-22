@@ -14,6 +14,7 @@ export const GAMES = [
     color1: "#c97d0a",
     color2: "#0f0520",
     youtubeId: "L5DEAV17cYY",
+    bannerImage: "/banners/zzz-banner.png",
     description:
       "A stylish action RPG set in New Eridu, humanity's last urban sanctuary against the supernatural Hollow invasion.",
     events: [
