@@ -9,8 +9,8 @@ import './GamePage.css'
 
 const TABS = ['News Feed', 'Official Videos', 'Official Artworks', 'Characters', 'More like this']
 
-function TabPanel({ tab, gameId }) {
-  if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} />
+function TabPanel({ tab, gameId, youtubeId, youtubeTitle }) {
+  if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} youtubeId={youtubeId} youtubeTitle={youtubeTitle} />
   if (tab === 'Official Videos') return <MediaTab gameId={gameId} />
   if (tab === 'Official Artworks') return <OfficialArtTab gameId={gameId} />
   if (tab === 'Characters') return <CastTab gameId={gameId} />
@@ -46,7 +46,13 @@ export default function GamePage() {
       <div className="game-hero" style={{ '--c1': game.color1, '--c2': game.color2 }}>
         <div className="game-hero__bg" />
         {heroBg && (
-          <img src={heroBg} alt="" className="game-hero__banner-img" aria-hidden="true" />
+          <img
+            src={heroBg}
+            alt=""
+            className="game-hero__banner-img"
+            style={game.bannerPosition ? { objectPosition: game.bannerPosition } : undefined}
+            aria-hidden="true"
+          />
         )}
         <div className="game-hero__shield" />
         <div className="game-hero__gradient" />
@@ -111,7 +117,12 @@ export default function GamePage() {
           ))}
         </aside>
         <div className="game-body__main">
-          <TabPanel tab={activeTab} gameId={game.id} />
+          <div style={{ display: activeTab === 'News Feed' ? 'block' : 'none' }}>
+            <NewsFeedTab gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} isVisible={activeTab === 'News Feed'} />
+          </div>
+          {activeTab !== 'News Feed' && (
+            <TabPanel tab={activeTab} gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} />
+          )}
         </div>
         <aside className="game-events-panel">
           <h3 className="game-events-panel__title">Important Events</h3>

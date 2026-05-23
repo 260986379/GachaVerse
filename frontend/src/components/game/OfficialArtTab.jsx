@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const ART_TYPE_ORDER = ['Cover Art', 'Wallpapers', 'Holiday Artwork']
 
@@ -8,6 +8,18 @@ export default function OfficialArtTab({ gameId }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [brokenIds, setBrokenIds] = useState(new Set())
+  const viewerRef = useRef(null)
+
+  useEffect(() => {
+    if (!active) return
+    const handleClickOutside = (e) => {
+      if (viewerRef.current && !viewerRef.current.contains(e.target)) {
+        setActive(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [active])
 
   useEffect(() => {
     setLoading(true)
@@ -43,7 +55,7 @@ export default function OfficialArtTab({ gameId }) {
           <section key={type} className="media-section">
             <h3 className="media-section__title">{type}</h3>
             {activeInSection && (
-              <div className="art-tab__viewer">
+              <div className="art-tab__viewer" ref={viewerRef}>
                 <img
                   src={activeInSection.source_url || activeInSection.thumbnail_url}
                   alt={activeInSection.title}

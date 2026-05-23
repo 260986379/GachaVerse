@@ -87,7 +87,7 @@ const ZZZ_CHARACTERS = [
     name: "Hoshimi Miyabi",
     rarity: "SSR",
     element_type: "Ice",
-    faction: "Victoria Housekeeping",
+    faction: "H.S.O.S. 6",
     icon_url: "/characters/zzz/Agent_Hoshimi_Miyabi_Icon.webp",
     description:
       "New Eridu's youngest Void Hunter. Miyabi moves through the Hollow with an elegance that belies her lethality.",
@@ -316,46 +316,30 @@ const seedInitialCharacters = async () => {
   );
   const gameMap = Object.fromEntries(rows.map((r) => [r.slug, r.id]));
 
-  // Delete old rows so we can re-seed with the expanded, image-enriched data
-  await query("DELETE FROM characters WHERE game_id = ANY($1)", [
-    Object.values(gameMap),
-  ]);
+  const toSeed = [
+    { slug: "zenless-zone-zero", characters: ZZZ_CHARACTERS },
+    { slug: "nikke", characters: NIKKE_CHARACTERS },
+  ];
 
-  for (const char of ZZZ_CHARACTERS) {
-    await query(
-      `INSERT INTO characters (game_id, name, rarity, element_type, faction, description, icon_url, splash_art_urls)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [
-        gameMap["zenless-zone-zero"],
-        char.name,
-        char.rarity,
-        char.element_type,
-        char.faction,
-        char.description,
-        char.icon_url,
-        char.splash_art_urls || null,
-      ],
+  for (const { slug, characters } of toSeed) {
+    const gameId = gameMap[slug];
+    if (!gameId) continue;
+
+    const { rows: existing } = await query(
+      "SELECT COUNT(*) FROM characters WHERE game_id=$1",
+      [gameId],
     );
-  }
+    if (parseInt(existing[0].count) > 0) continue;
 
-  for (const char of NIKKE_CHARACTERS) {
-    await query(
-      `INSERT INTO characters (game_id, name, rarity, element_type, faction, description, icon_url, splash_art_urls)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [
-        gameMap["nikke"],
-        char.name,
-        char.rarity,
-        char.element_type,
-        char.faction,
-        char.description,
-        char.icon_url,
-        char.splash_art_urls || null,
-      ],
-    );
+    for (const char of characters) {
+      await query(
+        `INSERT INTO characters (game_id, name, rarity, element_type, faction, description, icon_url, splash_art_urls)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [gameId, char.name, char.rarity, char.element_type, char.faction, char.description, char.icon_url, char.splash_art_urls || null],
+      );
+    }
+    console.log(`Characters seeded for ${slug}`);
   }
-
-  console.log("Characters seeded: ZZZ and NIKKE");
 };
 
 const ZZZ_VIDEOS = [
@@ -582,7 +566,7 @@ const seedNewsAndMedia = async () => {
     await query(
       `INSERT INTO media_content (game_id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
        VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,FALSE,'published',$8)
-       ON CONFLICT (external_id) DO UPDATE SET title = EXCLUDED.title, description = EXCLUDED.description, category = EXCLUDED.category`,
+       ON CONFLICT (external_id) DO NOTHING`,
       [
         gameMap["zenless-zone-zero"],
         v.title,
@@ -600,7 +584,7 @@ const seedNewsAndMedia = async () => {
     await query(
       `INSERT INTO media_content (game_id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
        VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,FALSE,'published',$8)
-       ON CONFLICT (external_id) DO UPDATE SET title = EXCLUDED.title, description = EXCLUDED.description, category = EXCLUDED.category`,
+       ON CONFLICT (external_id) DO NOTHING`,
       [
         gameMap["nikke"],
         v.title,
@@ -618,7 +602,7 @@ const seedNewsAndMedia = async () => {
     await query(
       `INSERT INTO media_content (game_id, title, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
        VALUES ($1,$2,'Local',$3,$4,$4,$5,FALSE,'published',$6)
-       ON CONFLICT (external_id) DO UPDATE SET title = EXCLUDED.title, category = EXCLUDED.category`,
+       ON CONFLICT (external_id) DO NOTHING`,
       [
         gameMap["zenless-zone-zero"],
         a.title,

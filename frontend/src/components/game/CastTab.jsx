@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const RARITY_COLOR = { SSR: '#f0b429', SR: '#a78bfa', R: '#6b7280' }
 const MAIN_FACTION = 'Main Character'
@@ -7,12 +7,23 @@ function CharacterPanel({ char, onClose }) {
   const isSplashArt = char.splash_art_urls?.length > 0
   const images = (isSplashArt ? char.splash_art_urls : [char.splash_art_url, char.icon_url]).filter(Boolean)
   const [imgIndex, setImgIndex] = useState(0)
+  const panelRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        onClose()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const prev = () => setImgIndex((i) => (i - 1 + images.length) % images.length)
   const next = () => setImgIndex((i) => (i + 1) % images.length)
 
   return (
-    <div className="char-panel">
+    <div className="char-panel" ref={panelRef}>
       <div className={`char-panel__image-side${isSplashArt ? ' char-panel__image-side--splash' : ''}`}>
         {images.length > 0 && (
           <img
@@ -95,15 +106,17 @@ export default function CastTab({ gameId }) {
         const activeInSection = activeChar && chars.find((c) => c.id === activeChar.id)
         return (
           <section key={label} className="cast-section">
-            <h3 className="cast-section__title">{label}</h3>
-            {activeInSection && (
-              <CharacterPanel
-                key={activeChar.id}
-                char={activeChar}
-                onClose={() => setActiveId(null)}
-              />
-            )}
             <div className="cast-grid">
+              <h3 className="cast-section__title">{label}</h3>
+              {activeInSection && (
+                <div className="cast-panel-row">
+                  <CharacterPanel
+                    key={activeChar.id}
+                    char={activeChar}
+                    onClose={() => setActiveId(null)}
+                  />
+                </div>
+              )}
               {chars.map((char) => (
                 <button
                   key={char.id}

@@ -14,6 +14,8 @@ module.exports = {
 
   // YouTube Data API v3
   YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY || 'PLACEHOLDER_YOUTUBE_API_KEY',
-  ZZZ_YOUTUBE_CHANNEL_ID: process.env.ZZZ_YOUTUBE_CHANNEL_ID || 'UCiJ9BUgdpOIeE6Oqy5vXRgg',
+  // To find a channel ID: once API key is set, call:
+  // GET https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=ZZZ_JP&key=YOUR_KEY
+  ZZZ_JP_YOUTUBE_CHANNEL_ID: process.env.ZZZ_JP_YOUTUBE_CHANNEL_ID || 'PLACEHOLDER_ZZZ_JP_CHANNEL_ID',
   NIKKE_YOUTUBE_CHANNEL_ID: process.env.NIKKE_YOUTUBE_CHANNEL_ID || 'UCkj8bRCF4JhKQlE6pRfuTWg',
 };

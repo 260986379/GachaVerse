@@ -85,7 +85,7 @@ const getGameArt = async (req, res, next) => {
       `SELECT id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category
        FROM media_content
        WHERE game_id=$1 AND status='published' AND category = ANY($2)
-       ORDER BY published_at DESC`,
+       ORDER BY published_at ASC`,
       [game.id, ART_CATEGORIES]
     );
     res.json(rows);

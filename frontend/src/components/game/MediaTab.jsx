@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
 
 const TYPE_ORDER = ['Trailer', 'Cinematic', 'Character Demo', 'Music']
@@ -15,6 +15,18 @@ export default function MediaTab({ gameId }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [brokenIds, setBrokenIds] = useState(new Set())
+  const playerRef = useRef(null)
+
+  useEffect(() => {
+    if (!active) return
+    const handleClickOutside = (e) => {
+      if (playerRef.current && !playerRef.current.contains(e.target)) {
+        setActive(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [active])
 
   useEffect(() => {
     setLoading(true)
@@ -48,7 +60,7 @@ export default function MediaTab({ gameId }) {
           <section key={type} className="media-section">
             <h3 className="media-section__title">{TYPE_LABELS[type] ?? type}</h3>
             {activeInSection && (
-              <div className="media-tab__player">
+              <div className="media-tab__player" ref={playerRef}>
                 <YouTubeEmbed videoId={activeInSection.external_id} title={activeInSection.title} />
                 <h3 className="media-tab__player-title">{activeInSection.title}</h3>
                 {activeInSection.description && (
