@@ -24,6 +24,12 @@ export const GAMES = [
       { name: "Hollow Zero: Inferno Reap", type: "Story Event", ends: "Jun 11, 2026" },
       { name: "Bangboo Banner: Luckyboo", type: "Limited Banner", ends: "Jun 4, 2026" },
     ],
+    officialPlatforms: [
+      { name: 'Official Website', url: 'https://zenless.hoyoverse.com/en-us/main', type: 'website' },
+      { name: 'Twitter / X', url: 'https://x.com/ZZZ_EN', type: 'twitter' },
+      { name: 'Reddit', url: 'https://www.reddit.com/r/ZZZ_Official/', type: 'reddit' },
+      { name: 'Discord', url: 'https://discord.com/invite/zenlesszonezero', type: 'discord' },
+    ],
   },
   {
     id: "nikke",

@@ -2,6 +2,17 @@ const { query } = require('../config/db');
 const config = require('../config');
 const { classifyVideoTitle } = require('./videoClassifier');
 
+const decodeHtmlEntities = (str) =>
+  str
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+
+// Strip trailing " | Game Name" branding appended by official YouTube channels
+const stripChannelSuffix = (title) => title.replace(/\s*\|[^|]*$/, '').trim();
+
 const ingestVideosForGame = async (gameSlug, channelId) => {
   if (!channelId || channelId.startsWith('PLACEHOLDER')) {
     console.log(`[YouTube] Skipping ingestion for ${gameSlug} — channel ID not configured.`);
@@ -20,67 +31,94 @@ const ingestVideosForGame = async (gameSlug, channelId) => {
   }
   const gameId = gameRows[0].id;
 
-  const params = new URLSearchParams({
-    part: 'snippet',
-    channelId,
-    order: 'date',
-    type: 'video',
-    maxResults: '50',
-    key: config.YOUTUBE_API_KEY,
-  });
+  // playlistItems is 1 quota unit/call vs 100 for search, and supports full pagination.
+  // The uploads playlist ID is always 'UU' + everything after 'UC' in the channel ID.
+  const uploadsPlaylistId = 'UU' + channelId.slice(2);
 
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error(`[YouTube] API error for ${gameSlug} (channel ${channelId}):`, res.status, text);
-    await query(
-      `INSERT INTO ingestion_logs (game_id, platform, last_run_at, status, message)
-       VALUES ($1,'YouTube',NOW(),'error',$2)
-       ON CONFLICT (game_id, platform) DO UPDATE SET last_run_at=NOW(), status='error', message=$2`,
-      [gameId, `HTTP ${res.status}`]
-    );
-    return;
-  }
-
-  const data = await res.json();
-  const items = data.items || [];
-
+  let pageToken = '';
   let inserted = 0;
   let skipped = 0;
+  const MAX_PAGES = 1; // fetch latest 50 per run; bump to 10+ for a full backfill
 
-  for (const item of items) {
-    const videoId = item.id?.videoId;
-    if (!videoId) continue;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const params = new URLSearchParams({
+      part: 'snippet',
+      playlistId: uploadsPlaylistId,
+      maxResults: '50',
+      key: config.YOUTUBE_API_KEY,
+    });
+    if (pageToken) params.set('pageToken', pageToken);
 
-    const { snippet } = item;
-    const title = snippet.title || '';
-    const category = classifyVideoTitle(gameSlug, title);
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`);
 
-    if (!category) {
-      skipped++;
-      continue;
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`[YouTube] API error for ${gameSlug}:`, res.status, text);
+      await query(
+        `INSERT INTO ingestion_logs (game_id, platform, last_run_at, status, message)
+         VALUES ($1,'YouTube',NOW(),'error',$2)
+         ON CONFLICT (game_id, platform) DO UPDATE SET last_run_at=NOW(), status='error', message=$2`,
+        [gameId, `HTTP ${res.status}`]
+      );
+      return;
     }
 
-    const sourceUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const thumbnailUrl =
-      snippet.thumbnails?.maxres?.url ||
-      snippet.thumbnails?.high?.url ||
-      snippet.thumbnails?.default?.url ||
-      '';
+    const data = await res.json();
+    const items = data.items || [];
 
-    await query(
-      `INSERT INTO media_content
-         (game_id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category, is_automated, status)
-       VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,$8,TRUE,'published')
-       ON CONFLICT (external_id) DO UPDATE
-         SET category      = EXCLUDED.category,
-             title         = EXCLUDED.title,
-             thumbnail_url = EXCLUDED.thumbnail_url`,
-      [gameId, title, snippet.description, videoId, sourceUrl, thumbnailUrl, snippet.publishedAt, category]
-    );
+    // Batch-fetch view counts for this page's videos (1 quota unit for up to 50 IDs)
+    const pageVideoIds = items.map(i => i.snippet?.resourceId?.videoId).filter(Boolean);
+    const viewCountMap = {};
+    if (pageVideoIds.length > 0) {
+      const statsParams = new URLSearchParams({ part: 'statistics', id: pageVideoIds.join(','), key: config.YOUTUBE_API_KEY });
+      const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?${statsParams}`);
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        for (const si of statsData.items || []) {
+          viewCountMap[si.id] = parseInt(si.statistics?.viewCount || '0', 10);
+        }
+      }
+    }
 
-    inserted++;
+    for (const item of items) {
+      const videoId = item.snippet?.resourceId?.videoId;
+      if (!videoId) continue;
+
+      const { snippet } = item;
+      const title = stripChannelSuffix(decodeHtmlEntities(snippet.title || ''));
+      const description = decodeHtmlEntities(snippet.description || '');
+      const category = classifyVideoTitle(gameSlug, title);
+
+      if (!category) {
+        skipped++;
+        continue;
+      }
+
+      const sourceUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      const thumbnailUrl =
+        snippet.thumbnails?.maxres?.url ||
+        snippet.thumbnails?.high?.url ||
+        snippet.thumbnails?.default?.url ||
+        '';
+      const viewCount = viewCountMap[videoId] ?? 0;
+
+      await query(
+        `INSERT INTO media_content
+           (game_id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category, is_automated, status, view_count)
+         VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,$8,TRUE,'published',$9)
+         ON CONFLICT (external_id) DO UPDATE
+           SET category      = EXCLUDED.category,
+               title         = EXCLUDED.title,
+               thumbnail_url = EXCLUDED.thumbnail_url,
+               view_count    = EXCLUDED.view_count`,
+        [gameId, title, description, videoId, sourceUrl, thumbnailUrl, snippet.publishedAt, category, viewCount]
+      );
+
+      inserted++;
+    }
+
+    pageToken = data.nextPageToken || '';
+    if (!pageToken) break;
   }
 
   await query(
@@ -93,10 +131,6 @@ const ingestVideosForGame = async (gameSlug, channelId) => {
   console.log(`[YouTube] ${gameSlug}: ${inserted} inserted/updated, ${skipped} skipped.`);
 };
 
-/**
- * Re-classifies any existing DB rows that have the old generic category='Video'.
- * Safe to run multiple times — only touches rows with category='Video'.
- */
 const reclassifyExistingVideos = async (gameSlug) => {
   const { rows: gameRows } = await query('SELECT id FROM games WHERE slug=$1', [gameSlug]);
   if (!gameRows.length) return;
@@ -114,17 +148,10 @@ const reclassifyExistingVideos = async (gameSlug) => {
   for (const row of rows) {
     const category = classifyVideoTitle(gameSlug, row.title);
     if (category) {
-      await query(
-        `UPDATE media_content SET category=$1 WHERE id=$2`,
-        [category, row.id]
-      );
+      await query(`UPDATE media_content SET category=$1 WHERE id=$2`, [category, row.id]);
       updated++;
     } else {
-      // No rule matched — hide it so it doesn't show in any tab
-      await query(
-        `UPDATE media_content SET status='draft' WHERE id=$1`,
-        [row.id]
-      );
+      await query(`UPDATE media_content SET status='draft' WHERE id=$1`, [row.id]);
       removed++;
     }
   }

@@ -19,6 +19,9 @@ frontend/build/
 # Claude Code local memory
 .claude/
 
+# Logs
+*.log
+
 # One-off scripts
 verify_events.mjs
 verify_gamepage*.png

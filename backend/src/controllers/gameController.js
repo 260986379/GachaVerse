@@ -63,13 +63,36 @@ const getGameMedia = async (req, res, next) => {
     const game = await resolveGame(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
     const { rows } = await query(
-      `SELECT id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category, is_automated
+      `SELECT id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category, is_automated, view_count, tags
        FROM media_content
        WHERE game_id=$1 AND status='published'
        ORDER BY published_at DESC`,
       [game.id]
     );
     res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getGameBanners = async (req, res, next) => {
+  try {
+    const game = await resolveGame(req.params.id);
+    if (!game) return res.json({ current: [], upcoming: [] });
+
+    const { rows } = await query(
+      `SELECT id, name, banner_type, starts_at, ends_at, image_url
+       FROM game_banners
+       WHERE game_id=$1 AND ends_at > NOW()
+       ORDER BY ends_at ASC`,
+      [game.id]
+    );
+
+    const now = new Date();
+    const current  = rows.filter((b) => !b.starts_at || new Date(b.starts_at) <= now);
+    const upcoming = rows.filter((b) =>  b.starts_at && new Date(b.starts_at)  > now);
+
+    res.json({ current, upcoming });
   } catch (err) {
     next(err);
   }
@@ -94,4 +117,4 @@ const getGameArt = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt };
+module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners };

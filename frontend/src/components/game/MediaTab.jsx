@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
 
-const TYPE_ORDER = ['Trailer', 'Cinematic', 'Character Demo', 'Music']
+const TYPE_ORDER = ['Lore', 'Trailer', 'Cinematic', 'Character Demo', 'Music']
 const TYPE_LABELS = {
+  'Lore': 'Lore',
   'Trailer': 'Trailers',
   'Cinematic': 'Cinematics',
   'Character Demo': 'Character Demos',
@@ -15,17 +16,43 @@ export default function MediaTab({ gameId }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [brokenIds, setBrokenIds] = useState(new Set())
+  const [expandedSection, setExpandedSection] = useState(null)
+  const [search, setSearch] = useState('')
+  const [sort, setSort] = useState('newest')
   const playerRef = useRef(null)
+  const dragRef = useRef(null)
+  const didDragRef = useRef(false)
+
+  const toggleExpanded = (type) =>
+    setExpandedSection((prev) => (prev === type ? null : type))
+
+  const handleDragStart = (e) => {
+    didDragRef.current = false
+    dragRef.current = { el: e.currentTarget, startX: e.pageX, scrollLeft: e.currentTarget.scrollLeft }
+  }
+
+  const handleDragMove = (e) => {
+    if (!dragRef.current) return
+    const dx = e.pageX - dragRef.current.startX
+    if (Math.abs(dx) > 4) didDragRef.current = true
+    dragRef.current.el.scrollLeft = dragRef.current.scrollLeft - dx
+  }
+
+  const handleDragEnd = () => {
+    dragRef.current = null
+    // didDragRef intentionally NOT cleared here — click fires after mouseup and reads it
+  }
+
+  const handleCardClick = (item) => {
+    if (didDragRef.current) { didDragRef.current = false; return }
+    setActive(active === item.id ? null : item.id)
+  }
+
 
   useEffect(() => {
-    if (!active) return
-    const handleClickOutside = (e) => {
-      if (playerRef.current && !playerRef.current.contains(e.target)) {
-        setActive(null)
-      }
+    if (active && playerRef.current) {
+      playerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [active])
 
   useEffect(() => {
@@ -33,6 +60,7 @@ export default function MediaTab({ gameId }) {
     setError(null)
     setActive(null)
     setBrokenIds(new Set())
+    setExpandedSection(null)
     fetch(`/api/games/${gameId}/media`)
       .then((r) => { if (!r.ok) throw new Error('Failed to load media'); return r.json() })
       .then((data) => { setItems(data); setLoading(false) })
@@ -44,55 +72,103 @@ export default function MediaTab({ gameId }) {
   if (!items.length) return <p className="tab-status">No media yet. Check back soon.</p>
 
   const markBroken = (id) => setBrokenIds((prev) => new Set([...prev, id]))
-  const visibleItems = items.filter((i) => !brokenIds.has(i.id))
+
+  const q = search.trim().toLowerCase()
+  const processedItems = items
+    .filter((i) => !brokenIds.has(i.id))
+    .filter((i) => !q || i.title?.toLowerCase().includes(q))
+    .sort((a, b) => {
+      if (sort === 'popular') return (Number(b.view_count) || 0) - (Number(a.view_count) || 0)
+      if (sort === 'oldest') return new Date(a.published_at) - new Date(b.published_at)
+      return new Date(b.published_at) - new Date(a.published_at)
+    })
 
   const groups = TYPE_ORDER
-    .map((type) => ({ type, videos: visibleItems.filter((i) => i.category === type) }))
+    .map((type) => ({ type, videos: processedItems.filter((i) => i.category === type) }))
     .filter((g) => g.videos.length > 0)
-
-  if (!groups.length) return <p className="tab-status">No media yet. Check back soon.</p>
 
   return (
     <div className="media-tab">
+      <div className="media-toolbar">
+        <div className="media-search-wrap">
+          <span className="media-search-icon">⌕</span>
+          <input
+            className="media-search"
+            type="search"
+            placeholder="Search videos..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <select className="media-sort" value={sort} onChange={(e) => setSort(e.target.value)}>
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="popular">Most Viewed</option>
+        </select>
+      </div>
+      {groups.length === 0 && (
+        <p className="tab-status">{search ? 'No videos match your search.' : 'No media yet. Check back soon.'}</p>
+      )}
       {groups.map(({ type, videos }) => {
         const activeInSection = active ? videos.find((v) => v.id === active) : null
+        const isExpanded = expandedSection === type
+
+        const videoCards = videos.map((item) => (
+          <button
+            key={item.id}
+            className={`media-card${active === item.id ? ' media-card--active' : ''}`}
+            onClick={() => handleCardClick(item)}
+          >
+            <div className="media-card__thumb">
+              {item.thumbnail_url ? (
+                <img
+                  src={item.thumbnail_url}
+                  alt={item.title}
+                  loading="lazy"
+                  onError={() => markBroken(item.id)}
+                />
+              ) : (
+                <div className="media-card__thumb-fallback" />
+              )}
+              <div className="media-card__play">▶</div>
+            </div>
+            <p className="media-card__title">{item.title}</p>
+          </button>
+        ))
+
         return (
           <section key={type} className="media-section">
-            <h3 className="media-section__title">{TYPE_LABELS[type] ?? type}</h3>
+            <div className="media-section__header">
+              <h3 className="media-section__title">{TYPE_LABELS[type] ?? type}</h3>
+              {videos.length > 3 && (
+                <button
+                  className="media-section__expand-btn"
+                  onClick={() => toggleExpanded(type)}
+                >
+                  {isExpanded ? 'Collapse' : `Show all ${videos.length}`}
+                </button>
+              )}
+            </div>
             {activeInSection && (
               <div className="media-tab__player" ref={playerRef}>
                 <YouTubeEmbed videoId={activeInSection.external_id} title={activeInSection.title} />
                 <h3 className="media-tab__player-title">{activeInSection.title}</h3>
-                {activeInSection.description && (
-                  <p className="media-tab__player-desc">{activeInSection.description}</p>
-                )}
                 <button className="media-tab__close" onClick={() => setActive(null)}>✕ Close</button>
               </div>
             )}
-            <div className="media-grid">
-              {videos.map((item) => (
-                <button
-                  key={item.id}
-                  className={`media-card${active === item.id ? ' media-card--active' : ''}`}
-                  onClick={() => setActive(active === item.id ? null : item.id)}
-                >
-                  <div className="media-card__thumb">
-                    {item.thumbnail_url ? (
-                      <img
-                        src={item.thumbnail_url}
-                        alt={item.title}
-                        loading="lazy"
-                        onError={() => markBroken(item.id)}
-                      />
-                    ) : (
-                      <div className="media-card__thumb-fallback" />
-                    )}
-                    <div className="media-card__play">▶</div>
-                  </div>
-                  <p className="media-card__title">{item.title}</p>
-                </button>
-              ))}
-            </div>
+            {isExpanded ? (
+              <div className="media-grid">{videoCards}</div>
+            ) : (
+              <div
+                className="media-row"
+                onMouseDown={handleDragStart}
+                onMouseMove={handleDragMove}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+              >
+                {videoCards}
+              </div>
+            )}
           </section>
         )
       })}
