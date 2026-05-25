@@ -1,0 +1,71 @@
+.library-page {
+  min-height: 100vh;
+  padding-top: 64px;
+  padding-bottom: 5rem;
+}
+
+.library-header {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+}
+
+.library-header__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #e5e5e5;
+  letter-spacing: -0.02em;
+}
+
+.library-header__count {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.library-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 2rem 0;
+}
+
+.library-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+/* filter-tab styles (same as ExplorePage) */
+.filter-tab {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.filter-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.filter-tab--active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem 1rem;
+}

@@ -2,10 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GAMES, FEATURED_GAMES } from '../data/games'
 import GameCard from '../components/GameCard'
+import { getFollowedGames } from '../utils/bookmarks'
 import { loadYTApi } from '../utils/ytApi'
 import './ExplorePage.css'
-
-const GENRE_FILTERS = ['All', 'Action RPG', 'Turn-Based RPG', 'Tactical RPG', 'Tower Defense RPG', 'Shooter RPG']
 
 function VolumeIcon({ muted }) {
   return (
@@ -153,6 +152,18 @@ function SpotlightHero() {
   )
 }
 
+function BrowseAllCard() {
+  const navigate = useNavigate()
+  return (
+    <div className="browse-all-card" onClick={() => navigate('/games')}>
+      <div className="browse-all-card__poster">
+        <span className="browse-all-card__icon">⊞</span>
+        <span className="browse-all-card__label">Browse All Games</span>
+      </div>
+    </div>
+  )
+}
+
 function TrendingRow() {
   const rowRef = useRef(null)
   const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
@@ -175,36 +186,51 @@ function TrendingRow() {
   )
 }
 
-export default function ExplorePage() {
-  const [filter, setFilter] = useState('All')
-  const filtered = filter === 'All' ? GAMES : GAMES.filter((g) => g.genre === filter)
+function MyGamesSection() {
+  const rowRef = useRef(null)
+  const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
+  const [followed, setFollowed] = useState(() => getFollowedGames())
 
+  useEffect(() => {
+    const sync = () => setFollowed(getFollowedGames())
+    window.addEventListener('storage', sync)
+    return () => window.removeEventListener('storage', sync)
+  }, [])
+
+  const gameMap = Object.fromEntries(GAMES.map((g) => [g.id, g]))
+  const games = followed.map((f) => gameMap[f.id]).filter(Boolean)
+
+  return (
+    <section className="trending-section">
+      <div className="section-header">
+        <h2 className="section-title">My Games</h2>
+        {games.length > 0 && (
+          <div className="section-arrows">
+            <button className="section-arrow" onClick={() => scroll(-1)}>‹</button>
+            <button className="section-arrow" onClick={() => scroll(1)}>›</button>
+          </div>
+        )}
+      </div>
+      {games.length === 0 && (
+        <p className="my-games-hint">Follow a game to see it here.</p>
+      )}
+      <div className="trending-row" ref={rowRef}>
+        {games.map((game) => (
+          <GameCard key={game.id} game={game} size="md" />
+        ))}
+        <BrowseAllCard />
+      </div>
+    </section>
+  )
+}
+
+export default function ExplorePage() {
   return (
     <div className="explore-page">
       <SpotlightHero />
       <div className="explore-content">
         <TrendingRow />
-        <section className="browse-section">
-          <div className="section-header">
-            <h2 className="section-title">Browse Games</h2>
-          </div>
-          <div className="filter-tabs">
-            {GENRE_FILTERS.map((f) => (
-              <button
-                key={f}
-                className={`filter-tab${filter === f ? ' filter-tab--active' : ''}`}
-                onClick={() => setFilter(f)}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-          <div className="browse-grid">
-            {filtered.map((game) => (
-              <GameCard key={game.id} game={game} size="lg" />
-            ))}
-          </div>
-        </section>
+        <MyGamesSection />
       </div>
     </div>
   )
