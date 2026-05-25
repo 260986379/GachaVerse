@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GAMES } from '../data/games'
 import GameCard from '../components/GameCard'
 import './LibraryPage.css'
@@ -7,6 +7,8 @@ const GENRE_FILTERS = ['All', 'Action RPG', 'Turn-Based RPG', 'Tactical RPG', 'T
 
 export default function LibraryPage() {
   const [filter, setFilter] = useState('All')
+
+  useEffect(() => { window.scrollTo(0, 0) }, [])
   const filtered = filter === 'All' ? GAMES : GAMES.filter((g) => g.genre === filter)
 
   return (

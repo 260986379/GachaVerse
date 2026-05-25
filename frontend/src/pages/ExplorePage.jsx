@@ -186,10 +186,13 @@ function TrendingRow() {
   )
 }
 
+const GENRE_FILTERS = ['All', 'Action RPG', 'Turn-Based RPG', 'Tactical RPG', 'Tower Defense RPG', 'Shooter RPG']
+
 function MyGamesSection() {
   const rowRef = useRef(null)
   const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
   const [followed, setFollowed] = useState(() => getFollowedGames())
+  const [filter, setFilter] = useState('All')
 
   useEffect(() => {
     const sync = () => setFollowed(getFollowedGames())
@@ -198,20 +201,32 @@ function MyGamesSection() {
   }, [])
 
   const gameMap = Object.fromEntries(GAMES.map((g) => [g.id, g]))
-  const games = followed.map((f) => gameMap[f.id]).filter(Boolean)
+  const allFollowed = followed.map((f) => gameMap[f.id]).filter(Boolean)
+  const games = filter === 'All' ? allFollowed : allFollowed.filter((g) => g.genre === filter)
 
   return (
     <section className="trending-section">
       <div className="section-header">
-        <h2 className="section-title">My Games</h2>
-        {games.length > 0 && (
+        <h2 className="section-title">Followed Games</h2>
+        {allFollowed.length > 0 && (
           <div className="section-arrows">
             <button className="section-arrow" onClick={() => scroll(-1)}>‹</button>
             <button className="section-arrow" onClick={() => scroll(1)}>›</button>
           </div>
         )}
       </div>
-      {games.length === 0 && (
+      <div className="filter-tabs">
+        {GENRE_FILTERS.map((f) => (
+          <button
+            key={f}
+            className={`filter-tab${filter === f ? ' filter-tab--active' : ''}`}
+            onClick={() => setFilter(f)}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+      {allFollowed.length === 0 && (
         <p className="my-games-hint">Follow a game to see it here.</p>
       )}
       <div className="trending-row" ref={rowRef}>
