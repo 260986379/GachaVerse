@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { GAMES } from '../data/games'
+import { isFollowingGame, toggleFollowGame } from '../utils/bookmarks'
 import NewsFeedTab from '../components/game/NewsFeedTab'
 import MediaTab from '../components/game/MediaTab'
 import OfficialArtTab from '../components/game/OfficialArtTab'
 import CastTab from '../components/game/CastTab'
 import './GamePage.css'
 
-const TABS = ['News Feed', 'Official Videos', 'Characters', 'Official Artworks', 'Official Platforms']
+const TABS = ['News Feed', 'Community', 'Official Videos', 'Characters', 'Official Artworks', 'Official Platforms']
 
 const PLATFORM_ICONS = {
   website: (
@@ -39,11 +40,12 @@ const PLATFORM_COLORS = {
   discord: '#5865f2',
 }
 
-function TabPanel({ tab, gameId, youtubeId, youtubeTitle }) {
+function TabPanel({ tab, gameId, youtubeId, youtubeTitle, initialCharId }) {
+  if (tab === 'Community') return <p className="tab-status">Community coming soon — see what other players are showcasing.</p>
   if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} youtubeId={youtubeId} youtubeTitle={youtubeTitle} />
   if (tab === 'Official Videos') return <MediaTab gameId={gameId} />
   if (tab === 'Official Artworks') return <OfficialArtTab gameId={gameId} />
-  if (tab === 'Characters') return <CastTab gameId={gameId} />
+  if (tab === 'Characters') return <CastTab gameId={gameId} initialCharId={initialCharId} />
   if (tab === 'Official Platforms') {
     const game = GAMES.find((g) => g.id === gameId)
     const platforms = game?.officialPlatforms || []
@@ -83,10 +85,21 @@ function TabPanel({ tab, gameId, youtubeId, youtubeTitle }) {
 export default function GamePage() {
   const { gameId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const game = GAMES.find((g) => g.id === gameId)
 
-  const [activeTab, setActiveTab] = useState(TABS[0])
+  const initialTab = location.state?.openTab ?? TABS[0]
+  const initialCharId = location.state?.openCharId ?? null
+
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [posterFailed, setPosterFailed] = useState(false)
+  const [following, setFollowing] = useState(() => game ? isFollowingGame(game.id) : false)
+
+  const handleFollow = () => {
+    if (!game) return
+    const nowFollowing = toggleFollowGame({ id: game.id, name: game.name, genre: game.genre, color1: game.color1, color2: game.color2, youtubeId: game.youtubeId })
+    setFollowing(nowFollowing)
+  }
 
   const heroBg = game?.bannerImage
     ?? (game?.youtubeId ? `https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg` : null)
@@ -136,6 +149,12 @@ export default function GamePage() {
               {game.tags.map((t) => (
                 <span key={t} className="game-hero__tag">{t}</span>
               ))}
+              <button
+                className={`game-follow-btn${following ? ' game-follow-btn--on' : ''}`}
+                onClick={handleFollow}
+              >
+                {following ? '✓ Following' : '+ Follow'}
+              </button>
             </div>
             <h1 className="game-hero__title">{game.name}</h1>
             <p className="game-hero__meta">{game.developer} · {game.genre}</p>
@@ -180,7 +199,7 @@ export default function GamePage() {
             <NewsFeedTab gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} isVisible={activeTab === 'News Feed'} />
           </div>
           {activeTab !== 'News Feed' && (
-            <TabPanel tab={activeTab} gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} />
+            <TabPanel tab={activeTab} gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} initialCharId={initialCharId} />
           )}
         </div>
         <aside className="game-events-panel">

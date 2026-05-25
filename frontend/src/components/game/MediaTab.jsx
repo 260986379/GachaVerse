@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
+import { isFavVideo, toggleFavVideo, getFavVideos } from '../../utils/bookmarks'
 
 const TYPE_ORDER = ['Lore', 'Trailer', 'Cinematic', 'Character Demo', 'Music']
 const TYPE_LABELS = {
@@ -19,9 +20,27 @@ export default function MediaTab({ gameId }) {
   const [expandedSection, setExpandedSection] = useState(null)
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('newest')
+  const [favIds, setFavIds] = useState(() => new Set())
   const playerRef = useRef(null)
   const dragRef = useRef(null)
   const didDragRef = useRef(false)
+
+  const refreshFavs = () => setFavIds(new Set(getFavVideos().map((v) => v.id)))
+
+  useEffect(refreshFavs, [])
+
+  const [favLimitHit, setFavLimitHit] = useState(false)
+
+  const handleFav = (e, item) => {
+    e.stopPropagation()
+    const result = toggleFavVideo(item)
+    if (result === null) {
+      setFavLimitHit(true)
+      setTimeout(() => setFavLimitHit(false), 2000)
+      return
+    }
+    refreshFavs()
+  }
 
   const toggleExpanded = (type) =>
     setExpandedSection((prev) => (prev === type ? null : type))
@@ -89,6 +108,9 @@ export default function MediaTab({ gameId }) {
 
   return (
     <div className="media-tab">
+      {favLimitHit && (
+        <div className="fav-limit-toast">Favorite limit reached (10 max)</div>
+      )}
       <div className="media-toolbar">
         <div className="media-search-wrap">
           <span className="media-search-icon">⌕</span>
@@ -114,26 +136,34 @@ export default function MediaTab({ gameId }) {
         const isExpanded = expandedSection === type
 
         const videoCards = videos.map((item) => (
-          <button
-            key={item.id}
-            className={`media-card${active === item.id ? ' media-card--active' : ''}`}
-            onClick={() => handleCardClick(item)}
-          >
-            <div className="media-card__thumb">
-              {item.thumbnail_url ? (
-                <img
-                  src={item.thumbnail_url}
-                  alt={item.title}
-                  loading="lazy"
-                  onError={() => markBroken(item.id)}
-                />
-              ) : (
-                <div className="media-card__thumb-fallback" />
-              )}
-              <div className="media-card__play">▶</div>
-            </div>
-            <p className="media-card__title">{item.title}</p>
-          </button>
+          <div key={item.id} className="media-card-wrap">
+            <button
+              className={`media-card${active === item.id ? ' media-card--active' : ''}`}
+              onClick={() => handleCardClick(item)}
+            >
+              <div className="media-card__thumb">
+                {item.thumbnail_url ? (
+                  <img
+                    src={item.thumbnail_url}
+                    alt={item.title}
+                    loading="lazy"
+                    onError={() => markBroken(item.id)}
+                  />
+                ) : (
+                  <div className="media-card__thumb-fallback" />
+                )}
+                <div className="media-card__play">▶</div>
+              </div>
+              <p className="media-card__title">{item.title}</p>
+            </button>
+            <button
+              className={`media-card__fav${favIds.has(item.id) ? ' media-card__fav--on' : ''}`}
+              onClick={(e) => handleFav(e, item)}
+              title={favIds.has(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              {favIds.has(item.id) ? '♥' : '♡'}
+            </button>
+          </div>
         ))
 
         return (

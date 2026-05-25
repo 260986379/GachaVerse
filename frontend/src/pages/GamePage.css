@@ -123,6 +123,31 @@
   text-transform: uppercase;
 }
 
+.game-follow-btn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  padding: 0.2rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.game-follow-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.game-follow-btn--on {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
 .game-hero__title {
   margin: 0 0 0.4rem;
   font-size: 2.4rem;
@@ -565,8 +590,13 @@
   cursor: grabbing;
 }
 
-.media-row .media-card {
+.media-row .media-card-wrap {
   flex: 0 0 220px;
+  position: relative;
+}
+
+.media-card-wrap .media-card {
+  width: 100%;
 }
 
 /* Expanded grid view */
@@ -937,9 +967,6 @@
 }
 
 .char-panel__close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.6rem;
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #666;
@@ -953,6 +980,7 @@
   justify-content: center;
   transition: color 0.15s, border-color 0.15s;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .char-panel__close:hover {
@@ -1037,34 +1065,35 @@
   color: #555;
 }
 
-/* Thumbnails left, player right when player is open */
+/* Thumbnails row on top, player below when open */
 .char-panel__related-body {
   display: flex;
-  gap: 1rem;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .char-panel__video-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.5rem;
-  overflow-y: auto;
-  max-height: 260px;
-  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.25rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
 
 .char-panel__video-card {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.55rem;
-  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  width: 140px;
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 7px;
-  padding: 0.35rem 0.5rem 0.35rem 0;
+  padding: 0.4rem;
   cursor: pointer;
   text-align: left;
   transition: border-color 0.15s, background 0.15s;
@@ -1082,8 +1111,7 @@
 
 .char-panel__video-thumb {
   position: relative;
-  width: 96px;
-  flex-shrink: 0;
+  width: 100%;
   aspect-ratio: 16 / 9;
   background: #111;
   overflow: hidden;
@@ -1398,4 +1426,122 @@
 .game-event-card__ends {
   font-size: 0.7rem;
   color: #555;
+}
+
+/* ── Media card favorite button ────────────────────────────────── */
+.media-card-wrap {
+  position: relative;
+}
+
+.media-card__fav {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.75rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.media-card-wrap:hover .media-card__fav,
+.media-card__fav--on {
+  opacity: 1;
+}
+
+.media-card__fav--on {
+  color: #e05555;
+}
+
+/* ── Cast card wrapper + favorite button ────────────────────────── */
+.cast-card-wrap {
+  position: relative;
+}
+
+.cast-card__fav {
+  position: absolute;
+  top: 0.3rem;
+  left: 0.3rem;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.65rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.cast-card-wrap:hover .cast-card__fav,
+.cast-card__fav--on {
+  opacity: 1;
+}
+
+.cast-card__fav--on {
+  color: #e05555;
+}
+
+/* ── Character panel fav + top-right buttons ────────────────────── */
+.char-panel__top-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.char-panel__fav {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.8rem;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.char-panel__fav:hover {
+  color: #e05555;
+  border-color: rgba(224, 85, 85, 0.35);
+}
+
+.char-panel__fav--on {
+  color: #e05555;
+  border-color: rgba(224, 85, 85, 0.35);
+}
+
+/* ── Favorites limit toast ──────────────────────────────────────── */
+.fav-limit-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ccc;
+  font-size: 0.78rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  z-index: 200;
+  pointer-events: none;
 }

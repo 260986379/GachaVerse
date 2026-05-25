@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
+import { isFavChar, toggleFavChar, getFavChars } from '../../utils/bookmarks'
 
 const RARITY_COLOR  = { SSR: '#f0b429', SR: '#a78bfa' }
 const RARITY_LABEL  = { SSR: '5★  S-Rank', SR: '4★  A-Rank' }
@@ -49,11 +50,18 @@ function StatRow({ label, value, color }) {
   )
 }
 
-function CharacterPanel({ char, onClose, relatedVideos }) {
+function CharacterPanel({ char, onClose, relatedVideos, gameSlug, onFavLimit }) {
   const isSplashArt = char.splash_art_urls?.length > 0
   const images = (isSplashArt ? char.splash_art_urls : [char.splash_art_url, char.icon_url]).filter(Boolean)
   const [imgIndex, setImgIndex] = useState(0)
   const [activeVideoId, setActiveVideoId] = useState(null)
+  const [faved, setFaved] = useState(() => isFavChar(char.id))
+
+  const handleFav = () => {
+    const nowFaved = toggleFavChar({ ...char, game_slug: gameSlug })
+    if (nowFaved === null) { onFavLimit?.(); return }
+    setFaved(nowFaved)
+  }
 
   const prev = () => setImgIndex((i) => (i - 1 + images.length) % images.length)
   const next = () => setImgIndex((i) => (i + 1) % images.length)
@@ -80,7 +88,16 @@ function CharacterPanel({ char, onClose, relatedVideos }) {
         </div>
 
         <div className="char-panel__info-side">
-          <button className="char-panel__close" onClick={onClose}>✕</button>
+          <div className="char-panel__top-btns">
+            <button
+              className={`char-panel__fav${faved ? ' char-panel__fav--on' : ''}`}
+              onClick={handleFav}
+              title={faved ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              {faved ? '♥' : '♡'}
+            </button>
+            <button className="char-panel__close" onClick={onClose}>✕</button>
+          </div>
 
           <div className="char-panel__header">
             <h2 className="char-panel__name">{char.name}</h2>
@@ -151,7 +168,7 @@ function CastFilter({ label, value, onChange, options, renderOption }) {
   )
 }
 
-export default function CastTab({ gameId }) {
+export default function CastTab({ gameId, initialCharId }) {
   const [characters, setCharacters] = useState([])
   const [media, setMedia] = useState([])
   const [activeId, setActiveId] = useState(null)
@@ -165,6 +182,23 @@ export default function CastTab({ gameId }) {
   const [filterType, setFilterType] = useState('all')
   const [filterFaction, setFilterFaction] = useState('all')
   const [filterSeason, setFilterSeason] = useState('all')
+  // ── All hooks must live above any early returns ──
+  const [favCharIds, setFavCharIds] = useState(() => new Set(getFavChars().map((c) => c.id)))
+  const refreshFavChars = () => setFavCharIds(new Set(getFavChars().map((c) => c.id)))
+
+  const [favLimitHit, setFavLimitHit] = useState(false)
+
+  const showLimit = () => {
+    setFavLimitHit(true)
+    setTimeout(() => setFavLimitHit(false), 2000)
+  }
+
+  const handleCardFav = (e, char) => {
+    e.stopPropagation()
+    const result = toggleFavChar({ ...char, game_slug: gameId })
+    if (result === null) { showLimit(); return }
+    refreshFavChars()
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -174,7 +208,11 @@ export default function CastTab({ gameId }) {
     mediaFetchedRef.current = false
     fetch(`/api/games/${gameId}/characters`)
       .then((r) => { if (!r.ok) throw new Error('Failed to load characters'); return r.json() })
-      .then((chars) => { setCharacters(chars); setLoading(false) })
+      .then((chars) => {
+        setCharacters(chars)
+        setLoading(false)
+        if (initialCharId) setActiveId(initialCharId)
+      })
       .catch((err) => { setError(err.message); setLoading(false) })
   }, [gameId])
 
@@ -288,29 +326,39 @@ export default function CastTab({ gameId }) {
                     char={activeChar}
                     onClose={() => setActiveId(null)}
                     relatedVideos={getRelatedVideos(activeChar, media)}
+                    gameSlug={gameId}
+                    onFavLimit={showLimit}
                   />
                 </div>
               )}
               {chars.map((char) => (
-                <button
-                  key={char.id}
-                  className={`cast-card${activeId === char.id ? ' cast-card--active' : ''}`}
-                  onClick={() => setActiveId(activeId === char.id ? null : char.id)}
-                >
-                  <div className="cast-card__portrait">
-                    {char.icon_url
-                      ? <img src={char.icon_url} alt={char.name} />
-                      : <div className="cast-card__fallback">{(char.display_name || char.name)[0]}</div>
-                    }
-                    <span
-                      className="cast-card__rarity"
-                      style={{ color: RARITY_COLOR[char.rarity] || '#888' }}
-                    >
-                      {char.rarity}
-                    </span>
-                  </div>
-                  <p className="cast-card__name">{char.display_name || char.name}</p>
-                </button>
+                <div key={char.id} className="cast-card-wrap">
+                  <button
+                    className={`cast-card${activeId === char.id ? ' cast-card--active' : ''}`}
+                    onClick={() => setActiveId(activeId === char.id ? null : char.id)}
+                  >
+                    <div className="cast-card__portrait">
+                      {char.icon_url
+                        ? <img src={char.icon_url} alt={char.name} />
+                        : <div className="cast-card__fallback">{(char.display_name || char.name)[0]}</div>
+                      }
+                      <span
+                        className="cast-card__rarity"
+                        style={{ color: RARITY_COLOR[char.rarity] || '#888' }}
+                      >
+                        {char.rarity}
+                      </span>
+                    </div>
+                    <p className="cast-card__name">{char.display_name || char.name}</p>
+                  </button>
+                  <button
+                    className={`cast-card__fav${favCharIds.has(char.id) ? ' cast-card__fav--on' : ''}`}
+                    onClick={(e) => handleCardFav(e, char)}
+                    title={favCharIds.has(char.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {favCharIds.has(char.id) ? '♥' : '♡'}
+                  </button>
+                </div>
               ))}
             </div>
           </section>

@@ -64,7 +64,7 @@ const CHARACTERS = [
   { name: 'Ye Shunguang',           display_name: 'Ye Shunguang',     rarity: 'SSR', element: 'Physical', combat_type: 'Attack',   faction: 'Yunkui Summit',                                                          season: 2, special_type: 'Honed Edge',  title: 'Void Hunter - Qingming Arbiter' },
   { name: 'Yidhari Murphy',         display_name: 'Yidhari',          rarity: 'SSR', element: 'Ice',      combat_type: 'Rupture',  faction: 'Spook Shack',                                                            season: 2 },
   { name: 'Yixuan',                 display_name: 'Yixuan',           rarity: 'SSR', element: 'Ether',    combat_type: 'Rupture',  faction: 'Yunkui Summit',                                                          season: 2, special_type: 'Auric Ink',   title: 'Void Hunter Level' },
-  { name: 'Ukinami Yuzuha',         display_name: 'Yuzuha',           rarity: 'SSR', element: 'Physical', combat_type: 'Attack',   faction: 'Spook Shack',                                                            season: 2 },
+  { name: 'Ukinami Yuzuha',         display_name: 'Yuzuha',           rarity: 'SSR', element: 'Physical', combat_type: 'Support',  faction: 'Spook Shack',                                                            season: 2 },
   { name: 'Zhao',                   display_name: 'Zhao',             rarity: 'SSR', element: 'Ice',      combat_type: 'Defense',  faction: 'Krampus Compliance Authority',                                           season: 2 },
   { name: 'Zhu Yuan',               display_name: 'Zhu Yuan',         rarity: 'SSR', element: 'Ether',    combat_type: 'Attack',   faction: 'Public Security - Criminal Investigation Special Response Team',         season: 1 },
 ];

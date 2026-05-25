@@ -51,6 +51,8 @@ function BannerCard({ banner, upcoming }) {
 export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle, isVisible }) {
   const [featuredVideo, setFeaturedVideo] = useState(null)
   const [banners, setBanners] = useState(() => deriveBanners(gameId))
+  // Don't render the iframe until the tab is first opened — prevents background autoplay
+  const [embedReady, setEmbedReady] = useState(isVisible)
   const iframeRef = useRef(null)
 
   useEffect(() => {
@@ -78,9 +80,16 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle, isVisible
   }, [gameId])
 
   useEffect(() => {
-    if (isVisible || !iframeRef.current) return
+    // Mark the embed as renderable the first time the tab becomes active
+    if (isVisible) setEmbedReady(true)
+  }, [isVisible])
+
+  useEffect(() => {
+    if (!iframeRef.current) return
+    // Pause when leaving the tab; attempt resume when returning
+    const func = isVisible ? 'playVideo' : 'pauseVideo'
     iframeRef.current.contentWindow?.postMessage(
-      JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+      JSON.stringify({ event: 'command', func, args: [] }),
       '*'
     )
   }, [isVisible])
@@ -90,7 +99,7 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle, isVisible
 
   return (
     <div className="news-feed-layout">
-      {displayId && (
+      {embedReady && displayId && (
         <div className="news-feed__featured">
           <span className="news-feed__featured-label">Featured Video</span>
           {displayTitle && (
