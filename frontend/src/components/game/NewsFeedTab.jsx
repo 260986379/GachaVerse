@@ -69,11 +69,18 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle, isVisible
 
   useEffect(() => {
     setBanners(deriveBanners(gameId))
+    const localEntries = BANNER_CONFIG[gameId] || []
+    // If the DB banner has no image_url, patch it from the local config by name
+    const patchImages = (list) => list.map((b) => {
+      if (b.image_url) return b
+      const local = localEntries.find((l) => l.name === b.name)
+      return local?.image_url ? { ...b, image_url: local.image_url } : b
+    })
     fetch(`/api/games/${gameId}/banners`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data && (data.current.length > 0 || data.upcoming.length > 0)) {
-          setBanners(data)
+          setBanners({ current: patchImages(data.current), upcoming: patchImages(data.upcoming) })
         }
       })
       .catch(() => {})

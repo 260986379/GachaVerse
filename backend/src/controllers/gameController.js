@@ -1,4 +1,5 @@
 const { query } = require('../config/db');
+const { fetchZZZPlayer } = require('../services/enkaService');
 
 // Resolves a route param that may be a UUID or a slug to a game row.
 const resolveGame = async (idOrSlug) => {
@@ -117,4 +118,20 @@ const getGameArt = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners };
+const UID_RE = /^\d{9,10}$/;
+
+const getZZZPlayer = async (req, res, next) => {
+  try {
+    const { uid } = req.params;
+    if (!UID_RE.test(uid)) {
+      return res.status(400).json({ message: 'Invalid UID format — must be 9–10 digits.' });
+    }
+    const data = await fetchZZZPlayer(uid);
+    res.json(data);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ message: err.message });
+    next(err);
+  }
+};
+
+module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners, getZZZPlayer };

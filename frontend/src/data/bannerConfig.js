@@ -5,10 +5,10 @@
 
 const BANNER_CONFIG = {
   'zenless-zone-zero': [
-    { name: 'Cold Rain Wanes in the Night (Promeia)', banner_type: 'Character', starts_at: '2026-05-06T06:00:00Z', ends_at: '2026-05-27T14:59:00Z' },
-    { name: 'Wandering Night Lantern (Lucia)',         banner_type: 'Character', starts_at: '2026-05-06T06:00:00Z', ends_at: '2026-05-27T14:59:00Z' },
-    { name: 'Starlight, Shine Bright (SP Billy)',      banner_type: 'Character', starts_at: '2026-05-27T06:00:00Z', ends_at: '2026-06-16T14:59:00Z' },
-    { name: 'Wrathborn Duo (Orphie & Magus)',          banner_type: 'Character', starts_at: '2026-05-27T06:00:00Z', ends_at: '2026-06-16T14:59:00Z' },
+    { name: 'Cold Rain Wanes in the Night (Promeia)', banner_type: 'Character', starts_at: '2026-05-06T06:00:00Z', ends_at: '2026-05-27T14:59:00Z', image_url: '/zzz-banners/PromeiaBanner.png' },
+    { name: 'Wandering Night Lantern (Lucia)',         banner_type: 'Character', starts_at: '2026-05-06T06:00:00Z', ends_at: '2026-05-27T14:59:00Z', image_url: '/zzz-banners/LuciaBanner.png' },
+    { name: 'Starlight, Shine Bright (SP Billy)',      banner_type: 'Character', starts_at: '2026-05-27T06:00:00Z', ends_at: '2026-06-16T14:59:00Z', image_url: '/zzz-banners/StarlightBillyBanner.png' },
+    { name: 'Wrathborn Duo (Orphie & Magus)',          banner_type: 'Character', starts_at: '2026-05-27T06:00:00Z', ends_at: '2026-06-16T14:59:00Z', image_url: '/zzz-banners/OrphieBanner.png' },
   ],
 
   'nikke': [

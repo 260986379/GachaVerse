@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { isFavArtwork, toggleFavArtwork } from '../../utils/bookmarks'
+import ImageLightbox from '../ui/ImageLightbox'
 
 const ART_TYPE_ORDER = ['Cover Art', 'Wallpapers', 'Holiday Artwork']
 
@@ -8,18 +10,7 @@ export default function OfficialArtTab({ gameId }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [brokenIds, setBrokenIds] = useState(new Set())
-  const viewerRef = useRef(null)
-
-  useEffect(() => {
-    if (!active) return
-    const handleClickOutside = (e) => {
-      if (viewerRef.current && !viewerRef.current.contains(e.target)) {
-        setActive(null)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [active])
+  const [favIds, setFavIds] = useState(() => new Set())
 
   useEffect(() => {
     setLoading(true)
@@ -28,7 +19,11 @@ export default function OfficialArtTab({ gameId }) {
     setBrokenIds(new Set())
     fetch(`/api/games/${gameId}/art`)
       .then((r) => { if (!r.ok) throw new Error('Failed to load art'); return r.json() })
-      .then((data) => { setItems(data); setLoading(false) })
+      .then((data) => {
+        setItems(data)
+        setFavIds(new Set(data.filter((i) => isFavArtwork(i.id)).map((i) => i.id)))
+        setLoading(false)
+      })
       .catch((err) => { setError(err.message); setLoading(false) })
   }, [gameId])
 
@@ -39,40 +34,41 @@ export default function OfficialArtTab({ gameId }) {
   const markBroken = (id) => setBrokenIds((prev) => new Set([...prev, id]))
   const visibleItems = items.filter((i) => !brokenIds.has(i.id))
 
+  const handleFav = (e, item) => {
+    e.stopPropagation()
+    const result = toggleFavArtwork({ ...item, gameId })
+    if (result !== null) {
+      setFavIds((prev) => {
+        const next = new Set(prev)
+        result ? next.add(item.id) : next.delete(item.id)
+        return next
+      })
+    }
+  }
+
   const groups = ART_TYPE_ORDER
     .map((type) => ({ type, items: visibleItems.filter((i) => i.category === type) }))
     .filter((g) => g.items.length > 0)
 
   if (!groups.length) return <p className="tab-status">No official art yet. Check back soon.</p>
 
-  const selected = active ? items.find((i) => i.id === active) : null
+  const activeItem = active ? items.find((i) => i.id === active) : null
 
   return (
-    <div className="art-tab">
-      {groups.map(({ type, items: groupItems }) => {
-        const activeInSection = active ? groupItems.find((i) => i.id === active) : null
-        return (
+    <>
+      <div className="art-tab">
+        {groups.map(({ type, items: groupItems }) => (
           <section key={type} className="media-section">
             <h3 className="media-section__title">{type}</h3>
-            {activeInSection && (
-              <div className="art-tab__viewer" ref={viewerRef}>
-                <img
-                  src={activeInSection.source_url || activeInSection.thumbnail_url}
-                  alt={activeInSection.title}
-                  className="art-tab__viewer-img"
-                />
-                <div className="art-tab__viewer-meta">
-                  <p className="art-tab__viewer-title">{activeInSection.title}</p>
-                  <button className="media-tab__close" onClick={() => setActive(null)}>✕ Close</button>
-                </div>
-              </div>
-            )}
             <div className="art-grid">
               {groupItems.map((item) => (
-                <button
+                <div
                   key={item.id}
-                  className={`art-card${active === item.id ? ' art-card--active' : ''}`}
-                  onClick={() => setActive(active === item.id ? null : item.id)}
+                  className="art-card"
+                  onClick={() => setActive(item.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && setActive(item.id)}
                 >
                   <div className="art-card__thumb">
                     {item.thumbnail_url ? (
@@ -85,14 +81,30 @@ export default function OfficialArtTab({ gameId }) {
                     ) : (
                       <div className="art-card__thumb-fallback" />
                     )}
+                    <button
+                      className={`art-card__fav${favIds.has(item.id) ? ' art-card__fav--on' : ''}`}
+                      onClick={(e) => handleFav(e, item)}
+                      title={favIds.has(item.id) ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      {favIds.has(item.id) ? '♥' : '♡'}
+                    </button>
                   </div>
                   <p className="art-card__title">{item.title}</p>
-                </button>
+                </div>
               ))}
             </div>
           </section>
-        )
-      })}
-    </div>
+        ))}
+      </div>
+
+      {activeItem && (
+        <ImageLightbox
+          src={activeItem.source_url || activeItem.thumbnail_url}
+          title={activeItem.title}
+          sourceUrl={activeItem.source_url}
+          onClose={() => setActive(null)}
+        />
+      )}
+    </>
   )
 }

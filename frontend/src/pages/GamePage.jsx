@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { GAMES } from '../data/games'
 import { isFollowingGame, toggleFollowGame } from '../utils/bookmarks'
@@ -6,6 +6,7 @@ import NewsFeedTab from '../components/game/NewsFeedTab'
 import MediaTab from '../components/game/MediaTab'
 import OfficialArtTab from '../components/game/OfficialArtTab'
 import CastTab from '../components/game/CastTab'
+import CommunityTab from '../components/game/CommunityTab'
 import './GamePage.css'
 
 const TABS = ['News Feed', 'Community', 'Official Videos', 'Characters', 'Official Artworks', 'Official Platforms']
@@ -41,7 +42,7 @@ const PLATFORM_COLORS = {
 }
 
 function TabPanel({ tab, gameId, youtubeId, youtubeTitle, initialCharId }) {
-  if (tab === 'Community') return <p className="tab-status">Community coming soon — see what other players are showcasing.</p>
+  if (tab === 'Community') return <CommunityTab gameId={gameId} />
   if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} youtubeId={youtubeId} youtubeTitle={youtubeTitle} />
   if (tab === 'Official Videos') return <MediaTab gameId={gameId} />
   if (tab === 'Official Artworks') return <OfficialArtTab gameId={gameId} />
@@ -93,6 +94,8 @@ export default function GamePage() {
 
   const [activeTab, setActiveTab] = useState(initialTab)
   const [posterFailed, setPosterFailed] = useState(false)
+
+  useEffect(() => { window.scrollTo(0, 0) }, [gameId])
   const [following, setFollowing] = useState(() => game ? isFollowingGame(game.id) : false)
 
   const handleFollow = () => {
