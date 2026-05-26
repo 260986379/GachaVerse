@@ -160,7 +160,7 @@ const reclassifyExistingVideos = async (gameSlug) => {
 
   const { rows } = await query(
     `SELECT id, external_id, title FROM media_content
-     WHERE game_id=$1 AND external_platform='YouTube' AND status='published'`,
+     WHERE game_id=$1 AND external_platform='YouTube' AND status='published' AND is_automated=TRUE`,
     [gameId]
   );
 

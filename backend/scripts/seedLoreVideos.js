@@ -22,7 +22,7 @@ const seedLoreVideos = async () => {
     const { rowCount } = await query(
       `INSERT INTO media_content (game_id, title, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
        VALUES ($1,$2,'YouTube',$3,$4,$5,$6,FALSE,'published','Lore')
-       ON CONFLICT (external_id) DO NOTHING`,
+       ON CONFLICT (external_id) DO UPDATE SET status='published', category='Lore'`,
       [
         gameId,
         v.title,
