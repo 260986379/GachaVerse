@@ -131,7 +131,11 @@ const main = async () => {
 
   const { rows: total } = await query(`SELECT COUNT(*) FROM characters WHERE game_id = $1`, [gameId]);
   console.log(`Done — ${added} inserted, ${updated} updated. Total ZZZ: ${total[0].count}`);
-  process.exit(0);
 };
 
-main().catch((err) => { console.error(err); process.exit(1); });
+// Allow calling as a script directly
+if (require.main === module) {
+  main().then(() => process.exit(0)).catch((err) => { console.error(err); process.exit(1); });
+}
+
+module.exports = { seedZZZCharacters: main };

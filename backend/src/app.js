@@ -18,6 +18,39 @@ app.use(morgan('dev'));
 
 app.get('/api/hello', (req, res) => res.json({ message: 'Hello from GachaVerse Backend!' }));
 
+app.post('/api/admin/seed-characters', async (req, res) => {
+  res.json({ message: 'Character seed started in background' });
+  try {
+    const { seedZZZCharacters } = require('../scripts/seedZZZCharacters');
+    await seedZZZCharacters();
+    console.log('[Admin] Character seed complete.');
+  } catch (err) {
+    console.error('[Admin] Character seed error:', err.message);
+  }
+});
+
+app.post('/api/admin/seed-lore', async (req, res) => {
+  res.json({ message: 'Lore seed started in background' });
+  try {
+    const { seedLoreVideos } = require('../scripts/seedLoreVideos');
+    await seedLoreVideos();
+    console.log('[Admin] Lore seed complete.');
+  } catch (err) {
+    console.error('[Admin] Lore seed error:', err.message);
+  }
+});
+
+app.post('/api/admin/seed-images', async (req, res) => {
+  res.json({ message: 'Image seed started in background' });
+  try {
+    const { updateZZZImages } = require('../scripts/updateZZZImages');
+    await updateZZZImages();
+    console.log('[Admin] Image seed complete.');
+  } catch (err) {
+    console.error('[Admin] Image seed error:', err.message);
+  }
+});
+
 app.post('/api/admin/backfill', async (req, res) => {
   const { ingestVideosForGame } = require('./services/youtubeIngestionService');
   const { reclassifyExistingVideos } = require('./services/youtubeIngestionService');

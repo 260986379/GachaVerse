@@ -17,5 +17,5 @@ module.exports = {
   // To find a channel ID: once API key is set, call:
   // GET https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=ZZZ_JP&key=YOUR_KEY
   ZZZ_YOUTUBE_CHANNEL_ID: process.env.ZZZ_YOUTUBE_CHANNEL_ID || 'PLACEHOLDER_ZZZ_CHANNEL_ID',
-  NIKKE_YOUTUBE_CHANNEL_ID: process.env.NIKKE_YOUTUBE_CHANNEL_ID || 'UCkj8bRCF4JhKQlE6pRfuTWg',
+  NIKKE_YOUTUBE_CHANNEL_ID: process.env.NIKKE_YOUTUBE_CHANNEL_ID || 'UCmmgZwsqQRD6PKeo87uq1bA',
 };
