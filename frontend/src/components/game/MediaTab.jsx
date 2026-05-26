@@ -2,13 +2,20 @@ import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
 import { isFavVideo, toggleFavVideo, getFavVideos } from '../../utils/bookmarks'
 
-const TYPE_ORDER = ['Lore', 'Trailer', 'Cinematic', 'Character Demo', 'Music']
+const TYPE_ORDER = ['Main Story', 'Opening', 'Anniversary', 'Collaboration', 'Lore', 'Trailer', 'Cinematic', 'Character Demo', 'Music', 'Animation', 'ASMR', 'Promotional']
 const TYPE_LABELS = {
+  'Main Story': 'Main Story Chapters',
+  'Opening': 'Openings',
+  'Anniversary': 'Anniversary',
+  'Collaboration': 'Collaborations',
   'Lore': 'Lore',
   'Trailer': 'Trailers',
   'Cinematic': 'Cinematics',
   'Character Demo': 'Character Demos',
   'Music': 'Music',
+  'Animation': 'Animation',
+  'ASMR': 'ASMR',
+  'Promotional': 'Promotional Videos',
 }
 
 export default function MediaTab({ gameId }) {

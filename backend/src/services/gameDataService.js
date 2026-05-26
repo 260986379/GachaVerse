@@ -84,29 +84,6 @@ const ZZZ_LORE_VIDEOS = [
   },
 ];
 
-const NIKKE_VIDEOS = [
-  {
-    external_id: "6lRHrO2rfPA",
-    title: "NIKKE: Goddess of Victory — Official Launch Trailer",
-    description: "Humanity's last hope. The Nikkes stand ready.",
-    published_at: "2022-11-04T00:00:00Z",
-    video_type: "Trailer",
-  },
-  {
-    external_id: "ztPIEFPMzC8",
-    title: 'NIKKE — "Overzone" Story Trailer',
-    description: "The battle for the surface reaches its climax.",
-    published_at: "2023-06-01T00:00:00Z",
-    video_type: "Cinematic",
-  },
-  {
-    external_id: "KNb3MObHMeQ",
-    title: "NIKKE — Character Trailer: Modernia",
-    description: "One of the four Nikkes of the Apocalypse awakens.",
-    published_at: "2023-03-10T00:00:00Z",
-    video_type: "Character Demo",
-  },
-];
 
 const ZZZ_ART = [
   // Cover Art
@@ -271,23 +248,11 @@ const seedNewsAndMedia = async () => {
     );
   }
 
-  for (const v of NIKKE_VIDEOS) {
-    await query(
-      `INSERT INTO media_content (game_id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
-       VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,FALSE,'published',$8)
-       ON CONFLICT (external_id) DO NOTHING`,
-      [
-        gameMap["nikke"],
-        v.title,
-        v.description,
-        v.external_id,
-        `https://www.youtube.com/watch?v=${v.external_id}`,
-        `https://img.youtube.com/vi/${v.external_id}/hqdefault.jpg`,
-        v.published_at,
-        v.video_type,
-      ],
-    );
-  }
+  // Remove old hardcoded NIKKE demo videos — YouTube ingestion handles these now
+  await query(
+    `DELETE FROM media_content WHERE external_id = ANY($1) AND is_automated = FALSE`,
+    [['6lRHrO2rfPA', 'ztPIEFPMzC8', 'KNb3MObHMeQ']],
+  );
 
   for (const a of ZZZ_ART) {
     await query(

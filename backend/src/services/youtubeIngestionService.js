@@ -10,10 +10,15 @@ const decodeHtmlEntities = (str) =>
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>');
 
-// Strip trailing " | Game Name" branding appended by official YouTube channels
-const stripChannelSuffix = (title) => title.replace(/\s*\|[^|]*$/, '').trim();
+// Strip channel branding. ZZZ appends it ("Title | Zenless Zone Zero");
+// NIKKE prepends it ("GODDESS OF VICTORY: NIKKE | Title") — handle both.
+const stripChannelSuffix = (title) =>
+  title
+    .replace(/^GODDESS OF VICTORY:\s*NIKKE\s*\|\s*/i, '')
+    .replace(/\s*\|[^|]*$/, '')
+    .trim();
 
-const ingestVideosForGame = async (gameSlug, channelId) => {
+const ingestVideosForGame = async (gameSlug, channelId, { forceBackfill = false } = {}) => {
   if (!channelId || channelId.startsWith('PLACEHOLDER')) {
     console.log(`[YouTube] Skipping ingestion for ${gameSlug} — channel ID not configured.`);
     return;
@@ -35,10 +40,21 @@ const ingestVideosForGame = async (gameSlug, channelId) => {
   // The uploads playlist ID is always 'UU' + everything after 'UC' in the channel ID.
   const uploadsPlaylistId = 'UU' + channelId.slice(2);
 
+  // Find the newest video already stored so we can stop early once we reach it.
+  // forceBackfill disables this so we walk the entire channel history.
+  let caughtUpAt = null;
+  if (!forceBackfill) {
+    const { rows: latestRows } = await query(
+      `SELECT MAX(published_at) AS last_at FROM media_content WHERE game_id=$1 AND external_platform='YouTube'`,
+      [gameId]
+    );
+    caughtUpAt = latestRows[0]?.last_at ? new Date(latestRows[0].last_at) : null;
+  }
+
   let pageToken = '';
   let inserted = 0;
   let skipped = 0;
-  const MAX_PAGES = 1; // fetch latest 50 per run; bump to 10+ for a full backfill
+  const MAX_PAGES = forceBackfill ? 50 : 20; // backfill walks full history; incremental uses early-exit
 
   for (let page = 0; page < MAX_PAGES; page++) {
     const params = new URLSearchParams({
@@ -117,6 +133,12 @@ const ingestVideosForGame = async (gameSlug, channelId) => {
       inserted++;
     }
 
+    // Playlist is newest-first; if the oldest video on this page is already in our DB, we're caught up
+    if (caughtUpAt && items.length > 0) {
+      const pageOldest = new Date(items[items.length - 1].snippet?.publishedAt || 0);
+      if (pageOldest <= caughtUpAt) break;
+    }
+
     pageToken = data.nextPageToken || '';
     if (!pageToken) break;
   }
@@ -138,7 +160,7 @@ const reclassifyExistingVideos = async (gameSlug) => {
 
   const { rows } = await query(
     `SELECT id, external_id, title FROM media_content
-     WHERE game_id=$1 AND category='Video'`,
+     WHERE game_id=$1 AND external_platform='YouTube' AND status='published'`,
     [gameId]
   );
 
@@ -163,11 +185,11 @@ const reclassifyExistingVideos = async (gameSlug) => {
 
 const runYouTubeIngestion = async () => {
   try {
-    await ingestVideosForGame('zenless-zone-zero', config.ZZZ_JP_YOUTUBE_CHANNEL_ID);
+    await ingestVideosForGame('zenless-zone-zero', config.ZZZ_YOUTUBE_CHANNEL_ID);
     await ingestVideosForGame('nikke', config.NIKKE_YOUTUBE_CHANNEL_ID);
   } catch (err) {
     console.error('[YouTube] Ingestion error:', err.message);
   }
 };
 
-module.exports = { runYouTubeIngestion, reclassifyExistingVideos };
+module.exports = { runYouTubeIngestion, reclassifyExistingVideos, ingestVideosForGame };

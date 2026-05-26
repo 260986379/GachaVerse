@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
 import BANNER_CONFIG from '../../data/bannerConfig'
 
-const FEATURED_CATEGORIES = ['Lore', 'Trailer', 'Character Demo']
+const FEATURED_FALLBACK_CATEGORIES = ['Lore', 'Trailer', 'Character Demo']
 
 function deriveBanners(gameId) {
   const entries = BANNER_CONFIG[gameId] || []
@@ -59,9 +59,10 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle, isVisible
     fetch(`/api/games/${gameId}/media`)
       .then((r) => r.json())
       .then((data) => {
-        const latest = data
-          .filter((v) => FEATURED_CATEGORIES.includes(v.category))
-          .sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0]
+        const byDate = (a, b) => new Date(b.published_at) - new Date(a.published_at)
+        const mainStory = data.filter((v) => v.category === 'Main Story').sort(byDate)[0]
+        const fallback = data.filter((v) => FEATURED_FALLBACK_CATEGORIES.includes(v.category)).sort(byDate)[0]
+        const latest = mainStory || fallback
         if (latest) setFeaturedVideo(latest)
       })
       .catch(() => {})

@@ -2,6 +2,73 @@
 // classifyVideoTitle() returns a category string or null (skip this video).
 
 const RULES = {
+  'nikke': [
+    {
+      category: null, // exclude — never store these
+      patterns: [
+        /\blivestream\b/i,
+        /\binterview\b/i,
+      ],
+    },
+    {
+      category: 'Main Story',
+      patterns: [
+        /Main Story Chapter/i,
+        /Main Chapter/i,
+      ],
+    },
+    {
+      category: 'Music',
+      patterns: [
+        /Theme Song/i,
+        /\bBGM\b/,
+      ],
+    },
+    {
+      category: 'Anniversary',
+      patterns: [
+        /\bAnniversary\b/i,
+      ],
+    },
+    {
+      category: 'Opening',
+      patterns: [
+        /\bOpening\b/i,
+      ],
+    },
+    {
+      category: 'Collaboration',
+      patterns: [
+        /\bCollab(?:oration)?\b/i,
+      ],
+    },
+    {
+      category: 'ASMR',
+      patterns: [
+        /\bASMR\b/i,
+      ],
+    },
+    {
+      category: 'Animation',
+      patterns: [
+        /\bAnimation\b/i,
+      ],
+    },
+    {
+      category: 'Character Demo',
+      patterns: [
+        /Motion Demonstration/i,
+        /Costume Introduction/i,
+      ],
+    },
+    {
+      category: 'Promotional',
+      patterns: [
+        /Outpost[:\s]+Off-Duty Tales/i,
+        /\bPV\b/,
+      ],
+    },
+  ],
   'zenless-zone-zero': [
     {
       category: 'Character Demo',

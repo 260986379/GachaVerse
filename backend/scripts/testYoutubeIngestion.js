@@ -1,10 +1,14 @@
 require('dotenv').config();
-const { runYouTubeIngestion } = require('../src/services/youtubeIngestionService');
+const { runYouTubeIngestion, reclassifyExistingVideos } = require('../src/services/youtubeIngestionService');
 const { pool } = require('../src/config/db');
 
 (async () => {
   console.log('[Test] Starting YouTube ingestion test...\n');
   await runYouTubeIngestion();
+
+  console.log('\n[Test] Reclassifying existing videos with updated classifier...');
+  await reclassifyExistingVideos('zenless-zone-zero');
+  await reclassifyExistingVideos('nikke');
 
   const { rows } = await pool.query(
     `SELECT g.name AS game, mc.category, COUNT(*) AS count
