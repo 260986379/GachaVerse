@@ -10,13 +10,27 @@ const decodeHtmlEntities = (str) =>
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>');
 
-// Strip channel branding. ZZZ appends it ("Title | Zenless Zone Zero");
-// NIKKE prepends it ("GODDESS OF VICTORY: NIKKE | Title") — handle both.
-const stripChannelSuffix = (title) =>
-  title
-    .replace(/^GODDESS OF VICTORY:\s*NIKKE\s*\|\s*/i, '')
-    .replace(/\s*\|[^|]*$/, '')
-    .trim();
+// Strip channel branding per game.
+// ZZZ/Genshin append it ("Title | Game Name"); NIKKE prepends it.
+// WW uses "Wuthering Waves | Category | Character | Wuthering Waves" — only strip
+// the trailing "| Wuthering Waves…" branding and the leading "Wuthering Waves | " prefix;
+// do NOT strip the last pipe generically or the character name disappears.
+const stripChannelSuffix = (title, gameSlug) => {
+  let t = title.replace(/^GODDESS OF VICTORY:\s*NIKKE\s*\|\s*/i, '');
+
+  if (gameSlug === 'wuthering-waves') {
+    // Remove trailing "| Wuthering Waves" or "| Wuthering Waves <extra>" branding
+    t = t.replace(/\s*\|\s*Wuthering Waves\b.*$/i, '');
+    // Remove leading "Wuthering Waves | " channel prefix (only when followed directly by |)
+    t = t.replace(/^Wuthering Waves\s*\|\s*/i, '');
+  } else {
+    // All other games: strip the last "| Channel Name" suffix
+    t = t.replace(/\s*\|[^|]*$/, '');
+  }
+
+  return t.trim();
+};
+
 
 const ingestVideosForGame = async (gameSlug, channelId, { forceBackfill = false } = {}) => {
   if (!channelId || channelId.startsWith('PLACEHOLDER')) {
@@ -54,7 +68,9 @@ const ingestVideosForGame = async (gameSlug, channelId, { forceBackfill = false 
   let pageToken = '';
   let inserted = 0;
   let skipped = 0;
-  const MAX_PAGES = forceBackfill ? 50 : 20; // backfill walks full history; incremental uses early-exit
+  // Safety ceiling only — the loop breaks naturally when nextPageToken is absent.
+  // 500 × 50 = 25,000 videos max, which covers any channel's full history.
+  const MAX_PAGES = forceBackfill ? 500 : 20;
 
   for (let page = 0; page < MAX_PAGES; page++) {
     const params = new URLSearchParams({
@@ -82,7 +98,7 @@ const ingestVideosForGame = async (gameSlug, channelId, { forceBackfill = false 
     const data = await res.json();
     const items = data.items || [];
 
-    // Batch-fetch view counts for this page's videos (1 quota unit for up to 50 IDs)
+    // Batch-fetch view counts for this page's videos (1 quota unit for up to 50 IDs).
     const pageVideoIds = items.map(i => i.snippet?.resourceId?.videoId).filter(Boolean);
     const viewCountMap = {};
     if (pageVideoIds.length > 0) {
@@ -101,7 +117,17 @@ const ingestVideosForGame = async (gameSlug, channelId, { forceBackfill = false 
       if (!videoId) continue;
 
       const { snippet } = item;
-      const title = stripChannelSuffix(decodeHtmlEntities(snippet.title || ''));
+
+      // Skip YouTube Shorts — identified by #Shorts hashtag in title or description
+      const rawTitle = snippet.title || '';
+      const rawDesc  = snippet.description || '';
+      if (/#shorts\b/i.test(rawTitle) || /#shorts\b/i.test(rawDesc)) {
+        skipped++;
+        continue;
+      }
+      // Store the raw decoded title — stripping for display is the frontend's job.
+      // Classifying raw titles works because all patterns use \b, not ^.
+      const title = decodeHtmlEntities(snippet.title || '');
       const description = decodeHtmlEntities(snippet.description || '');
       const category = classifyVideoTitle(gameSlug, title);
 
@@ -187,6 +213,9 @@ const runYouTubeIngestion = async () => {
   try {
     await ingestVideosForGame('zenless-zone-zero', config.ZZZ_YOUTUBE_CHANNEL_ID);
     await ingestVideosForGame('nikke', config.NIKKE_YOUTUBE_CHANNEL_ID);
+    await ingestVideosForGame('genshin-impact', config.GENSHIN_YOUTUBE_CHANNEL_ID);
+    await ingestVideosForGame('wuthering-waves', config.WW_YOUTUBE_CHANNEL_ID);
+    await ingestVideosForGame('honkai-star-rail', config.HSR_YOUTUBE_CHANNEL_ID);
   } catch (err) {
     console.error('[YouTube] Ingestion error:', err.message);
   }

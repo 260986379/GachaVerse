@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import SearchModal from './ui/SearchModal'
 import './Navbar.css'
 
 function ProfileIcon() {
@@ -9,19 +11,35 @@ function ProfileIcon() {
   )
 }
 
+const HIDE_SEARCH_ON = ['/account']
+
 export default function Navbar() {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const location = useLocation()
+  const showSearch = !HIDE_SEARCH_ON.includes(location.pathname)
+
   return (
-    <nav className="navbar">
-      <Link to="/" className="navbar__brand">GachaVerse</Link>
-      <div className="navbar__right">
-        <div className="navbar__search">
-          <span className="navbar__search-icon">⌕</span>
-          <input className="navbar__search-input" type="text" placeholder="Search games..." />
+    <>
+      <nav className="navbar">
+        <Link to="/" className="navbar__brand">MyGachaList</Link>
+        <div className="navbar__right">
+          {showSearch && (
+            <button
+              className="navbar__search"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search games"
+            >
+              <span className="navbar__search-icon">⌕</span>
+              <span className="navbar__search-placeholder">Search games...</span>
+            </button>
+          )}
+          <Link to="/account" className="navbar__profile-btn" aria-label="Profile">
+            <ProfileIcon />
+          </Link>
         </div>
-        <Link to="/account" className="navbar__profile-btn" aria-label="Profile">
-          <ProfileIcon />
-        </Link>
-      </div>
-    </nav>
+      </nav>
+
+      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+    </>
   )
 }

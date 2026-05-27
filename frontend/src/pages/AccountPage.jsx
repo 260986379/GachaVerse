@@ -765,36 +765,77 @@ export default function AccountPage() {
                 </section>
 
                 {/* Favorite Videos */}
-                <section className="profile-section">
-                  <div className="profile-section__header">
-                    <h2 className="profile-section__title">Favorite Videos</h2>
-                  </div>
-                  {favVideos.length > 0 ? (
+                {(() => {
+                  const favRegular = favVideos.filter(v => v.category !== 'Music')
+                  const favBGM     = favVideos.filter(v => v.category === 'Music')
+                  const activeInRegular = favRegular.some(v => v.external_id === activeVideoId)
+                  const activeInBGM     = favBGM.some(v => v.external_id === activeVideoId)
+                  return (
                     <>
-                      <div className="profile-hscroll">
-                        {favVideos.map((v, i) => (
-                          <VideoCard
-                            key={v.id ?? i}
-                            video={v}
-                            isActive={activeVideoId === v.external_id}
-                            onClick={() => handleVideoClick(v)}
-                          />
-                        ))}
-                      </div>
-                      {activeVideoId && (
-                        <div className="profile-video-player">
-                          <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
-                          {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
-                          <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
-                            ✕ Close
-                          </button>
+                      <section className="profile-section">
+                        <div className="profile-section__header">
+                          <h2 className="profile-section__title">Favorite Videos</h2>
                         </div>
-                      )}
+                        {favRegular.length > 0 ? (
+                          <>
+                            <div className="profile-hscroll">
+                              {favRegular.map((v, i) => (
+                                <VideoCard
+                                  key={v.id ?? i}
+                                  video={v}
+                                  isActive={activeVideoId === v.external_id}
+                                  onClick={() => handleVideoClick(v)}
+                                />
+                              ))}
+                            </div>
+                            {activeInRegular && (
+                              <div className="profile-video-player">
+                                <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
+                                {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
+                                <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
+                                  ✕ Close
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <p className="profile-empty">No favorited videos yet — heart a video on any game page to add it here.</p>
+                        )}
+                      </section>
+
+                      <section className="profile-section">
+                        <div className="profile-section__header">
+                          <h2 className="profile-section__title">Favorite BGM</h2>
+                        </div>
+                        {favBGM.length > 0 ? (
+                          <>
+                            <div className="profile-hscroll">
+                              {favBGM.map((v, i) => (
+                                <VideoCard
+                                  key={v.id ?? i}
+                                  video={v}
+                                  isActive={activeVideoId === v.external_id}
+                                  onClick={() => handleVideoClick(v)}
+                                />
+                              ))}
+                            </div>
+                            {activeInBGM && (
+                              <div className="profile-video-player">
+                                <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
+                                {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
+                                <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
+                                  ✕ Close
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <p className="profile-empty">No favorited BGM yet — heart a track from the Music section on any game page.</p>
+                        )}
+                      </section>
                     </>
-                  ) : (
-                    <p className="profile-empty">No favorited videos yet — heart a video on any game page to add it here.</p>
-                  )}
-                </section>
+                  )
+                })()}
 
                 {/* Favorite Characters */}
                 <section className="profile-section">

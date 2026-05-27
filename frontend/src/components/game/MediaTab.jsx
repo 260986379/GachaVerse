@@ -2,20 +2,57 @@ import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
 import { isFavVideo, toggleFavVideo, getFavVideos } from '../../utils/bookmarks'
 
-const TYPE_ORDER = ['Main Story', 'Opening', 'Anniversary', 'Collaboration', 'Lore', 'Trailer', 'Cinematic', 'Character Demo', 'Music', 'Animation', 'ASMR', 'Promotional']
+const TYPE_ORDER_BY_GAME = {
+  'zenless-zone-zero': ['Lore', 'Trailer', 'Character Demo', 'Cinematic', 'Music'],
+  'nikke': ['Lore', 'Main Story', 'Opening', 'Animation', 'Promotional', 'Character Demo', 'Music', 'Costume Showcase', 'Anniversary', 'Collaboration', 'ASMR'],
+  'genshin-impact':    ['Main Story', 'Character Demo', 'Trailer', 'Cinematic', 'Animation', 'Music'],
+  'wuthering-waves':   ['Main Story', 'Resonator Showcase', 'Cinematic', 'Animation', 'Music', 'Midnight Podcast', 'Collaboration'],
+  'honkai-star-rail':  ['Main Story', 'Character Demo', 'Animation', 'Myriad Celestia', 'Music', 'Collaboration'],
+}
+const DEFAULT_TYPE_ORDER = ['Lore', 'Main Story', 'Opening', 'Animation', 'Promotional', 'Anniversary', 'Music', 'Character Demo', 'Collaboration', 'ASMR', 'Trailer', 'Cinematic']
 const TYPE_LABELS = {
   'Main Story': 'Main Story Chapters',
   'Opening': 'Openings',
+  'Animation': 'Animations',
+  'Promotional': 'Promotional Videos',
   'Anniversary': 'Anniversary',
+  'Music': 'Music/BGM',
+  'Character Demo': 'Character Demos',
   'Collaboration': 'Collaborations',
+  'ASMR': 'ASMR',
   'Lore': 'Lore',
   'Trailer': 'Trailers',
   'Cinematic': 'Cinematics',
-  'Character Demo': 'Character Demos',
-  'Music': 'Music',
-  'Animation': 'Animation',
-  'ASMR': 'ASMR',
-  'Promotional': 'Promotional Videos',
+  'Resonator Showcase': 'Resonator Showcase',
+  'Midnight Podcast': 'Midnight Podcast',
+  'Myriad Celestia': 'Myriad Celestia',
+  'Costume Showcase': 'Costume Showcase',
+}
+
+const TYPE_LABELS_BY_GAME = {
+  'genshin-impact':   { 'Main Story': 'Main Story Updates' },
+  'wuthering-waves':  { 'Main Story': 'Main Story Updates' },
+  'honkai-star-rail': { 'Main Story': 'Main Story Updates' },
+}
+
+// Strip channel branding at render time — raw titles are stored in the DB.
+// Each game has its own branding convention:
+//   NIKKE    → prefix  "GODDESS OF VICTORY: NIKKE | Title"
+//   WW       → wrap    "Wuthering Waves | Content | Wuthering Waves..."
+//   others   → suffix  "Title | Channel Name"
+const displayTitle = (title, gameId) => {
+  if (!title) return title
+  if (gameId === 'nikke') {
+    return title.replace(/^GODDESS OF VICTORY:\s*NIKKE\s*\|\s*/i, '').trim()
+  }
+  if (gameId === 'wuthering-waves') {
+    return title
+      .replace(/\s*\|\s*Wuthering Waves\b.*$/i, '')
+      .replace(/^Wuthering Waves\s*\|\s*/i, '')
+      .trim()
+  }
+  // ZZZ, Genshin, HSR, etc. — strip trailing "| Channel Name"
+  return title.replace(/\s*\|[^|]*$/, '').trim()
 }
 
 export default function MediaTab({ gameId }) {
@@ -109,7 +146,7 @@ export default function MediaTab({ gameId }) {
       return new Date(b.published_at) - new Date(a.published_at)
     })
 
-  const groups = TYPE_ORDER
+  const groups = (TYPE_ORDER_BY_GAME[gameId] || DEFAULT_TYPE_ORDER)
     .map((type) => ({ type, videos: processedItems.filter((i) => i.category === type) }))
     .filter((g) => g.videos.length > 0)
 
@@ -161,7 +198,7 @@ export default function MediaTab({ gameId }) {
                 )}
                 <div className="media-card__play">▶</div>
               </div>
-              <p className="media-card__title">{item.title}</p>
+              <p className="media-card__title">{displayTitle(item.title, gameId)}</p>
             </button>
             <button
               className={`media-card__fav${favIds.has(item.id) ? ' media-card__fav--on' : ''}`}
@@ -176,7 +213,7 @@ export default function MediaTab({ gameId }) {
         return (
           <section key={type} className="media-section">
             <div className="media-section__header">
-              <h3 className="media-section__title">{TYPE_LABELS[type] ?? type}</h3>
+              <h3 className="media-section__title">{TYPE_LABELS_BY_GAME[gameId]?.[type] ?? TYPE_LABELS[type] ?? type}</h3>
               {videos.length > 3 && (
                 <button
                   className="media-section__expand-btn"
@@ -188,8 +225,8 @@ export default function MediaTab({ gameId }) {
             </div>
             {activeInSection && (
               <div className="media-tab__player" ref={playerRef}>
-                <YouTubeEmbed videoId={activeInSection.external_id} title={activeInSection.title} />
-                <h3 className="media-tab__player-title">{activeInSection.title}</h3>
+                <YouTubeEmbed videoId={activeInSection.external_id} title={activeInSection.title} thumbnailUrl={activeInSection.thumbnail_url} />
+                <h3 className="media-tab__player-title">{displayTitle(activeInSection.title, gameId)}</h3>
                 <button className="media-tab__close" onClick={() => setActive(null)}>✕ Close</button>
               </div>
             )}

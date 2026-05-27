@@ -2,7 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
 import BANNER_CONFIG from '../../data/bannerConfig'
 
-const FEATURED_FALLBACK_CATEGORIES = ['Lore', 'Trailer', 'Character Demo']
+const FEATURED_CATEGORIES_BY_GAME = {
+  'genshin-impact':    ['Main Story', 'Animation'],
+  'wuthering-waves':   ['Main Story', 'Resonator Showcase'],
+  'honkai-star-rail':  ['Main Story', 'Animation'],
+  'zenless-zone-zero': ['Main Story', 'Lore', 'Trailer'],
+  'nikke':             ['Main Story', 'Lore', 'Trailer'],
+}
+const FEATURED_CATEGORIES_DEFAULT = ['Main Story', 'Lore', 'Trailer', 'Character Demo']
 
 function deriveBanners(gameId) {
   const entries = BANNER_CONFIG[gameId] || []
@@ -59,10 +66,11 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle, isVisible
     fetch(`/api/games/${gameId}/media`)
       .then((r) => r.json())
       .then((data) => {
+        const cats = FEATURED_CATEGORIES_BY_GAME[gameId] ?? FEATURED_CATEGORIES_DEFAULT
         const byDate = (a, b) => new Date(b.published_at) - new Date(a.published_at)
-        const mainStory = data.filter((v) => v.category === 'Main Story').sort(byDate)[0]
-        const fallback = data.filter((v) => FEATURED_FALLBACK_CATEGORIES.includes(v.category)).sort(byDate)[0]
-        const latest = mainStory || fallback
+        const latest = data
+          .filter((v) => cats.includes(v.category))
+          .sort(byDate)[0]
         if (latest) setFeaturedVideo(latest)
       })
       .catch(() => {})

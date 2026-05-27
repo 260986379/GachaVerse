@@ -28,45 +28,60 @@ const NIKKE = {
   genres: ["Shooter RPG", "Gacha"],
 };
 
+const WW = {
+  name: "Wuthering Waves",
+  slug: "wuthering-waves",
+  description:
+    "An open-world action RPG with fast-paced combat in a post-apocalyptic world filled with mysterious Tacet Discords.",
+  developer: "Kuro Games",
+  publisher: "Kuro Games",
+  release_date: "2024-05-22",
+  cover_image_url: "https://img.youtube.com/vi/DrkE-mw2Nxg/maxresdefault.jpg",
+  banner_image_url: "https://img.youtube.com/vi/DrkE-mw2Nxg/maxresdefault.jpg",
+  platforms: ["iOS", "Android", "PC"],
+  genres: ["Action RPG", "Gacha"],
+};
+
+const GENSHIN = {
+  name: "Genshin Impact",
+  slug: "genshin-impact",
+  description:
+    "An open-world action RPG set in the magical world of Teyvat. Explore vast landscapes across 7 elemental nations.",
+  developer: "HoYoverse",
+  publisher: "HoYoverse",
+  release_date: "2020-09-28",
+  cover_image_url: "https://img.youtube.com/vi/b8MsWzHvLXQ/maxresdefault.jpg",
+  banner_image_url: "https://img.youtube.com/vi/b8MsWzHvLXQ/maxresdefault.jpg",
+  platforms: ["iOS", "Android", "PC", "PS4", "PS5"],
+  genres: ["Action RPG", "Gacha"],
+};
+
+const HSR = {
+  name: "Honkai: Star Rail",
+  slug: "honkai-star-rail",
+  description:
+    "Board a space station and embark on an intergalactic adventure across the stars in this turn-based RPG.",
+  developer: "HoYoverse",
+  publisher: "HoYoverse",
+  release_date: "2023-04-26",
+  cover_image_url: "https://img.youtube.com/vi/LkxwwIyXJxE/maxresdefault.jpg",
+  banner_image_url: "https://img.youtube.com/vi/LkxwwIyXJxE/maxresdefault.jpg",
+  platforms: ["iOS", "Android", "PC", "PS5"],
+  genres: ["Turn-Based RPG", "Gacha"],
+};
+
+const SEED_GAMES = [ZZZ, NIKKE, GENSHIN, WW, HSR];
+
 const seedInitialGames = async () => {
-  const existing = await query("SELECT COUNT(*) FROM games");
-  if (parseInt(existing.rows[0].count) > 0) return;
-
-  await query(
-    `INSERT INTO games (name, slug, description, developer, publisher, release_date, cover_image_url, banner_image_url, platforms, genres)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-    [
-      ZZZ.name,
-      ZZZ.slug,
-      ZZZ.description,
-      ZZZ.developer,
-      ZZZ.publisher,
-      ZZZ.release_date,
-      ZZZ.cover_image_url,
-      ZZZ.banner_image_url,
-      ZZZ.platforms,
-      ZZZ.genres,
-    ],
-  );
-
-  await query(
-    `INSERT INTO games (name, slug, description, developer, publisher, release_date, cover_image_url, banner_image_url, platforms, genres)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-    [
-      NIKKE.name,
-      NIKKE.slug,
-      NIKKE.description,
-      NIKKE.developer,
-      NIKKE.publisher,
-      NIKKE.release_date,
-      NIKKE.cover_image_url,
-      NIKKE.banner_image_url,
-      NIKKE.platforms,
-      NIKKE.genres,
-    ],
-  );
-
-  console.log("Games seeded: ZZZ and NIKKE");
+  for (const g of SEED_GAMES) {
+    await query(
+      `INSERT INTO games (name, slug, description, developer, publisher, release_date, cover_image_url, banner_image_url, platforms, genres)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+       ON CONFLICT (slug) DO NOTHING`,
+      [g.name, g.slug, g.description, g.developer, g.publisher, g.release_date, g.cover_image_url, g.banner_image_url, g.platforms, g.genres],
+    );
+  }
+  console.log(`Games seeded: ${SEED_GAMES.map((g) => g.name).join(', ')}`);
 };
 
 const ZZZ_LORE_VIDEOS = [
@@ -84,6 +99,19 @@ const ZZZ_LORE_VIDEOS = [
   },
 ];
 
+
+const NIKKE_LORE_VIDEOS = [
+  {
+    external_id: 'yw9U2V1ZAJM',
+    title: 'About the World',
+    published_at: '2022-10-01T00:00:00Z',
+  },
+  {
+    external_id: 'JjcR8wuWEC4',
+    title: 'Official Trailer',
+    published_at: '2022-11-04T00:00:00Z',
+  },
+];
 
 const ZZZ_ART = [
   // Cover Art
@@ -235,7 +263,7 @@ const seedNewsAndMedia = async () => {
     await query(
       `INSERT INTO media_content (game_id, title, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
        VALUES ($1,$2,'YouTube',$3,$4,$5,$6,FALSE,'published',$7)
-       ON CONFLICT (external_id) DO NOTHING`,
+       ON CONFLICT (external_id) DO UPDATE SET status='published', category=EXCLUDED.category`,
       [
         gameMap["zenless-zone-zero"],
         v.title,
@@ -244,6 +272,22 @@ const seedNewsAndMedia = async () => {
         `https://img.youtube.com/vi/${v.external_id}/hqdefault.jpg`,
         v.published_at,
         v.video_type,
+      ],
+    );
+  }
+
+  for (const v of NIKKE_LORE_VIDEOS) {
+    await query(
+      `INSERT INTO media_content (game_id, title, external_platform, external_id, source_url, thumbnail_url, published_at, is_automated, status, category)
+       VALUES ($1,$2,'YouTube',$3,$4,$5,$6,FALSE,'published','Lore')
+       ON CONFLICT (external_id) DO UPDATE SET status='published', category='Lore'`,
+      [
+        gameMap['nikke'],
+        v.title,
+        v.external_id,
+        `https://www.youtube.com/watch?v=${v.external_id}`,
+        `https://img.youtube.com/vi/${v.external_id}/hqdefault.jpg`,
+        v.published_at,
       ],
     );
   }
@@ -293,9 +337,11 @@ const ensureInitialGameAndIngestionLogs = async () => {
   await seedInitialGames();
   await seedNewsAndMedia();
 
+  const slugs = SEED_GAMES.map((g) => g.slug);
+  const placeholders = slugs.map((_, i) => `$${i + 1}`).join(',');
   const { rows } = await query(
-    "SELECT id, slug FROM games WHERE slug IN ($1,$2)",
-    ["zenless-zone-zero", "nikke"],
+    `SELECT id, slug FROM games WHERE slug IN (${placeholders})`,
+    slugs,
   );
   const gameMap = Object.fromEntries(rows.map((r) => [r.slug, r.id]));
 

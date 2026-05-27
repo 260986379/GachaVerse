@@ -488,14 +488,36 @@
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible;
   padding-bottom: 1rem;
+}
+
+.yt-embed-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.yt-embed__ambient {
+  position: absolute;
+  inset: -48px;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(55px) saturate(2.5) brightness(0.75);
+  opacity: 0.8;
+  pointer-events: none;
 }
 
 .yt-embed {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
+  z-index: 1;
+}
+
+.media-tab__player .yt-embed {
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
 }
 
 .yt-embed iframe {
@@ -1435,6 +1457,76 @@
 .game-event-card__ends {
   font-size: 0.7rem;
   color: #555;
+}
+
+/* ── NIKKE character panel placeholder ─────────────────────────── */
+.nikke-char-panel__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+}
+
+.nikke-char-panel__initial {
+  font-size: 4rem;
+  font-weight: 800;
+  color: #2a2a2a;
+  user-select: none;
+}
+
+.nikke-char-panel__webm {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.15) translateX(-8%);
+  transform-origin: center center;
+}
+
+/* Costume switcher overlay — sits above the gradient fade */
+.nikke-char-panel__costumes {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  z-index: 3;
+}
+
+.nikke-char-panel__costume-chip {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.55);
+  color: #bbb;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.nikke-char-panel__costume-chip:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.nikke-char-panel__costume-chip--active {
+  border-color: #f0b429;
+  color: #f0b429;
+  background: rgba(240, 180, 41, 0.15);
+}
+
+/* Full-body static image fallback in the character panel */
+.nikke-char-panel__fullbody {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+  display: block;
 }
 
 /* ── Media card favorite button ────────────────────────────────── */

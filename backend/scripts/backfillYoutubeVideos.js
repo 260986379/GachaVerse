@@ -8,10 +8,12 @@ const { pool } = require('../src/config/db');
 
   await ingestVideosForGame('zenless-zone-zero', config.ZZZ_YOUTUBE_CHANNEL_ID, { forceBackfill: true });
   await ingestVideosForGame('nikke', config.NIKKE_YOUTUBE_CHANNEL_ID, { forceBackfill: true });
+  await ingestVideosForGame('genshin-impact', config.GENSHIN_YOUTUBE_CHANNEL_ID, { forceBackfill: true });
 
   console.log('\n[Backfill] Reclassifying all existing videos with current classifier rules...');
   await reclassifyExistingVideos('zenless-zone-zero');
   await reclassifyExistingVideos('nikke');
+  await reclassifyExistingVideos('genshin-impact');
 
   const { rows } = await pool.query(
     `SELECT g.name AS game, mc.category, COUNT(*) AS count

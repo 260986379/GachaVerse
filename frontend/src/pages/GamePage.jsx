@@ -7,6 +7,7 @@ import MediaTab from '../components/game/MediaTab'
 import OfficialArtTab from '../components/game/OfficialArtTab'
 import CastTab from '../components/game/CastTab'
 import CommunityTab from '../components/game/CommunityTab'
+import NikkeCharactersTab from '../components/game/NikkeCharactersTab'
 import './GamePage.css'
 
 const TABS = ['News Feed', 'Community', 'Official Videos', 'Characters', 'Official Artworks', 'Official Platforms']
@@ -46,7 +47,10 @@ function TabPanel({ tab, gameId, youtubeId, youtubeTitle, initialCharId }) {
   if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} youtubeId={youtubeId} youtubeTitle={youtubeTitle} />
   if (tab === 'Official Videos') return <MediaTab gameId={gameId} />
   if (tab === 'Official Artworks') return <OfficialArtTab gameId={gameId} />
-  if (tab === 'Characters') return <CastTab gameId={gameId} initialCharId={initialCharId} />
+  if (tab === 'Characters') {
+    if (gameId === 'nikke') return <NikkeCharactersTab />
+    return <CastTab gameId={gameId} initialCharId={initialCharId} />
+  }
   if (tab === 'Official Platforms') {
     const game = GAMES.find((g) => g.id === gameId)
     const platforms = game?.officialPlatforms || []

@@ -45,11 +45,13 @@
   padding: 0.4rem 0.85rem;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: border-color 0.15s;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.navbar__search:focus-within {
-  border-color: rgba(255, 255, 255, 0.25);
+.navbar__search:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.48);
 }
 
 .navbar__search-icon {
@@ -58,17 +60,13 @@
   line-height: 1;
 }
 
-.navbar__search-input {
-  background: none;
-  border: none;
-  outline: none;
-  color: #ddd;
-  font-size: 0.83rem;
-  width: 190px;
-}
-
-.navbar__search-input::placeholder {
+.navbar__search-placeholder {
   color: #444;
+  font-size: 0.83rem;
+  width: 160px;
+  text-align: left;
+  font-family: inherit;
+  user-select: none;
 }
 
 .navbar__profile-btn {
