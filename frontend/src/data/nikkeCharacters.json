@@ -7,7 +7,7 @@
     "burst": "3",
     "combat_type": "Defender",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/2B.png",
+    "icon_url": "/characters/nikke/closeup/2B.png",
     "webm_url": "/characters/nikke/2b.webm",
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/2B.png"
@@ -20,7 +20,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/A2.png",
+    "icon_url": "/characters/nikke/closeup/A2.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/A2.png"
@@ -33,7 +33,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Ada.png",
+    "icon_url": "/characters/nikke/closeup/Ada.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Ada.png"
@@ -46,7 +46,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Ade.png",
+    "icon_url": "/characters/nikke/closeup/Ade.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Ade.png"
@@ -59,7 +59,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Ade - Agent Bunny.png",
+    "icon_url": "/characters/nikke/closeup/Ade - Agent Bunny.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Ade - Agent Bunny.png"
@@ -72,7 +72,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Admi.png",
+    "icon_url": "/characters/nikke/closeup/Admi.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Admi.png"
@@ -85,7 +85,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Alice.png",
+    "icon_url": "/characters/nikke/closeup/Alice.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Alice.png"
@@ -98,7 +98,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Alice - Wonderland Bunny.png",
+    "icon_url": "/characters/nikke/closeup/Alice - Wonderland Bunny.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Alice - Wonderland Bunny.png"
@@ -111,7 +111,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Anchor.png",
+    "icon_url": "/characters/nikke/closeup/Anchor.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Anchor.png"
@@ -124,7 +124,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Anchor - Innocent Maid.png",
+    "icon_url": "/characters/nikke/closeup/Anchor - Innocent Maid.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Anchor - Innocent Maid.png"
@@ -137,7 +137,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Anis.png",
+    "icon_url": "/characters/nikke/closeup/Anis.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Anis.png"
@@ -150,7 +150,7 @@
     "burst": "3",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Anis - Sparkling Summer.png",
+    "icon_url": "/characters/nikke/closeup/Anis - Sparkling Summer.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Anis - Sparkling Summer.png"
@@ -163,7 +163,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Anis - Star.png",
+    "icon_url": "/characters/nikke/closeup/Anis - Star.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Anis - Star.png"
@@ -176,7 +176,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Anne - Miracle Fairy.png",
+    "icon_url": "/characters/nikke/closeup/Anne - Miracle Fairy.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Anne - Miracle Fairy.png"
@@ -189,7 +189,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Arcana.png",
+    "icon_url": "/characters/nikke/closeup/Arcana.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Arcana.png"
@@ -202,7 +202,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Arcana - Fortune Mate.png",
+    "icon_url": "/characters/nikke/closeup/Arcana - Fortune Mate.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Arcana - Fortune Mate.png"
@@ -215,7 +215,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Aria.png",
+    "icon_url": "/characters/nikke/closeup/Aria.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Aria.png"
@@ -228,7 +228,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Asuka.png",
+    "icon_url": "/characters/nikke/closeup/Asuka.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Asuka.png"
@@ -241,7 +241,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Asuka - WILLE.png",
+    "icon_url": "/characters/nikke/closeup/Asuka - WILLE.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Asuka - WILLE.png"
@@ -254,7 +254,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Avistar.png",
+    "icon_url": "/characters/nikke/closeup/Avistar.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Avistar.png"
@@ -267,7 +267,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Bay.png",
+    "icon_url": "/characters/nikke/closeup/Bay.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Bay.png"
@@ -280,7 +280,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Belorta.png",
+    "icon_url": "/characters/nikke/closeup/Belorta.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Belorta.png"
@@ -293,7 +293,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Biscuit.png",
+    "icon_url": "/characters/nikke/closeup/Biscuit.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Biscuit.png"
@@ -306,7 +306,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Blanc.png",
+    "icon_url": "/characters/nikke/closeup/Blanc.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Blanc.png"
@@ -319,7 +319,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Bready.png",
+    "icon_url": "/characters/nikke/closeup/Bready.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Bready.png"
@@ -332,7 +332,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Brid.png",
+    "icon_url": "/characters/nikke/closeup/Brid.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Brid.png"
@@ -345,7 +345,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Brid - Silent Track.png",
+    "icon_url": "/characters/nikke/closeup/Brid - Silent Track.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Brid - Silent Track.png"
@@ -358,7 +358,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Centi.png",
+    "icon_url": "/characters/nikke/closeup/Centi.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Centi.png"
@@ -371,7 +371,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Chime.png",
+    "icon_url": "/characters/nikke/closeup/Chime.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Chime.png"
@@ -384,7 +384,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Chisato.png",
+    "icon_url": "/characters/nikke/closeup/Chisato.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Chisato.png"
@@ -397,7 +397,7 @@
     "burst": "3",
     "combat_type": "Defender",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Cinderella.png",
+    "icon_url": "/characters/nikke/closeup/Cinderella.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Cinderella.png"
@@ -410,7 +410,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Claire.png",
+    "icon_url": "/characters/nikke/closeup/Claire.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Claire.png"
@@ -423,7 +423,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Clay.png",
+    "icon_url": "/characters/nikke/closeup/Clay.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Clay.png"
@@ -436,7 +436,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Cocoa.png",
+    "icon_url": "/characters/nikke/closeup/Cocoa.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Cocoa.png"
@@ -449,7 +449,7 @@
     "burst": "3",
     "combat_type": "Defender",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Crow.png",
+    "icon_url": "/characters/nikke/closeup/Crow.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Crow.png"
@@ -462,7 +462,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Crown.png",
+    "icon_url": "/characters/nikke/closeup/Crown.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Crown.png"
@@ -475,7 +475,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Crust.png",
+    "icon_url": "/characters/nikke/closeup/Crust.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Crust.png"
@@ -488,7 +488,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/D.png",
+    "icon_url": "/characters/nikke/closeup/D.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/D.png"
@@ -501,7 +501,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/D - Killer Wife.png",
+    "icon_url": "/characters/nikke/closeup/D - Killer Wife.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/D - Killer Wife.png"
@@ -514,7 +514,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Delta.png",
+    "icon_url": "/characters/nikke/closeup/Delta.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Delta.png"
@@ -527,7 +527,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Delta - Ninja Thief.png",
+    "icon_url": "/characters/nikke/closeup/Delta - Ninja Thief.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Delta - Ninja Thief.png"
@@ -540,7 +540,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Diesel.png",
+    "icon_url": "/characters/nikke/closeup/Diesel.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Diesel.png"
@@ -553,7 +553,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Diesel - Winter Sweets.png",
+    "icon_url": "/characters/nikke/closeup/Diesel - Winter Sweets.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Diesel - Winter Sweets.png"
@@ -566,7 +566,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Dolla.png",
+    "icon_url": "/characters/nikke/closeup/Dolla.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Dolla.png"
@@ -579,7 +579,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Dorothy.png",
+    "icon_url": "/characters/nikke/closeup/Dorothy.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Dorothy.png"
@@ -592,7 +592,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Dorothy - Serendipity.png",
+    "icon_url": "/characters/nikke/closeup/Dorothy - Serendipity.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Dorothy - Serendipity.png"
@@ -605,7 +605,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Drake.png",
+    "icon_url": "/characters/nikke/closeup/Drake.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Drake.png"
@@ -618,7 +618,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/E.H..png",
+    "icon_url": "/characters/nikke/closeup/E.H..png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/E.H..png"
@@ -631,7 +631,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Elegg.png",
+    "icon_url": "/characters/nikke/closeup/Elegg.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Elegg.png"
@@ -644,7 +644,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Elegg - Boom and Shock.png",
+    "icon_url": "/characters/nikke/closeup/Elegg - Boom and Shock.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Elegg - Boom and Shock.png"
@@ -657,7 +657,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Ein.png",
+    "icon_url": "/characters/nikke/closeup/Ein.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Ein.png"
@@ -670,7 +670,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Emilia.png",
+    "icon_url": "/characters/nikke/closeup/Emilia.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Emilia.png"
@@ -683,7 +683,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Emma.png",
+    "icon_url": "/characters/nikke/closeup/Emma.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Emma.png"
@@ -696,7 +696,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Emma - Tactical Upgrade.png",
+    "icon_url": "/characters/nikke/closeup/Emma - Tactical Upgrade.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Emma - Tactical Upgrade.png"
@@ -709,7 +709,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Epinel.png",
+    "icon_url": "/characters/nikke/closeup/Epinel.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Epinel.png"
@@ -722,7 +722,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Ether.png",
+    "icon_url": "/characters/nikke/closeup/Ether.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Ether.png"
@@ -735,7 +735,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Eunhwa.png",
+    "icon_url": "/characters/nikke/closeup/Eunhwa.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Eunhwa.png"
@@ -748,7 +748,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Eunhwa - Tactical Upgrade.png",
+    "icon_url": "/characters/nikke/closeup/Eunhwa - Tactical Upgrade.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Eunhwa - Tactical Upgrade.png"
@@ -761,7 +761,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/EVE.png",
+    "icon_url": "/characters/nikke/closeup/EVE.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/EVE.png"
@@ -774,7 +774,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Exia.png",
+    "icon_url": "/characters/nikke/closeup/Exia.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Exia.png"
@@ -787,7 +787,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Flora.png",
+    "icon_url": "/characters/nikke/closeup/Flora.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Flora.png"
@@ -800,7 +800,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Folkwang.png",
+    "icon_url": "/characters/nikke/closeup/Folkwang.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Folkwang.png"
@@ -813,7 +813,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Frima.png",
+    "icon_url": "/characters/nikke/closeup/Frima.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Frima.png"
@@ -826,7 +826,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Grave.png",
+    "icon_url": "/characters/nikke/closeup/Grave.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Grave.png"
@@ -839,7 +839,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Guillotine.png",
+    "icon_url": "/characters/nikke/closeup/Guillotine.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Guillotine.png"
@@ -852,7 +852,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Guillotine - Winter Slayer.png",
+    "icon_url": "/characters/nikke/closeup/Guillotine - Winter Slayer.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Guillotine - Winter Slayer.png"
@@ -865,7 +865,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Guilty.png",
+    "icon_url": "/characters/nikke/closeup/Guilty.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Guilty.png"
@@ -878,7 +878,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Harran.png",
+    "icon_url": "/characters/nikke/closeup/Harran.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Harran.png"
@@ -891,7 +891,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Helm.png",
+    "icon_url": "/characters/nikke/closeup/Helm.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Helm.png"
@@ -904,7 +904,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Helm - Aquamarine.png",
+    "icon_url": "/characters/nikke/closeup/Helm - Aquamarine.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Helm - Aquamarine.png"
@@ -917,7 +917,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Himeno.png",
+    "icon_url": "/characters/nikke/closeup/Himeno.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Himeno.png"
@@ -930,7 +930,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/iDoll Flower.png",
+    "icon_url": "/characters/nikke/closeup/iDoll Flower.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/iDoll Flower.png"
@@ -943,7 +943,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/iDoll Ocean.png",
+    "icon_url": "/characters/nikke/closeup/iDoll Ocean.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/iDoll Ocean.png"
@@ -956,7 +956,7 @@
     "burst": "3",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/iDoll Sun.png",
+    "icon_url": "/characters/nikke/closeup/iDoll Sun.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/iDoll Sun.png"
@@ -969,7 +969,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Isabel.png",
+    "icon_url": "/characters/nikke/closeup/Isabel.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Isabel.png"
@@ -982,7 +982,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Jackal.png",
+    "icon_url": "/characters/nikke/closeup/Jackal.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Jackal.png"
@@ -995,7 +995,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Jill.png",
+    "icon_url": "/characters/nikke/closeup/Jill.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Jill.png"
@@ -1008,7 +1008,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Julia.png",
+    "icon_url": "/characters/nikke/closeup/Julia.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Julia.png"
@@ -1021,7 +1021,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/K.png",
+    "icon_url": "/characters/nikke/closeup/K.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/K.png"
@@ -1034,7 +1034,7 @@
     "burst": "3",
     "combat_type": "Defender",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Kilo.png",
+    "icon_url": "/characters/nikke/closeup/Kilo.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Kilo.png"
@@ -1047,7 +1047,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Kurumi.png",
+    "icon_url": "/characters/nikke/closeup/Kurumi.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Kurumi.png"
@@ -1060,7 +1060,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Label.png",
+    "icon_url": "/characters/nikke/closeup/Label.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Label.png"
@@ -1073,7 +1073,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Laplace.png",
+    "icon_url": "/characters/nikke/closeup/Laplace.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Laplace.png"
@@ -1086,7 +1086,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Leona.png",
+    "icon_url": "/characters/nikke/closeup/Leona.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Leona.png"
@@ -1099,7 +1099,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Liberallo.png",
+    "icon_url": "/characters/nikke/closeup/Liberallo.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Liberallo.png"
@@ -1112,7 +1112,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Lily.png",
+    "icon_url": "/characters/nikke/closeup/Lily.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Lily.png"
@@ -1125,7 +1125,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Liter.png",
+    "icon_url": "/characters/nikke/closeup/Liter.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Liter.png"
@@ -1138,7 +1138,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Little Mermaid.png",
+    "icon_url": "/characters/nikke/closeup/Little Mermaid.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Little Mermaid.png"
@@ -1151,7 +1151,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Ludmilla.png",
+    "icon_url": "/characters/nikke/closeup/Ludmilla.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Ludmilla.png"
@@ -1164,7 +1164,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Ludmilla - Winter Owner.png",
+    "icon_url": "/characters/nikke/closeup/Ludmilla - Winter Owner.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Ludmilla - Winter Owner.png"
@@ -1177,7 +1177,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Maiden.png",
+    "icon_url": "/characters/nikke/closeup/Maiden.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Maiden.png"
@@ -1190,7 +1190,7 @@
     "burst": "3",
     "combat_type": "Defender",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Maiden - Ice Rose.png",
+    "icon_url": "/characters/nikke/closeup/Maiden - Ice Rose.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Maiden - Ice Rose.png"
@@ -1203,7 +1203,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Makima.png",
+    "icon_url": "/characters/nikke/closeup/Makima.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Makima.png"
@@ -1216,7 +1216,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Mana.png",
+    "icon_url": "/characters/nikke/closeup/Mana.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Mana.png"
@@ -1229,7 +1229,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Marciana.png",
+    "icon_url": "/characters/nikke/closeup/Marciana.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Marciana.png"
@@ -1242,7 +1242,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Mari.png",
+    "icon_url": "/characters/nikke/closeup/Mari.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Mari.png"
@@ -1255,7 +1255,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Mary.png",
+    "icon_url": "/characters/nikke/closeup/Mary.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Mary.png"
@@ -1268,7 +1268,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Mary - Bay Goddess.png",
+    "icon_url": "/characters/nikke/closeup/Mary - Bay Goddess.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Mary - Bay Goddess.png"
@@ -1281,7 +1281,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Mast.png",
+    "icon_url": "/characters/nikke/closeup/Mast.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Mast.png"
@@ -1294,7 +1294,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Mast - Romantic Maid.png",
+    "icon_url": "/characters/nikke/closeup/Mast - Romantic Maid.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Mast - Romantic Maid.png"
@@ -1307,7 +1307,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Maxwell.png",
+    "icon_url": "/characters/nikke/closeup/Maxwell.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Maxwell.png"
@@ -1320,7 +1320,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Mica.png",
+    "icon_url": "/characters/nikke/closeup/Mica.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Mica.png"
@@ -1333,7 +1333,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Mica - Snow Buddy.png",
+    "icon_url": "/characters/nikke/closeup/Mica - Snow Buddy.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Mica - Snow Buddy.png"
@@ -1346,7 +1346,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Mihara.png",
+    "icon_url": "/characters/nikke/closeup/Mihara.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Mihara.png"
@@ -1359,7 +1359,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Mihara - Bonding Chain.png",
+    "icon_url": "/characters/nikke/closeup/Mihara - Bonding Chain.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Mihara - Bonding Chain.png"
@@ -1372,7 +1372,7 @@
     "burst": "1",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Milk.png",
+    "icon_url": "/characters/nikke/closeup/Milk.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Milk.png"
@@ -1385,7 +1385,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Milk - Blooming Bunny.png",
+    "icon_url": "/characters/nikke/closeup/Milk - Blooming Bunny.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Milk - Blooming Bunny.png"
@@ -1398,7 +1398,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Mint.png",
+    "icon_url": "/characters/nikke/closeup/Mint.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Mint.png"
@@ -1411,7 +1411,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Miranda.png",
+    "icon_url": "/characters/nikke/closeup/Miranda.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Miranda.png"
@@ -1424,7 +1424,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Misato.png",
+    "icon_url": "/characters/nikke/closeup/Misato.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Misato.png"
@@ -1437,7 +1437,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Moderna.png",
+    "icon_url": "/characters/nikke/closeup/Moderna.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Moderna.png"
@@ -1450,7 +1450,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Moran.png",
+    "icon_url": "/characters/nikke/closeup/Moran.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Moran.png"
@@ -1463,7 +1463,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Mori.png",
+    "icon_url": "/characters/nikke/closeup/Mori.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Mori.png"
@@ -1476,7 +1476,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/N102.png",
+    "icon_url": "/characters/nikke/closeup/N102.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/N102.png"
@@ -1489,7 +1489,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Naga.png",
+    "icon_url": "/characters/nikke/closeup/Naga.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Naga.png"
@@ -1502,7 +1502,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Nayuta.png",
+    "icon_url": "/characters/nikke/closeup/Nayuta.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Nayuta.png"
@@ -1515,7 +1515,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Neon.png",
+    "icon_url": "/characters/nikke/closeup/Neon.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Neon.png"
@@ -1528,7 +1528,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Neon - Blue Ocean.png",
+    "icon_url": "/characters/nikke/closeup/Neon - Blue Ocean.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Neon - Blue Ocean.png"
@@ -1541,7 +1541,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Neon - Vision Eye.png",
+    "icon_url": "/characters/nikke/closeup/Neon - Vision Eye.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Neon - Vision Eye.png"
@@ -1554,7 +1554,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Nero.png",
+    "icon_url": "/characters/nikke/closeup/Nero.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Nero.png"
@@ -1567,7 +1567,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Neve.png",
+    "icon_url": "/characters/nikke/closeup/Neve.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Neve.png"
@@ -1580,7 +1580,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Nihilister.png",
+    "icon_url": "/characters/nikke/closeup/Nihilister.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Nihilister.png"
@@ -1593,7 +1593,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Noah.png",
+    "icon_url": "/characters/nikke/closeup/Noah.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Noah.png"
@@ -1606,7 +1606,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Noir.png",
+    "icon_url": "/characters/nikke/closeup/Noir.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Noir.png"
@@ -1619,7 +1619,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Noise.png",
+    "icon_url": "/characters/nikke/closeup/Noise.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Noise.png"
@@ -1632,7 +1632,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Novel.png",
+    "icon_url": "/characters/nikke/closeup/Novel.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Novel.png"
@@ -1645,7 +1645,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Pascal.png",
+    "icon_url": "/characters/nikke/closeup/Pascal.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Pascal.png"
@@ -1658,7 +1658,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Pepper.png",
+    "icon_url": "/characters/nikke/closeup/Pepper.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Pepper.png"
@@ -1671,7 +1671,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Phantom.png",
+    "icon_url": "/characters/nikke/closeup/Phantom.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Phantom.png"
@@ -1684,7 +1684,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Poli.png",
+    "icon_url": "/characters/nikke/closeup/Poli.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Poli.png"
@@ -1697,7 +1697,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Power.png",
+    "icon_url": "/characters/nikke/closeup/Power.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Power.png"
@@ -1710,7 +1710,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Privaty.png",
+    "icon_url": "/characters/nikke/closeup/Privaty.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Privaty.png"
@@ -1723,7 +1723,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Privaty - Unkind Maid.png",
+    "icon_url": "/characters/nikke/closeup/Privaty - Unkind Maid.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Privaty - Unkind Maid.png"
@@ -1736,7 +1736,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Product 08.png",
+    "icon_url": "/characters/nikke/closeup/Product 08.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Product 08.png"
@@ -1749,7 +1749,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Product 12.png",
+    "icon_url": "/characters/nikke/closeup/Product 12.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Product 12.png"
@@ -1762,7 +1762,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Product 23.png",
+    "icon_url": "/characters/nikke/closeup/Product 23.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Product 23.png"
@@ -1775,7 +1775,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Quency.png",
+    "icon_url": "/characters/nikke/closeup/Quency.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Quency.png"
@@ -1788,7 +1788,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Quency - Escape Queen.png",
+    "icon_url": "/characters/nikke/closeup/Quency - Escape Queen.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Quency - Escape Queen.png"
@@ -1801,7 +1801,7 @@
     "burst": "3",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Quiry.png",
+    "icon_url": "/characters/nikke/closeup/Quiry.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Quiry.png"
@@ -1814,7 +1814,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Ram.png",
+    "icon_url": "/characters/nikke/closeup/Ram.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Ram.png"
@@ -1827,7 +1827,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Rapi.png",
+    "icon_url": "/characters/nikke/closeup/Rapi.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Rapi.png"
@@ -1840,7 +1840,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Rapi - Red Hood.png",
+    "icon_url": "/characters/nikke/closeup/Rapi - Red Hood.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Rapi - Red Hood.png"
@@ -1853,7 +1853,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Rapunzel.png",
+    "icon_url": "/characters/nikke/closeup/Rapunzel.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Rapunzel.png"
@@ -1866,7 +1866,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Rapunzel - Pure Grace.png",
+    "icon_url": "/characters/nikke/closeup/Rapunzel - Pure Grace.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Rapunzel - Pure Grace.png"
@@ -1879,7 +1879,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Raven.png",
+    "icon_url": "/characters/nikke/closeup/Raven.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Raven.png"
@@ -1892,7 +1892,7 @@
     "burst": "All",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Red Hood.png",
+    "icon_url": "/characters/nikke/closeup/Red Hood.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Red Hood.png"
@@ -1905,7 +1905,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Rei.png",
+    "icon_url": "/characters/nikke/closeup/Rei.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Rei.png"
@@ -1918,7 +1918,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Rei Ayanami.png",
+    "icon_url": "/characters/nikke/closeup/Rei Ayanami.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Rei Ayanami.png"
@@ -1931,7 +1931,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Rei Ayanami (Tentative Name).png",
+    "icon_url": "/characters/nikke/closeup/Rei Ayanami (Tentative Name).png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Rei Ayanami (Tentative Name).png"
@@ -1944,7 +1944,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Rem.png",
+    "icon_url": "/characters/nikke/closeup/Rem.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Rem.png"
@@ -1957,7 +1957,7 @@
     "burst": "1",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Rosanna.png",
+    "icon_url": "/characters/nikke/closeup/Rosanna.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Rosanna.png"
@@ -1970,7 +1970,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Rosanna - Chic Ocean.png",
+    "icon_url": "/characters/nikke/closeup/Rosanna - Chic Ocean.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Rosanna - Chic Ocean.png"
@@ -1983,7 +1983,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Rouge.png",
+    "icon_url": "/characters/nikke/closeup/Rouge.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Rouge.png"
@@ -1996,7 +1996,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Rumani.png",
+    "icon_url": "/characters/nikke/closeup/Rumani.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Rumani.png"
@@ -2009,7 +2009,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Rupee.png",
+    "icon_url": "/characters/nikke/closeup/Rupee.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Rupee.png"
@@ -2022,7 +2022,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Rupee - Winter Shopper.png",
+    "icon_url": "/characters/nikke/closeup/Rupee - Winter Shopper.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Rupee - Winter Shopper.png"
@@ -2035,7 +2035,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Sakura.png",
+    "icon_url": "/characters/nikke/closeup/Sakura.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Sakura.png"
@@ -2048,7 +2048,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Sakura - Bloom in Summer.png",
+    "icon_url": "/characters/nikke/closeup/Sakura - Bloom in Summer.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Sakura - Bloom in Summer.png"
@@ -2061,7 +2061,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Scarlet.png",
+    "icon_url": "/characters/nikke/closeup/Scarlet.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Scarlet.png"
@@ -2074,7 +2074,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Scarlet - Black Shadow.png",
+    "icon_url": "/characters/nikke/closeup/Scarlet - Black Shadow.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Scarlet - Black Shadow.png"
@@ -2087,7 +2087,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Signal.png",
+    "icon_url": "/characters/nikke/closeup/Signal.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Signal.png"
@@ -2100,7 +2100,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Sin.png",
+    "icon_url": "/characters/nikke/closeup/Sin.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Sin.png"
@@ -2113,7 +2113,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Snow Crane.png",
+    "icon_url": "/characters/nikke/closeup/Snow Crane.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Snow Crane.png"
@@ -2126,7 +2126,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Snow White.png",
+    "icon_url": "/characters/nikke/closeup/Snow White.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Snow White.png"
@@ -2139,7 +2139,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Snow White - Heavy Arms.png",
+    "icon_url": "/characters/nikke/closeup/Snow White - Heavy Arms.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Snow White - Heavy Arms.png"
@@ -2152,7 +2152,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Snow White - Innocent Days.png",
+    "icon_url": "/characters/nikke/closeup/Snow White - Innocent Days.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Snow White - Innocent Days.png"
@@ -2165,7 +2165,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Soda.png",
+    "icon_url": "/characters/nikke/closeup/Soda.png",
     "webm_url": null,
     "weapon_type": "Machine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Soda.png"
@@ -2178,7 +2178,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Soda - Twinkling Bunny.png",
+    "icon_url": "/characters/nikke/closeup/Soda - Twinkling Bunny.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Soda - Twinkling Bunny.png"
@@ -2191,7 +2191,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Soldier EG.png",
+    "icon_url": "/characters/nikke/closeup/Soldier EG.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Soldier EG.png"
@@ -2204,7 +2204,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Soldier FA.png",
+    "icon_url": "/characters/nikke/closeup/Soldier FA.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Soldier FA.png"
@@ -2217,7 +2217,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Soldier OW.png",
+    "icon_url": "/characters/nikke/closeup/Soldier OW.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Soldier OW.png"
@@ -2230,7 +2230,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Soline.png",
+    "icon_url": "/characters/nikke/closeup/Soline.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Soline.png"
@@ -2243,7 +2243,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Soline - Frost Ticket.png",
+    "icon_url": "/characters/nikke/closeup/Soline - Frost Ticket.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Soline - Frost Ticket.png"
@@ -2256,7 +2256,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Sora.png",
+    "icon_url": "/characters/nikke/closeup/Sora.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Sora.png"
@@ -2269,7 +2269,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Sugar.png",
+    "icon_url": "/characters/nikke/closeup/Sugar.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Sugar.png"
@@ -2282,7 +2282,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Sakura Suzuhara.png",
+    "icon_url": "/characters/nikke/closeup/Sakura Suzuhara.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Sakura Suzuhara.png"
@@ -2295,7 +2295,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Takina.png",
+    "icon_url": "/characters/nikke/closeup/Takina.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Takina.png"
@@ -2308,7 +2308,7 @@
     "burst": "1",
     "combat_type": "Defender",
     "element_type": "Iron",
-    "icon_url": "/characters/nikke/icons/Tia.png",
+    "icon_url": "/characters/nikke/closeup/Tia.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Tia.png"
@@ -2321,7 +2321,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Tove.png",
+    "icon_url": "/characters/nikke/closeup/Tove.png",
     "webm_url": null,
     "weapon_type": "Assault Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Tove.png"
@@ -2334,7 +2334,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Trina.png",
+    "icon_url": "/characters/nikke/closeup/Trina.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Trina.png"
@@ -2347,7 +2347,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Trony.png",
+    "icon_url": "/characters/nikke/closeup/Trony.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Trony.png"
@@ -2360,7 +2360,7 @@
     "burst": "2",
     "combat_type": "Supporter",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Velvet.png",
+    "icon_url": "/characters/nikke/closeup/Velvet.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Velvet.png"
@@ -2373,7 +2373,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Vesti.png",
+    "icon_url": "/characters/nikke/closeup/Vesti.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Vesti.png"
@@ -2386,7 +2386,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Vesti - Tactical Upgrade.png",
+    "icon_url": "/characters/nikke/closeup/Vesti - Tactical Upgrade.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Vesti - Tactical Upgrade.png"
@@ -2399,7 +2399,7 @@
     "burst": "2",
     "combat_type": "Attacker",
     "element_type": "Water",
-    "icon_url": "/characters/nikke/icons/Viper.png",
+    "icon_url": "/characters/nikke/closeup/Viper.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Viper.png"
@@ -2412,7 +2412,7 @@
     "burst": "1",
     "combat_type": "Attacker",
     "element_type": "Wind",
-    "icon_url": "/characters/nikke/icons/Volume.png",
+    "icon_url": "/characters/nikke/closeup/Volume.png",
     "webm_url": null,
     "weapon_type": "Submachine Gun",
     "fullbody_url": "/characters/nikke/fullbody/Volume.png"
@@ -2425,7 +2425,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Yan.png",
+    "icon_url": "/characters/nikke/closeup/Yan.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Yan.png"
@@ -2438,7 +2438,7 @@
     "burst": "3",
     "combat_type": "Attacker",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Yulha.png",
+    "icon_url": "/characters/nikke/closeup/Yulha.png",
     "webm_url": null,
     "weapon_type": "Sniper Rifle",
     "fullbody_url": "/characters/nikke/fullbody/Yulha.png"
@@ -2451,7 +2451,7 @@
     "burst": "2",
     "combat_type": "Defender",
     "element_type": "Fire",
-    "icon_url": "/characters/nikke/icons/Yuni.png",
+    "icon_url": "/characters/nikke/closeup/Yuni.png",
     "webm_url": null,
     "weapon_type": "Rocket Launcher",
     "fullbody_url": "/characters/nikke/fullbody/Yuni.png"
@@ -2464,7 +2464,7 @@
     "burst": "1",
     "combat_type": "Supporter",
     "element_type": "Electric",
-    "icon_url": "/characters/nikke/icons/Zwei.png",
+    "icon_url": "/characters/nikke/closeup/Zwei.png",
     "webm_url": null,
     "weapon_type": "Shotgun",
     "fullbody_url": "/characters/nikke/fullbody/Zwei.png"
