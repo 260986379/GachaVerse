@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import SearchModal from './ui/SearchModal'
+import AuthModal   from './ui/AuthModal'
+import { useAuth } from '../context/AuthContext'
+import { getRoleStyle, getRoleGlow } from '../utils/roles'
 import './Navbar.css'
 
 function ProfileIcon() {
@@ -15,13 +18,29 @@ const HIDE_SEARCH_ON = ['/account']
 
 export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false)
-  const location = useLocation()
-  const showSearch = !HIDE_SEARCH_ON.includes(location.pathname)
+  const [authOpen,   setAuthOpen]   = useState(false)
+  const [menuOpen,   setMenuOpen]   = useState(false)
+  const location                    = useLocation()
+  const showSearch                  = !HIDE_SEARCH_ON.includes(location.pathname)
+  const menuRef                     = useRef(null)
+
+  const { user, logout, loadingAuth } = useAuth()
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!menuOpen) return
+    const handle = (e) => { if (!menuRef.current?.contains(e.target)) setMenuOpen(false) }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [menuOpen])
+
+  const handleLogout = () => { setMenuOpen(false); logout() }
 
   return (
     <>
       <nav className="navbar">
         <Link to="/" className="navbar__brand">MyGachaList</Link>
+
         <div className="navbar__right">
           {showSearch && (
             <button
@@ -33,13 +52,84 @@ export default function Navbar() {
               <span className="navbar__search-placeholder">Search games...</span>
             </button>
           )}
-          <Link to="/account" className="navbar__profile-btn" aria-label="Profile">
-            <ProfileIcon />
-          </Link>
+
+          {!loadingAuth && (
+            user ? (
+              <div className="navbar__user" ref={menuRef}>
+                <button
+                  className="navbar__profile-btn"
+                  onClick={() => setMenuOpen(o => !o)}
+                  aria-label="Account menu"
+                  title={user.username}
+                >
+                  {user.avatar_url
+                    ? <img src={user.avatar_url} alt={user.username} className="navbar__avatar-img" />
+                    : <ProfileIcon />
+                  }
+                </button>
+
+                {menuOpen && (
+                  <div className="navbar__dropdown">
+                    <div className="navbar__dropdown-user">
+                      <div className="navbar__dropdown-avatar">
+                        {user.avatar_url
+                          ? <img src={user.avatar_url} alt={user.username} className="navbar__dropdown-avatar-img" />
+                          : <ProfileIcon />
+                        }
+                      </div>
+                      <span className="navbar__dropdown-username" style={getRoleStyle(user.role)}>{user.username}</span>
+                      <span
+                        className="navbar__dropdown-role-badge"
+                        style={{
+                          color:      getRoleStyle(user.role).color,
+                          borderColor: getRoleStyle(user.role).color,
+                          boxShadow:  getRoleGlow(user.role) ? `0 0 8px ${getRoleGlow(user.role)}` : 'none',
+                          textShadow: getRoleStyle(user.role).textShadow ?? 'none',
+                        }}
+                      >
+                        {user.role}
+                      </span>
+                    </div>
+                    <div className="navbar__dropdown-divider" />
+                    <Link
+                      to="/account"
+                      className="navbar__dropdown-item"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="navbar__dropdown-item"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Settings
+                    </Link>
+                    <div className="navbar__dropdown-divider" />
+                    <button
+                      className="navbar__dropdown-item navbar__dropdown-item--danger"
+                      onClick={handleLogout}
+                    >
+                      Log Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                className="navbar__profile-btn"
+                onClick={() => setAuthOpen(true)}
+                aria-label="Log in"
+              >
+                <ProfileIcon />
+              </button>
+            )
+          )}
         </div>
       </nav>
 
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+      {authOpen   && <AuthModal   onClose={() => setAuthOpen(false)} />}
     </>
   )
 }

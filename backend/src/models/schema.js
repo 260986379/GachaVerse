@@ -6,9 +6,14 @@ const CREATE_USERS = `
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    avatar_url VARCHAR(500),
+    password_hash VARCHAR(255),
+    firebase_uid VARCHAR(255) UNIQUE,
+    avatar_url TEXT,
+    banner_url TEXT,
     bio TEXT,
+    birthday DATE,
+    role VARCHAR(10) NOT NULL DEFAULT 'Regular'
+      CHECK (role IN ('Owner', 'Dev', 'VIP', 'Member', 'Regular')),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
   );
@@ -173,6 +178,56 @@ const ALTER_GAME_BANNERS_ADD_IMAGE_URL = `
   ALTER TABLE game_banners ADD COLUMN IF NOT EXISTS image_url VARCHAR(500);
 `;
 
+// ── User social graph ──────────────────────────────────────────────────────
+const ALTER_USERS_ADD_FIREBASE_UID = `
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS firebase_uid VARCHAR(255) UNIQUE;
+`;
+
+const ALTER_USERS_PASSWORD_NULLABLE = `
+  ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
+`;
+
+const ALTER_USERS_ADD_BANNER_URL = `
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS banner_url VARCHAR(500);
+`;
+
+const ALTER_USERS_ADD_BIRTHDAY = `
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS birthday DATE;
+`;
+
+const ALTER_USERS_IMAGES_TO_TEXT = `
+  ALTER TABLE users ALTER COLUMN avatar_url TYPE TEXT;
+  ALTER TABLE users ALTER COLUMN banner_url TYPE TEXT;
+`;
+
+const ALTER_USERS_ADD_ROLE = `
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(10) NOT NULL DEFAULT 'Regular';
+  ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
+  ALTER TABLE users ADD CONSTRAINT users_role_check
+    CHECK (role IN ('Owner', 'Dev', 'VIP', 'Member', 'Regular'));
+`;
+
+const ALTER_USERS_ADD_DEBUG_ROLE = `
+  ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
+  ALTER TABLE users ADD CONSTRAINT users_role_check
+    CHECK (role IN ('Owner', 'Dev', 'VIP', 'Member', 'Regular', 'Debug'));
+`;
+
+const CREATE_USER_FOLLOWS = `
+  CREATE TABLE IF NOT EXISTS user_follows (
+    follower_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    following_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (follower_id, following_id),
+    CHECK (follower_id <> following_id)
+  );
+`;
+
+const CREATE_USER_FOLLOWS_INDEXES = `
+  CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+  CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
+`;
+
 const ALTER_CHARACTERS_ADD_GAME_FIELDS = `
   ALTER TABLE characters ADD COLUMN IF NOT EXISTS display_name VARCHAR(255);
   ALTER TABLE characters ADD COLUMN IF NOT EXISTS combat_type VARCHAR(20);
@@ -187,8 +242,49 @@ const ALTER_CHARACTERS_ADD_NIKKE_FIELDS = `
   ALTER TABLE characters ADD COLUMN IF NOT EXISTS webm_url VARCHAR(500);
 `;
 
+const CREATE_USER_FAVORITE_VIDEOS = `
+  CREATE TABLE IF NOT EXISTS user_favorite_videos (
+    user_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    video_id UUID NOT NULL REFERENCES media_content(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, video_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_ufv_user   ON user_favorite_videos(user_id);
+  CREATE INDEX IF NOT EXISTS idx_ufv_video  ON user_favorite_videos(video_id);
+`;
+
+const CREATE_USER_GAME_ACCOUNTS = `
+  CREATE TABLE IF NOT EXISTS user_game_accounts (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    game_id VARCHAR(100) NOT NULL,
+    uid     VARCHAR(100) NOT NULL,
+    linked_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, game_id)
+  );
+`;
+
+const CREATE_BOARDS = `
+  CREATE TABLE IF NOT EXISTS boards (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    game_id VARCHAR(100) NOT NULL DEFAULT '',
+    game_name VARCHAR(255) NOT NULL DEFAULT '',
+    image_url TEXT NOT NULL,
+    caption TEXT DEFAULT '',
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+  CREATE INDEX IF NOT EXISTS idx_boards_user_id ON boards(user_id);
+`;
+
 const ALL_TABLES = [
   CREATE_USERS,
+  ALTER_USERS_ADD_FIREBASE_UID,
+  ALTER_USERS_PASSWORD_NULLABLE,
+  ALTER_USERS_ADD_BANNER_URL,
+  ALTER_USERS_ADD_BIRTHDAY,
+  ALTER_USERS_IMAGES_TO_TEXT,
+  ALTER_USERS_ADD_ROLE,
+  ALTER_USERS_ADD_DEBUG_ROLE,
   CREATE_GAMES,
   CREATE_CHARACTERS,
   ALTER_CHARACTERS_ADD_FACTION,
@@ -199,6 +295,8 @@ const ALL_TABLES = [
   CREATE_POSTS,
   CREATE_COMMENTS,
   CREATE_USER_GAMES,
+  CREATE_USER_FOLLOWS,
+  CREATE_USER_FOLLOWS_INDEXES,
   CREATE_NEWS_ARTICLES,
   CREATE_MEDIA_CONTENT,
   ALTER_MEDIA_CONTENT_ADD_VIEW_COUNT,
@@ -207,6 +305,9 @@ const ALL_TABLES = [
   ALTER_INGESTION_LOGS_ADD_MESSAGE,
   CREATE_GAME_BANNERS,
   ALTER_GAME_BANNERS_ADD_IMAGE_URL,
+  CREATE_USER_FAVORITE_VIDEOS,
+  CREATE_USER_GAME_ACCOUNTS,
+  CREATE_BOARDS,
 ];
 
 module.exports = { ALL_TABLES };

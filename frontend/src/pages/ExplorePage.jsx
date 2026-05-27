@@ -4,7 +4,11 @@ import { GAMES, FEATURED_GAMES } from '../data/games'
 import GameCard from '../components/GameCard'
 import { getFollowedGames } from '../utils/bookmarks'
 import { loadYTApi } from '../utils/ytApi'
+import { getRoleStyle } from '../utils/roles'
+import { useAuth } from '../context/AuthContext'
 import './ExplorePage.css'
+
+const API = import.meta.env.VITE_API_URL || '/api'
 
 function VolumeIcon({ muted }) {
   return (
@@ -191,13 +195,25 @@ const GENRE_FILTERS = ['All', 'Action RPG', 'Turn-Based RPG', 'Tactical RPG', 'T
 function MyGamesSection() {
   const rowRef = useRef(null)
   const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
-  const [followed, setFollowed] = useState(() => getFollowedGames())
+  const [followed, setFollowed] = useState([])
   const [filter, setFilter] = useState('All')
+  const { loadingAuth } = useAuth()
 
+  // Re-read once auth settles so _uid is correctly scoped to the logged-in user
+  useEffect(() => {
+    if (loadingAuth) return
+    setFollowed(getFollowedGames())
+  }, [loadingAuth])
+
+  // Keep in sync with follow/unfollow actions (same-tab custom event + cross-tab storage event)
   useEffect(() => {
     const sync = () => setFollowed(getFollowedGames())
+    window.addEventListener('gv:followedGamesChanged', sync)
     window.addEventListener('storage', sync)
-    return () => window.removeEventListener('storage', sync)
+    return () => {
+      window.removeEventListener('gv:followedGamesChanged', sync)
+      window.removeEventListener('storage', sync)
+    }
   }, [])
 
   const gameMap = Object.fromEntries(GAMES.map((g) => [g.id, g]))
@@ -239,6 +255,75 @@ function MyGamesSection() {
   )
 }
 
+function UserCard({ user }) {
+  const navigate = useNavigate()
+  return (
+    <div className="community-card" onClick={() => navigate(`/u/${user.username}`)}>
+      <div
+        className="community-card__banner"
+        style={{ backgroundImage: `url(${user.banner_url})` }}
+      />
+      <div className="community-card__body">
+        <div className="community-card__avatar">
+          <img src={user.avatar_url} alt={user.username} />
+        </div>
+        <p className="community-card__name" style={getRoleStyle(user.role)}>
+          {user.username}
+        </p>
+        <p className="community-card__followers">
+          {Number(user.followers_count).toLocaleString()} followers
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function BrowseAllUsersCard() {
+  const navigate = useNavigate()
+  return (
+    <div className="browse-all-card" onClick={() => navigate('/community')}>
+      <div className="browse-all-card__poster browse-all-card__poster--users">
+        <span className="browse-all-card__icon">👥</span>
+        <span className="browse-all-card__label">Browse All Users</span>
+      </div>
+    </div>
+  )
+}
+
+function CommunitySection() {
+  const rowRef = useRef(null)
+  const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
+  const [users, setUsers] = useState(null)
+  const { isLoggedIn, loadingAuth, authFetch } = useAuth()
+
+  useEffect(() => {
+    if (loadingAuth) return
+    const fetchFn = isLoggedIn ? authFetch : fetch
+    fetchFn(`${API}/users/community`)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
+      .then(data => setUsers(Array.isArray(data) ? data : []))
+      .catch(() => setUsers([]))
+  }, [loadingAuth, isLoggedIn])
+
+  if (!users || users.length === 0) return null
+
+  return (
+    <section className="trending-section">
+      <div className="section-header">
+        <h2 className="section-title">Community</h2>
+        <div className="section-arrows">
+          <button className="section-arrow" onClick={() => scroll(-1)}>‹</button>
+          <button className="section-arrow" onClick={() => scroll(1)}>›</button>
+        </div>
+      </div>
+      <div className="trending-row" ref={rowRef}>
+        {users.map(u => <UserCard key={u.id} user={u} />)}
+        <BrowseAllUsersCard />
+      </div>
+    </section>
+  )
+}
+
 export default function ExplorePage() {
   return (
     <div className="explore-page">
@@ -246,6 +331,7 @@ export default function ExplorePage() {
       <div className="explore-content">
         <TrendingRow />
         <MyGamesSection />
+        <CommunitySection />
       </div>
     </div>
   )

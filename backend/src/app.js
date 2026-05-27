@@ -9,11 +9,13 @@ const gameRoutes = require('./routes/gameRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const boardRoutes = require('./routes/boardRoutes');
+const videoRoutes = require('./routes/videoRoutes');
 
 const app = express();
 
 app.use(corsMiddleware);
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
 
 app.get('/api/hello', (req, res) => res.json({ message: 'Hello from GachaVerse Backend!' }));
@@ -72,6 +74,8 @@ app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/boards', boardRoutes);
+app.use('/api/videos', videoRoutes);
 
 app.use(errorHandler);
 

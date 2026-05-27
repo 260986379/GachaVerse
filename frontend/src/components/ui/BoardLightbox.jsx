@@ -51,8 +51,8 @@ export default function BoardLightbox({ board, onClose }) {
         <div className="lightbox__image-side">
           <img
             className="lightbox__img"
-            src={board.imageUrl}
-            alt={board.caption || board.gameName}
+            src={board.image_url}
+            alt={board.caption || board.game_name}
           />
           {board.caption && <p className="lightbox__caption">{board.caption}</p>}
         </div>
@@ -64,7 +64,7 @@ export default function BoardLightbox({ board, onClose }) {
               <div className="lightbox__author-avatar">{LOCAL_USER.name[0]}</div>
               <div className="lightbox__author-info">
                 <span className="lightbox__author-name">{LOCAL_USER.name}</span>
-                <span className="lightbox__author-game">{board.gameName}</span>
+                <span className="lightbox__author-game">{board.game_name}</span>
               </div>
             </div>
             <button

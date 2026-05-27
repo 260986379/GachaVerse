@@ -1,0 +1,78 @@
+/* ── User result avatar ────────────────────────────────── */
+.usm__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.usm__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Footer count ──────────────────────────────────────── */
+.usm__count {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* ── Preview panel overrides ───────────────────────────── */
+.usm__preview {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.usm__preview-banner {
+  width: 100%;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.04);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.usm__preview-banner-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, rgba(12, 12, 18, 0.97) 100%);
+}
+
+.usm__preview-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2.5px solid rgba(12, 12, 18, 0.97);
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  margin: -28px auto 0;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.usm__preview-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

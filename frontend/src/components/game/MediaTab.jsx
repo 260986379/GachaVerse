@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import YouTubeEmbed from '../ui/YouTubeEmbed'
 import { isFavVideo, toggleFavVideo, getFavVideos } from '../../utils/bookmarks'
+import { useAuth } from '../../context/AuthContext'
 
 const TYPE_ORDER_BY_GAME = {
   'zenless-zone-zero': ['Lore', 'Trailer', 'Character Demo', 'Cinematic', 'Music'],
@@ -68,15 +69,27 @@ export default function MediaTab({ gameId }) {
   const playerRef = useRef(null)
   const dragRef = useRef(null)
   const didDragRef = useRef(false)
+  const { isLoggedIn, authFetch } = useAuth()
 
   const refreshFavs = () => setFavIds(new Set(getFavVideos().map((v) => v.id)))
 
-  useEffect(refreshFavs, [])
+  // On mount: if logged in, load server favorites (so they stay in sync across devices)
+  useEffect(() => {
+    if (!isLoggedIn) { refreshFavs(); return }
+    authFetch('/api/videos/favorites')
+      .then(r => r.json())
+      .then(ids => {
+        if (Array.isArray(ids)) setFavIds(new Set(ids))
+        else refreshFavs()
+      })
+      .catch(refreshFavs)
+  }, [isLoggedIn])
 
   const [favLimitHit, setFavLimitHit] = useState(false)
 
-  const handleFav = (e, item) => {
+  const handleFav = async (e, item) => {
     e.stopPropagation()
+    // Optimistic local update
     const result = toggleFavVideo(item)
     if (result === null) {
       setFavLimitHit(true)
@@ -84,6 +97,10 @@ export default function MediaTab({ gameId }) {
       return
     }
     refreshFavs()
+    // Sync to server if logged in
+    if (isLoggedIn) {
+      authFetch(`/api/videos/${item.id}/favorite`, { method: 'POST' }).catch(() => {})
+    }
   }
 
   const toggleExpanded = (type) =>

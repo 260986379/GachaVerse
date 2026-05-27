@@ -7,7 +7,12 @@ const { startIngestionJobs } = require('./src/services/ingestionScheduler');
 
 const initDb = async () => {
   for (const sql of ALL_TABLES) {
-    await query(sql);
+    try {
+      await query(sql);
+    } catch (err) {
+      // Log but continue — some migrations may fail on existing data (e.g. constraint checks)
+      console.warn('[initDb] migration step skipped:', err.message.split('\n')[0]);
+    }
   }
   await ensureInitialGameAndIngestionLogs();
 };

@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import {
   getFavVideos, getFavChars, getFavArtworks, toggleFavArtwork, getFollowedGames,
-  getGameUID, setGameUID, removeGameUID,
   getProfileBanner, setProfileBanner, clearProfileBanner,
   getProfilePfp, setProfilePfp, clearProfilePfp,
-  getBoards, addBoard, removeBoard, seedBoards,
 } from '../utils/bookmarks'
 import YouTubeEmbed from '../components/ui/YouTubeEmbed'
 import BoardLightbox from '../components/ui/BoardLightbox'
 import ImageLightbox from '../components/ui/ImageLightbox'
+import AuthModal    from '../components/ui/AuthModal'
 import GameCard from '../components/GameCard'
+import { useAuth } from '../context/AuthContext'
+import { getRoleStyle, getRoleGlow } from '../utils/roles'
 import './AccountPage.css'
 
 const SHOWCASE_GAMES = [
@@ -37,11 +38,77 @@ const DEFAULT_GAME_META = {
   pullLabel: 'Gacha History',
 }
 
-function SocialStat({ label, value }) {
+function SocialStat({ label, value, onClick }) {
   return (
-    <div className="ps-social-stat">
+    <button className="ps-social-stat" onClick={onClick}>
       <span className="ps-social-stat__value">{value}</span>
       <span className="ps-social-stat__label">{label}</span>
+    </button>
+  )
+}
+
+const API = import.meta.env.VITE_API_URL || '/api'
+
+function FollowListModal({ userId, tab: initialTab, onClose }) {
+  const [tab,       setTab]       = useState(initialTab) // 'followers' | 'following'
+  const [followers, setFollowers] = useState(null)
+  const [following, setFollowing] = useState(null)
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  useEffect(() => {
+    if (!userId) return
+    fetch(`${API}/users/${userId}/followers`).then(r => r.json()).then(setFollowers).catch(() => setFollowers([]))
+    fetch(`${API}/users/${userId}/following`).then(r => r.json()).then(setFollowing).catch(() => setFollowing([]))
+  }, [userId])
+
+  const list = tab === 'followers' ? followers : following
+
+  return (
+    <div className="follow-modal-overlay" onClick={onClose}>
+      <div className="follow-modal" onClick={e => e.stopPropagation()}>
+
+        <div className="follow-modal__header">
+          <div className="follow-modal__tabs">
+            <button
+              className={`follow-modal__tab${tab === 'followers' ? ' follow-modal__tab--active' : ''}`}
+              onClick={() => setTab('followers')}
+            >Followers</button>
+            <button
+              className={`follow-modal__tab${tab === 'following' ? ' follow-modal__tab--active' : ''}`}
+              onClick={() => setTab('following')}
+            >Following</button>
+          </div>
+          <button className="follow-modal__close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="follow-modal__list">
+          {list === null ? (
+            <p className="follow-modal__empty">Loading…</p>
+          ) : list.length === 0 ? (
+            <p className="follow-modal__empty">
+              {tab === 'followers' ? 'No followers yet.' : 'Not following anyone yet.'}
+            </p>
+          ) : (
+            list.map(u => (
+              <div key={u.id} className="follow-modal__item">
+                <div className="follow-modal__pfp">
+                  {u.avatar_url
+                    ? <img src={u.avatar_url} alt={u.username} />
+                    : <span>{u.username[0].toUpperCase()}</span>
+                  }
+                </div>
+                <span className="follow-modal__username">{u.username}</span>
+              </div>
+            ))
+          )}
+        </div>
+
+      </div>
     </div>
   )
 }
@@ -185,6 +252,7 @@ function AgentDetailModal({ agent, onClose }) {
 function GameAccountView({ game, onBack }) {
   const meta = GAME_ACCOUNT_META[game.id] ?? DEFAULT_GAME_META
   const isZZZ = game.id === 'zenless-zone-zero'
+  const { authFetch } = useAuth()
 
   const [uid, setUid] = useState('')
   const [playerData, setPlayerData] = useState(null)
@@ -193,13 +261,18 @@ function GameAccountView({ game, onBack }) {
   const [changing, setChanging] = useState(false)
   const [activeAgent, setActiveAgent] = useState(null)
 
-  // Auto-load if a UID was previously saved
+  // Auto-load if a UID was previously saved on the server
   useEffect(() => {
     if (!isZZZ) return
-    const saved = getGameUID(game.id)
-    if (saved) {
-      fetchPlayer(saved)
-    }
+    authFetch(`/api/users/me/game-accounts`)
+      .then(r => r.json())
+      .then(accounts => {
+        const linked = Array.isArray(accounts)
+          ? accounts.find(a => a.game_id === game.id)
+          : null
+        if (linked) fetchPlayer(linked.uid)
+      })
+      .catch(() => {})
   }, [game.id])
 
   const fetchPlayer = async (targetUid) => {
@@ -209,7 +282,11 @@ function GameAccountView({ game, onBack }) {
       const res = await fetch(`/api/games/${game.id}/player/${targetUid}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Failed to load profile')
-      setGameUID(game.id, targetUid)
+      // Save to server
+      await authFetch(`/api/users/me/game-accounts/${game.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ uid: targetUid }),
+      }).catch(() => {})
       setPlayerData(data)
       setChanging(false)
     } catch (err) {
@@ -226,8 +303,10 @@ function GameAccountView({ game, onBack }) {
     fetchPlayer(trimmed)
   }
 
-  const handleUnlink = () => {
-    removeGameUID(game.id)
+  const handleUnlink = async () => {
+    try {
+      await authFetch(`/api/users/me/game-accounts/${game.id}`, { method: 'DELETE' })
+    } catch {}
     setPlayerData(null)
     setUid('')
     setError(null)
@@ -409,16 +488,6 @@ function CharCard({ char, onClick }) {
   )
 }
 
-const SEED_BOARDS = [
-  { gameId: 'zenless-zone-zero', gameName: 'Zenless Zone Zero', imageUrl: '/boards/board-1.jpg', caption: '' },
-  { gameId: 'zenless-zone-zero', gameName: 'Zenless Zone Zero', imageUrl: '/boards/board-2.png', caption: '' },
-  { gameId: 'zenless-zone-zero', gameName: 'Zenless Zone Zero', imageUrl: '/boards/board-4.jpg', caption: '' },
-  { gameId: 'zenless-zone-zero', gameName: 'Zenless Zone Zero', imageUrl: '/boards/board-5.jpg', caption: '' },
-  { gameId: 'nikke',             gameName: 'NIKKE',             imageUrl: '/boards/board-3.jpg', caption: '' },
-  { gameId: 'nikke',             gameName: 'NIKKE',             imageUrl: '/boards/board-6.jpg', caption: '' },
-  { gameId: 'nikke',             gameName: 'NIKKE',             imageUrl: '/boards/board-7.jpg', caption: '' },
-]
-
 function BoardUploadModal({ onAdd, onClose }) {
   const [gameId, setGameId] = useState(SHOWCASE_GAMES[0].id)
   const [imageDataUrl, setImageDataUrl] = useState('')
@@ -500,7 +569,7 @@ function BoardUploadModal({ onAdd, onClose }) {
 }
 
 // Compress an image file to a JPEG data URL via canvas.
-// maxW / maxH cap dimensions so localStorage stays reasonable.
+// maxW / maxH cap dimensions to keep base64 payloads reasonable.
 function compressImage(file, maxW, maxH, quality = 0.85) {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -523,6 +592,13 @@ function compressImage(file, maxW, maxH, quality = 0.85) {
 
 export default function AccountPage() {
   const navigate = useNavigate()
+  const { user, isLoggedIn, loadingAuth, refreshUser, authFetch } = useAuth()
+
+  const [authModalOpen,  setAuthModalOpen]  = useState(false)
+  const [followModal,    setFollowModal]    = useState(null)  // null | 'followers' | 'following'
+  const [editingBio,     setEditingBio]     = useState(false)
+  const [bioInput,       setBioInput]       = useState('')
+
   const [favVideos,      setFavVideos]      = useState([])
   const [favChars,       setFavChars]       = useState([])
   const [favArtworks,    setFavArtworks]    = useState([])
@@ -531,7 +607,7 @@ export default function AccountPage() {
   const [showBoardModal, setShowBoardModal] = useState(false)
   const [activeBoard,    setActiveBoard]    = useState(null)
   const [activeArtwork,  setActiveArtwork]  = useState(null)
-  const [activeVideoId, setActiveVideoId] = useState(null)
+  const [activeVideoId,    setActiveVideoId]    = useState(null)
   const [activeVideoTitle, setActiveVideoTitle] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
 
@@ -541,15 +617,40 @@ export default function AccountPage() {
   const pfpInputRef    = useRef(null)
 
   useEffect(() => {
-    seedBoards(SEED_BOARDS)
     setFavVideos(getFavVideos())
     setFavChars(getFavChars())
     setFavArtworks(getFavArtworks())
     setFollowedGames(getFollowedGames())
-    setBoards(getBoards())
-    setBannerSrc(getProfileBanner() || '/account/banner.png')
-    setPfpSrc(getProfilePfp()       || '/account/portrait.jpg')
-  }, [])
+    // Use real avatar/banner from DB if logged in, otherwise fall back to localStorage
+    setBannerSrc(user?.banner_url || getProfileBanner() || null)
+    setPfpSrc(user?.avatar_url   || getProfilePfp()    || null)
+  }, [user])
+
+  // Load boards from server
+  useEffect(() => {
+    if (!user?.id) return
+    authFetch(`/api/boards/user/${user.id}`)
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(data => setBoards(Array.isArray(data) ? data : []))
+      .catch(() => setBoards([]))
+  }, [user?.id])
+
+
+  // Save bio edit
+  const handleSaveBio = async () => {
+    try {
+      const res = await authFetch('/api/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify({ bio: bioInput }),
+      })
+      if (res.ok) {
+        await refreshUser()
+        setEditingBio(false)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   const handleBannerUpload = async (e) => {
     const file = e.target.files?.[0]
@@ -558,6 +659,10 @@ export default function AccountPage() {
     setProfileBanner(dataUrl)
     setBannerSrc(dataUrl)
     e.target.value = ''
+    if (isLoggedIn) {
+      await authFetch('/api/users/me', { method: 'PATCH', body: JSON.stringify({ banner_url: dataUrl }) })
+      refreshUser()
+    }
   }
 
   const handlePfpUpload = async (e) => {
@@ -567,10 +672,29 @@ export default function AccountPage() {
     setProfilePfp(dataUrl)
     setPfpSrc(dataUrl)
     e.target.value = ''
+    if (isLoggedIn) {
+      await authFetch('/api/users/me', { method: 'PATCH', body: JSON.stringify({ avatar_url: dataUrl }) })
+      refreshUser()
+    }
   }
 
-  const resetBanner = () => { clearProfileBanner(); setBannerSrc('/account/banner.png') }
-  const resetPfp    = () => { clearProfilePfp();    setPfpSrc('/account/portrait.jpg') }
+  const resetBanner = async () => {
+    clearProfileBanner()
+    setBannerSrc(null)
+    if (isLoggedIn) {
+      await authFetch('/api/users/me', { method: 'PATCH', body: JSON.stringify({ banner_url: null }) })
+      refreshUser()
+    }
+  }
+
+  const resetPfp = async () => {
+    clearProfilePfp()
+    setPfpSrc(null)
+    if (isLoggedIn) {
+      await authFetch('/api/users/me', { method: 'PATCH', body: JSON.stringify({ avatar_url: null }) })
+      refreshUser()
+    }
+  }
 
   const handleVideoClick = (video) => {
     if (activeVideoId === video.external_id) {
@@ -582,14 +706,33 @@ export default function AccountPage() {
     }
   }
 
-  const handleAddBoard = (boardData) => {
-    const entry = addBoard(boardData)
-    if (entry) setBoards(getBoards())
+  const handleAddBoard = async (boardData) => {
+    try {
+      const res = await authFetch('/api/boards', {
+        method: 'POST',
+        body: JSON.stringify({
+          game_id:   boardData.gameId,
+          game_name: boardData.gameName,
+          image_url: boardData.imageUrl,
+          caption:   boardData.caption,
+        }),
+      })
+      if (res.ok) {
+        const newBoard = await res.json()
+        setBoards(prev => [...prev, newBoard])
+      }
+    } catch (e) {
+      console.error('[Board] add failed:', e)
+    }
   }
 
-  const handleDeleteBoard = (id) => {
-    removeBoard(id)
-    setBoards(getBoards())
+  const handleDeleteBoard = async (id) => {
+    try {
+      await authFetch(`/api/boards/${id}`, { method: 'DELETE' })
+      setBoards(prev => prev.filter(b => b.id !== id))
+    } catch (e) {
+      console.error('[Board] delete failed:', e)
+    }
   }
 
   const handleUnfavArtwork = (id) => {
@@ -634,7 +777,12 @@ export default function AccountPage() {
 
           {/* ── Left sidebar ── */}
           <aside className="profile-sidebar">
-            <h2 className="profile-sidebar__name">Guest User's Profile</h2>
+            <h2 className="profile-sidebar__name">
+              {isLoggedIn
+                ? <><span style={{ fontSize: '1.35em', ...getRoleStyle(user.role) }}>{user.username}</span>'s Profile</>
+                : 'Guest Profile'
+              }
+            </h2>
 
             <div className="profile-sidebar__card">
               <div className="profile-pfp" onClick={() => pfpInputRef.current?.click()}>
@@ -667,17 +815,69 @@ export default function AccountPage() {
                 />
               </div>
 
-              {/* Following / Followers */}
+              {/* Bio */}
+              {isLoggedIn && (
+                <div className="profile-sidebar__bio-section">
+                  {editingBio ? (
+                    <>
+                      <textarea
+                        className="profile-sidebar__bio-input"
+                        value={bioInput}
+                        onChange={e => setBioInput(e.target.value)}
+                        rows={3}
+                        placeholder="Tell the world about yourself…"
+                        maxLength={300}
+                        autoFocus
+                      />
+                      <div className="profile-sidebar__bio-actions">
+                        <button className="profile-sidebar__bio-save" onClick={handleSaveBio}>Save</button>
+                        <button className="profile-sidebar__bio-cancel" onClick={() => setEditingBio(false)}>Cancel</button>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      className="profile-sidebar__bio-display"
+                      onClick={() => { setBioInput(user.bio || ''); setEditingBio(true) }}
+                    >
+                      {user.bio || <span className="profile-sidebar__bio-placeholder">Add a bio…</span>}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Following / Followers — click to open list modal */}
               <div className="profile-sidebar__social">
-                <SocialStat label="Following" value="0" />
+                <SocialStat
+                  label="Followers"
+                  value={user?.followers_count ?? 0}
+                  onClick={() => setFollowModal('followers')}
+                />
                 <div className="profile-sidebar__social-divider" />
-                <SocialStat label="Followers" value="0" />
+                <SocialStat
+                  label="Following"
+                  value={user?.following_count ?? 0}
+                  onClick={() => setFollowModal('following')}
+                />
               </div>
 
+              {/* Login CTA for guests */}
+              {!isLoggedIn && !loadingAuth && (
+                <button className="profile-sidebar__login-cta" onClick={() => setAuthModalOpen(true)}>
+                  Log in to save your profile
+                </button>
+              )}
+
               <div className="profile-sidebar__info">
-                <InfoRow label="Last Online" value="—" />
-                <InfoRow label="Birthday"    value="—" />
-                <InfoRow label="Joined"      value="—" />
+                <InfoRow label="Birthday" value={
+                  user?.birthday
+                    ? new Date(user.birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+                    : '—'
+                } />
+                <InfoRow label="Joined" value={
+                  user?.created_at
+                    ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                    : '—'
+                } />
               </div>
             </div>
           </aside>
@@ -692,6 +892,24 @@ export default function AccountPage() {
               />
             ) : (
               <>
+                {/* Badges */}
+                <section className="profile-section">
+                  <div className="profile-section__header">
+                    <h2 className="profile-section__title">Badges</h2>
+                  </div>
+                  <div className="profile-badges">
+                    <span
+                      className="profile-badge"
+                      style={{
+                        '--badge-color': getRoleStyle(user.role).color,
+                        '--badge-glow':  getRoleGlow(user.role) ?? 'transparent',
+                      }}
+                    >
+                      {user.role}
+                    </span>
+                  </div>
+                </section>
+
                 {/* Board */}
                 <section className="profile-section">
                   <div className="profile-section__header">
@@ -706,9 +924,9 @@ export default function AccountPage() {
                           className="profile-board-card"
                           onClick={() => setActiveBoard(b)}
                         >
-                          <img src={b.imageUrl} alt={b.caption || b.gameName} loading="lazy" />
+                          <img src={b.image_url} alt={b.caption || b.game_name} loading="lazy" />
                           <div className="profile-board-card__overlay">
-                            <span className="profile-board-card__game">{b.gameName}</span>
+                            <span className="profile-board-card__game">{b.game_name}</span>
                             <button
                               className="profile-board-card__delete"
                               onClick={(e) => { e.stopPropagation(); handleDeleteBoard(b.id) }}
@@ -899,6 +1117,16 @@ export default function AccountPage() {
           title={activeArtwork.title}
           sourceUrl={activeArtwork.source_url}
           onClose={() => setActiveArtwork(null)}
+        />
+      )}
+      {authModalOpen && (
+        <AuthModal onClose={() => setAuthModalOpen(false)} />
+      )}
+      {followModal && (
+        <FollowListModal
+          userId={user?.id}
+          tab={followModal}
+          onClose={() => setFollowModal(null)}
         />
       )}
     </div>

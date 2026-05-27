@@ -1,0 +1,63 @@
+/* ── Loading / Not-found states ─────────────────────────────────── */
+.up-loading,
+.up-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.9rem;
+}
+
+.up-not-found button {
+  padding: 0.5rem 1.2rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+}
+.up-not-found button:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ── Follow button ───────────────────────────────────────────────── */
+.up-follow-btn {
+  margin: 0.9rem auto 0;
+  display: block;
+  padding: 0.5rem 1.6rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  background: rgba(124, 58, 237, 0.25);
+  border: 1px solid rgba(124, 58, 237, 0.5);
+  color: #c4b5fd;
+}
+.up-follow-btn:hover {
+  background: rgba(124, 58, 237, 0.45);
+  border-color: rgba(124, 58, 237, 0.75);
+  color: #fff;
+}
+.up-follow-btn--following {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.55);
+}
+.up-follow-btn--following:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+/* ── Bio paragraph (read-only) ──────────────────────────────────── */
+.up-bio {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.55;
+}
