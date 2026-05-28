@@ -18,6 +18,7 @@ const {
   upsertGameAccount,
   removeGameAccount,
 } = require('../controllers/userController');
+const { getNotes, upsertNote, deleteNote, getMyNote } = require('../controllers/profileNoteController');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 // Community / Search / Directory
@@ -46,5 +47,11 @@ router.get('/:id/following',         optionalAuth, getFollowing);
 router.get('/:id/follow-status',     authenticateToken, getFollowStatus);
 router.post('/:id/follow',           authenticateToken, followUser);
 router.delete('/:id/follow',         authenticateToken, unfollowUser);
+
+// Profile notes
+router.get('/:id/notes',             getNotes);
+router.get('/:id/notes/mine',        authenticateToken, getMyNote);
+router.post('/:id/notes',            authenticateToken, upsertNote);
+router.delete('/:id/notes/:noteId',  authenticateToken, deleteNote);
 
 module.exports = router;

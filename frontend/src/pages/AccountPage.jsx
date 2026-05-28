@@ -15,6 +15,7 @@ import GameCard from '../components/GameCard'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
 import './AccountPage.css'
+import './UserProfilePage.css'
 
 const SHOWCASE_GAMES = [
   { id: 'zenless-zone-zero', name: 'Zenless Zone Zero', color1: '#f59e42', color2: '#b04a00' },
@@ -120,6 +121,64 @@ function InfoRow({ label, value }) {
     <div className="ps-info-row">
       <span className="ps-info-row__label">{label}</span>
       <span className="ps-info-row__value">{value}</span>
+    </div>
+  )
+}
+
+function timeAgoShort(iso) {
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60_000)
+  if (m < 60)  return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24)  return `${h}h ago`
+  const d = Math.floor(h / 24)
+  if (d < 30)  return `${d}d ago`
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function ViewNotesModal({ notes, onClose }) {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div className="note-modal-overlay" onClick={onClose}>
+      <div className="note-modal note-modal--view" onClick={e => e.stopPropagation()}>
+        <div className="note-modal__header">
+          <span className="note-modal__title">
+            Notes{notes.length > 0 ? ` · ${notes.length}` : ''}
+          </span>
+          <button className="note-modal__close" onClick={onClose}>✕</button>
+        </div>
+        <div className="note-modal__list">
+          {notes.length === 0 ? (
+            <p className="note-modal__empty">No notes yet. They'll appear here when other users leave one.</p>
+          ) : (
+            notes.map(n => (
+              <div key={n.id} className="note-modal__item">
+                <button
+                  className="note-modal__item-author"
+                  onClick={() => { navigate(`/u/${n.author_username}`); onClose() }}
+                >
+                  <div className="note-modal__item-pfp">
+                    {n.author_avatar
+                      ? <img src={n.author_avatar} alt={n.author_username} />
+                      : <span>{n.author_username[0].toUpperCase()}</span>
+                    }
+                  </div>
+                  <span className="note-modal__item-username">{n.author_username}</span>
+                </button>
+                <p className="note-modal__item-content">{n.content}</p>
+                <span className="note-modal__item-time">{timeAgoShort(n.created_at)}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   )
 }
@@ -254,7 +313,7 @@ function AgentDetailModal({ agent, onClose }) {
 function GameAccountView({ game, onBack }) {
   const meta = GAME_ACCOUNT_META[game.id] ?? DEFAULT_GAME_META
   const isZZZ = game.id === 'zenless-zone-zero'
-  const { authFetch } = useAuth()
+  const { user, authFetch } = useAuth()
 
   const [uid, setUid] = useState('')
   const [playerData, setPlayerData] = useState(null)
@@ -265,8 +324,8 @@ function GameAccountView({ game, onBack }) {
 
   // Auto-load if a UID was previously saved on the server
   useEffect(() => {
-    if (!isZZZ) return
-    authFetch(`/api/users/me/game-accounts`)
+    if (!isZZZ || !user?.id) return
+    authFetch(`/api/users/${user.id}/game-accounts`)
       .then(r => r.json())
       .then(accounts => {
         const linked = Array.isArray(accounts)
@@ -644,6 +703,9 @@ export default function AccountPage() {
   const [activeVideoTitle, setActiveVideoTitle] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
 
+  const [notes,          setNotes]          = useState([])
+  const [notesOpen,      setNotesOpen]      = useState(false)
+
   const [bannerSrc, setBannerSrc] = useState(null)
   const [pfpSrc,    setPfpSrc]    = useState(null)
   const bannerInputRef = useRef(null)
@@ -710,6 +772,15 @@ export default function AccountPage() {
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(data => setBoards(Array.isArray(data) ? data : []))
       .catch(() => setBoards([]))
+  }, [user?.id])
+
+  // Load notes left on own profile
+  useEffect(() => {
+    if (!user?.id) return
+    fetch(`/api/users/${user.id}/notes`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setNotes(Array.isArray(data) ? data : []))
+      .catch(() => {})
   }, [user?.id])
 
 
@@ -994,7 +1065,16 @@ export default function AccountPage() {
                     : '—'
                 } />
               </div>
+
             </div>
+
+            {/* View Notes button — outside the card */}
+            {isLoggedIn && (
+              <button className="up-note-btn" onClick={() => setNotesOpen(true)}>
+                ✉ View Notes{notes.length > 0 ? ` · ${notes.length}` : ''}
+              </button>
+            )}
+
           </aside>
 
           {/* ── Right main ── */}
@@ -1285,6 +1365,12 @@ export default function AccountPage() {
           userId={user?.id}
           tab={followModal}
           onClose={() => setFollowModal(null)}
+        />
+      )}
+      {notesOpen && (
+        <ViewNotesModal
+          notes={notes}
+          onClose={() => setNotesOpen(false)}
         />
       )}
     </div>

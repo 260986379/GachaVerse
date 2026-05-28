@@ -336,43 +336,29 @@
   display: none;
 }
 
-/* ── My Games ──────────────────────────────────────────── */
+/* ── Games List ─────────────────────────────────────────── */
 
-.filter-tabs {
+.section-header__right {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.filter-tab {
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: #888;
+.section-view-all {
+  background: none;
+  border: none;
   font-family: inherit;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-
-.filter-tab:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ccc;
-}
-
-.filter-tab--active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.my-games-hint {
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.28);
-  margin: 0 0 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.section-view-all:hover {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .browse-all-card {

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GAMES, FEATURED_GAMES } from '../data/games'
 import GameCard from '../components/GameCard'
-import { getFollowedGames } from '../utils/bookmarks'
+
 import { loadYTApi } from '../utils/ytApi'
 import { getRoleStyle } from '../utils/roles'
 import { useAuth } from '../context/AuthContext'
@@ -190,61 +190,28 @@ function TrendingRow() {
   )
 }
 
-const GENRE_FILTERS = ['All', 'Action RPG', 'Turn-Based RPG', 'Tactical RPG', 'Tower Defense RPG', 'Shooter RPG']
+const GAMES_LIST_IDS = ['zenless-zone-zero', 'nikke', 'genshin-impact', 'honkai-star-rail', 'wuthering-waves']
 
-function MyGamesSection() {
-  const rowRef = useRef(null)
-  const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
-  const [followed, setFollowed] = useState([])
-  const [filter, setFilter] = useState('All')
-  const { loadingAuth } = useAuth()
-
-  // Re-read once auth settles so _uid is correctly scoped to the logged-in user
-  useEffect(() => {
-    if (loadingAuth) return
-    setFollowed(getFollowedGames())
-  }, [loadingAuth])
-
-  // Keep in sync with follow/unfollow actions (same-tab custom event + cross-tab storage event)
-  useEffect(() => {
-    const sync = () => setFollowed(getFollowedGames())
-    window.addEventListener('gv:followedGamesChanged', sync)
-    window.addEventListener('storage', sync)
-    return () => {
-      window.removeEventListener('gv:followedGamesChanged', sync)
-      window.removeEventListener('storage', sync)
-    }
-  }, [])
-
-  const gameMap = Object.fromEntries(GAMES.map((g) => [g.id, g]))
-  const allFollowed = followed.map((f) => gameMap[f.id]).filter(Boolean)
-  const games = filter === 'All' ? allFollowed : allFollowed.filter((g) => g.genre === filter)
+function GamesListSection() {
+  const navigate = useNavigate()
+  const rowRef   = useRef(null)
+  const scroll   = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
+  const games    = GAMES_LIST_IDS.map((id) => GAMES.find((g) => g.id === id)).filter(Boolean)
 
   return (
     <section className="trending-section">
       <div className="section-header">
-        <h2 className="section-title">Followed Games</h2>
-        {allFollowed.length > 0 && (
+        <h2 className="section-title">Games List</h2>
+        <div className="section-header__right">
+          <button className="section-view-all" onClick={() => navigate('/games')}>
+            View all ›
+          </button>
           <div className="section-arrows">
             <button className="section-arrow" onClick={() => scroll(-1)}>‹</button>
             <button className="section-arrow" onClick={() => scroll(1)}>›</button>
           </div>
-        )}
+        </div>
       </div>
-      <div className="filter-tabs">
-        {GENRE_FILTERS.map((f) => (
-          <button
-            key={f}
-            className={`filter-tab${filter === f ? ' filter-tab--active' : ''}`}
-            onClick={() => setFilter(f)}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-      {allFollowed.length === 0 && (
-        <p className="my-games-hint">Follow a game to see it here.</p>
-      )}
       <div className="trending-row" ref={rowRef}>
         {games.map((game) => (
           <GameCard key={game.id} game={game} size="md" />
@@ -330,7 +297,7 @@ export default function ExplorePage() {
       <SpotlightHero />
       <div className="explore-content">
         <TrendingRow />
-        <MyGamesSection />
+        <GamesListSection />
         <CommunitySection />
       </div>
     </div>

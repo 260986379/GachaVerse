@@ -28,7 +28,7 @@ export default function Navbar() {
   const menuRef                     = useRef(null)
 
   const { user, logout, loadingAuth } = useAuth()
-  const { items, loading, unreadCount, lastSeen, markAllRead, followingAnyGame } = useNotifications()
+  const { items, socialItems, loading, unreadCount, lastSeen, markAllRead, followingAnyGame } = useNotifications()
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -155,6 +155,7 @@ export default function Navbar() {
       {notifOpen  && (
         <NotifPanel
           items={items}
+          socialItems={socialItems}
           loading={loading}
           unreadCount={unreadCount}
           lastSeen={lastSeen}

@@ -1,4 +1,5 @@
 const { query } = require('../config/db');
+const { createUserNotification } = require('./userNotificationController');
 
 const BOARD_LIMIT = 10;
 
@@ -113,6 +114,14 @@ const addComment = async (req, res, next) => {
       [req.params.id, req.user.id, text.trim()]
     );
     const comment = rows[0];
+
+    // Notify the board owner (fire-and-forget)
+    query('SELECT user_id FROM boards WHERE id = $1', [req.params.id])
+      .then(({ rows: b }) => {
+        if (b[0]?.user_id) createUserNotification(req.user.id, b[0].user_id, 'board_comment').catch(() => {});
+      })
+      .catch(() => {});
+
     // Return with full user info so the frontend can display it immediately
     res.status(201).json({
       ...comment,

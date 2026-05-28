@@ -82,6 +82,93 @@ function FollowListModal({ userId, tab: initialTab, onClose }) {
   )
 }
 
+/* ── Note write/edit modal (shown on other user's profile) ───────── */
+
+const MAX_NOTE = 50
+
+function LeaveNoteModal({ targetId, existingNote, onSaved, onDeleted, onClose, authFetch }) {
+  const [text,    setText]    = useState(existingNote?.content ?? '')
+  const [saving,  setSaving]  = useState(false)
+  const [error,   setError]   = useState(null)
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!text.trim()) return
+    setSaving(true); setError(null)
+    try {
+      const res  = await authFetch(`${API}/users/${targetId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Failed to save note.')
+      onSaved(data)
+      onClose()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!existingNote) return
+    setSaving(true); setError(null)
+    try {
+      const res = await authFetch(`${API}/users/${targetId}/notes/${existingNote.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete note.')
+      onDeleted()
+      onClose()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="note-modal-overlay" onClick={onClose}>
+      <div className="note-modal" onClick={e => e.stopPropagation()}>
+        <div className="note-modal__header">
+          <span className="note-modal__title">{existingNote ? 'Edit Note' : 'Leave a Note'}</span>
+          <button className="note-modal__close" onClick={onClose}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <textarea
+            className="note-modal__textarea"
+            placeholder="Write something short…"
+            maxLength={MAX_NOTE}
+            value={text}
+            onChange={e => setText(e.target.value)}
+            autoFocus
+          />
+          <div className="note-modal__footer">
+            <span className="note-modal__count">{text.length}/{MAX_NOTE}</span>
+            <div className="note-modal__actions">
+              {existingNote && (
+                <button type="button" className="note-modal__delete" onClick={handleDelete} disabled={saving}>
+                  Delete
+                </button>
+              )}
+              <button type="submit" className="note-modal__submit" disabled={saving || !text.trim()}>
+                {saving ? 'Saving…' : existingNote ? 'Update' : 'Post'}
+              </button>
+            </div>
+          </div>
+          {error && <p className="note-modal__error">{error}</p>}
+        </form>
+      </div>
+    </div>
+  )
+}
+
 /* ── Main page ───────────────────────────────────────────────────── */
 
 export default function UserProfilePage() {
@@ -99,6 +186,8 @@ export default function UserProfilePage() {
   const [boards,        setBoards]        = useState([])
   const [activeBoard,   setActiveBoard]   = useState(null)
   const [gameAccounts,  setGameAccounts]  = useState([])
+  const [myNote,        setMyNote]        = useState(undefined) // undefined = not fetched yet
+  const [noteOpen,      setNoteOpen]      = useState(false)
 
   /* Scroll to top on every profile visit */
   useEffect(() => {
@@ -151,6 +240,15 @@ export default function UserProfilePage() {
         setFollowCounts({ followers_count: d.followers_count, following_count: d.following_count })
       })
       .catch(() => {})
+  }, [profile?.id, isLoggedIn])
+
+  /* Fetch viewer's existing note on this profile */
+  useEffect(() => {
+    if (!profile?.id || !isLoggedIn) return
+    authFetch(`${API}/users/${profile.id}/notes/mine`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setMyNote(data ?? null))
+      .catch(() => setMyNote(null))
   }, [profile?.id, isLoggedIn])
 
   const handleFollow = async () => {
@@ -266,6 +364,17 @@ export default function UserProfilePage() {
               </div>
 
             </div>
+
+            {/* Leave / Edit Note button — outside the card */}
+            {isLoggedIn && (
+              <button
+                className={`up-note-btn${myNote ? ' up-note-btn--edit' : ''}`}
+                onClick={() => setNoteOpen(true)}
+              >
+                {myNote ? '✎ Edit Note' : '✎ Leave Note'}
+              </button>
+            )}
+
           </aside>
 
           {/* ── Main content ── */}
@@ -405,6 +514,16 @@ export default function UserProfilePage() {
           board={activeBoard}
           boardOwner={profile ? { id: profile.id, username: profile.username, avatar_url: profile.avatar_url, role: profile.role } : null}
           onClose={() => setActiveBoard(null)}
+        />
+      )}
+      {noteOpen && (
+        <LeaveNoteModal
+          targetId={profile.id}
+          existingNote={myNote}
+          authFetch={authFetch}
+          onSaved={(note) => setMyNote(note)}
+          onDeleted={() => setMyNote(null)}
+          onClose={() => setNoteOpen(false)}
         />
       )}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}

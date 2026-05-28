@@ -19,6 +19,11 @@ const GAME_SHORT = {
   'wuthering-waves':   'WuWa',
 }
 
+const SOCIAL_LABEL = {
+  profile_note:  'left a note on your profile',
+  board_comment: 'commented on your board',
+}
+
 function timeAgo(iso) {
   const diff = Date.now() - new Date(iso).getTime()
   const m = Math.floor(diff / 60_000)
@@ -30,7 +35,7 @@ function timeAgo(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-export default function NotifPanel({ items, loading, unreadCount, lastSeen, markAllRead, followingAnyGame, onClose }) {
+export default function NotifPanel({ items, socialItems = [], loading, unreadCount, lastSeen, markAllRead, followingAnyGame, onClose }) {
   const navigate = useNavigate()
   const [hoveredItem, setHoveredItem] = useState(null)
 
@@ -50,8 +55,19 @@ export default function NotifPanel({ items, loading, unreadCount, lastSeen, mark
     onClose()
   }
 
+  const handleSocialItem = (notif) => {
+    markAllRead()
+    navigate('/account')
+    onClose()
+  }
+
   const unread = items.filter(isUnread)
   const read   = items.filter(i => !isUnread(i))
+  const socialUnread = socialItems.filter(n => !n.read)
+  const socialRead   = socialItems.filter(n => n.read)
+
+  const hasSocial = socialItems.length > 0
+  const hasGames  = items.length > 0
 
   return (
     <div className="search-modal-overlay" onClick={onClose}>
@@ -74,37 +90,53 @@ export default function NotifPanel({ items, loading, unreadCount, lastSeen, mark
           <div className="search-modal__results notif-panel__list" onMouseLeave={() => setHoveredItem(null)}>
             {loading ? (
               <p className="search-modal__hint">Loading…</p>
-            ) : !followingAnyGame ? (
-              <p className="search-modal__empty">Follow a game to receive updates.</p>
-            ) : items.length === 0 ? (
-              <p className="search-modal__empty">No updates yet for your followed games.</p>
+            ) : !hasSocial && !followingAnyGame ? (
+              <p className="search-modal__empty">Follow a game or interact with others to receive updates.</p>
             ) : (
               <>
-                {unread.length > 0 && (
+                {/* ── Activity (social) ── */}
+                {hasSocial && (
                   <>
-                    <div className="search-modal__section-label">New</div>
+                    <div className="search-modal__section-label">Activity</div>
+                    {socialUnread.map(n => (
+                      <SocialNotifItem key={n.id} notif={n} unread onClick={() => handleSocialItem(n)} />
+                    ))}
+                    {socialRead.map(n => (
+                      <SocialNotifItem key={n.id} notif={n} onClick={() => handleSocialItem(n)} />
+                    ))}
+                  </>
+                )}
+
+                {/* ── Game video feed ── */}
+                {followingAnyGame && (hasGames ? (
+                  <>
+                    <div className="search-modal__section-label notif-panel__section--feed">
+                      {hasSocial ? 'Game Updates' : 'New'}
+                    </div>
                     {unread.map(item => (
                       <NotifItem key={item.id} item={item} unread onClick={() => handleItem(item)} onMouseEnter={() => setHoveredItem(item)} />
                     ))}
-                  </>
-                )}
-                {read.length > 0 && (
-                  <>
-                    {unread.length > 0 && (
-                      <div className="search-modal__section-label notif-panel__section--earlier">Earlier</div>
+                    {read.length > 0 && (
+                      <>
+                        {unread.length > 0 && (
+                          <div className="search-modal__section-label notif-panel__section--earlier">Earlier</div>
+                        )}
+                        {read.map(item => (
+                          <NotifItem key={item.id} item={item} onClick={() => handleItem(item)} onMouseEnter={() => setHoveredItem(item)} />
+                        ))}
+                      </>
                     )}
-                    {read.map(item => (
-                      <NotifItem key={item.id} item={item} onClick={() => handleItem(item)} onMouseEnter={() => setHoveredItem(item)} />
-                    ))}
                   </>
-                )}
+                ) : (
+                  <p className="search-modal__empty">No updates yet for your followed games.</p>
+                ))}
               </>
             )}
           </div>
 
         </div>
 
-        {/* ── Hover preview panel ── */}
+        {/* ── Game video hover preview panel ── */}
         {hoveredItem && (
           <div className="notif-preview-panel">
             <div className="notif-preview__thumb-wrap">
@@ -133,6 +165,31 @@ export default function NotifPanel({ items, loading, unreadCount, lastSeen, mark
 
       </div>
     </div>
+  )
+}
+
+function SocialNotifItem({ notif, unread, onClick }) {
+  return (
+    <button
+      className={`search-modal__result notif-item notif-item--social${unread ? ' notif-item--unread' : ''}`}
+      onClick={onClick}
+    >
+      <div className="notif-item__thumb notif-item__thumb--avatar">
+        {notif.actor_avatar
+          ? <img src={notif.actor_avatar} alt={notif.actor_username} loading="lazy" />
+          : <span className="notif-item__thumb-initial">{notif.actor_username[0].toUpperCase()}</span>
+        }
+      </div>
+      <div className="search-modal__result-info">
+        <span className="notif-item__social-text">
+          <strong>{notif.actor_username}</strong>
+          {' '}{SOCIAL_LABEL[notif.type] ?? 'interacted with you'}
+          {unread && <span className="notif-item__new-badge">NEW</span>}
+        </span>
+        <span className="search-modal__result-meta">{timeAgo(notif.created_at)}</span>
+      </div>
+      <span className="search-modal__result-arrow">›</span>
+    </button>
   )
 }
 

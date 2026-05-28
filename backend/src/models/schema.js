@@ -202,9 +202,6 @@ const ALTER_USERS_IMAGES_TO_TEXT = `
 
 const ALTER_USERS_ADD_ROLE = `
   ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(10) NOT NULL DEFAULT 'Regular';
-  ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
-  ALTER TABLE users ADD CONSTRAINT users_role_check
-    CHECK (role IN ('Owner', 'Dev', 'VIP', 'Member', 'Regular'));
 `;
 
 const ALTER_USERS_ADD_DEBUG_ROLE = `
@@ -308,6 +305,30 @@ const CREATE_BOARDS = `
   CREATE INDEX IF NOT EXISTS idx_boards_user_id ON boards(user_id);
 `;
 
+const CREATE_USER_NOTIFICATIONS = `
+  CREATE TABLE IF NOT EXISTS user_notifications (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type         VARCHAR(30) NOT NULL CHECK (type IN ('profile_note', 'board_comment')),
+    read         BOOLEAN DEFAULT FALSE,
+    created_at   TIMESTAMP DEFAULT NOW()
+  );
+  CREATE INDEX IF NOT EXISTS idx_user_notifs_recipient ON user_notifications(recipient_id, created_at DESC);
+`;
+
+const CREATE_PROFILE_NOTES = `
+  CREATE TABLE IF NOT EXISTS profile_notes (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    author_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    target_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content        VARCHAR(50) NOT NULL,
+    created_at     TIMESTAMP DEFAULT NOW(),
+    UNIQUE (author_id, target_user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_profile_notes_target ON profile_notes(target_user_id);
+`;
+
 const ALL_TABLES = [
   CREATE_USERS,
   ALTER_USERS_ADD_FIREBASE_UID,
@@ -343,6 +364,8 @@ const ALL_TABLES = [
   CREATE_USER_FAVORITE_ARTWORKS,
   CREATE_USER_GAME_ACCOUNTS,
   CREATE_BOARDS,
+  CREATE_PROFILE_NOTES,
+  CREATE_USER_NOTIFICATIONS,
 ];
 
 module.exports = { ALL_TABLES };
