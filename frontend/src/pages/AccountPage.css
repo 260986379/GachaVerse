@@ -320,6 +320,50 @@
   color: #383838;
 }
 
+/* ── Drag-to-reorder wrapper ──────────────────────────────────── */
+.fav-drag-item {
+  position: relative;
+  cursor: grab;
+  user-select: none;
+}
+
+.fav-drag-item:active {
+  cursor: grabbing;
+  opacity: 0.45;
+}
+
+/* Unfav overlay button (♥) — appears on hover */
+.fav-item__unfav {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 5;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #e05c7a;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, transform 0.12s;
+  backdrop-filter: blur(4px);
+  line-height: 1;
+}
+
+.fav-drag-item:hover .fav-item__unfav {
+  opacity: 1;
+}
+
+.fav-item__unfav:hover {
+  background: rgba(180, 30, 55, 0.75);
+  transform: scale(1.12);
+}
+
 /* ── Badges ───────────────────────────────────────────────────── */
 .profile-badges {
   display: flex;

@@ -3,10 +3,18 @@
 // All reads/writes are automatically scoped to that user.
 // Guests use 'guest' scope.
 
+const API = import.meta.env.VITE_API_URL || '/api'
+
 let _uid = 'guest'
+let _authFetch = null   // set by AuthContext when logged in; null for guests
 
 export function setCurrentUser(userId) {
   _uid = userId || 'guest'
+}
+
+/** Called by AuthContext so toggles can sync to DB when the user is logged in. */
+export function setAuthFetch(fn) {
+  _authFetch = fn || null
 }
 
 // Prefix every key with the current user ID
@@ -30,7 +38,7 @@ const GAME_UID_PREFIX       = 'gv_game_uid_'
 const BOARDS_KEY            = 'gv_boards'
 const PROFILE_BANNER_KEY    = 'gv_profile_banner'
 const PROFILE_PFP_KEY       = 'gv_profile_pfp'
-const FAV_LIMIT             = 10
+const FAV_LIMIT             = 9
 const BOARDS_LIMIT          = 10
 
 // ── Favorite videos ───────────────────────────────────────────────────────
@@ -40,10 +48,22 @@ export const isFavVideo   = (id) => load(k(VIDEOS_KEY)).some((v) => v.id === id)
 export function toggleFavVideo(video) {
   const list = load(k(VIDEOS_KEY))
   const exists = list.some((v) => v.id === video.id)
-  if (!exists && list.length >= FAV_LIMIT) return null
+  if (!exists) {
+    // Cap regular videos and BGM separately at FAV_LIMIT each
+    const isMusic    = video.category === 'Music'
+    const sameCategory = list.filter(v => (v.category === 'Music') === isMusic)
+    if (sameCategory.length >= FAV_LIMIT) return null
+  }
   save(k(VIDEOS_KEY), exists ? list.filter((v) => v.id !== video.id) : [...list, video])
+  // Sync to DB for logged-in users (fire-and-forget)
+  if (_authFetch && video.id) {
+    _authFetch(`${API}/videos/${video.id}/favorite`, { method: 'POST' }).catch(() => {})
+  }
   return !exists
 }
+
+/** Persist a reordered video list (regular + BGM combined) */
+export const saveFavVideos = (list) => save(k(VIDEOS_KEY), list)
 
 // ── Favorite characters ───────────────────────────────────────────────────
 export const getFavChars = () => load(k(CHARS_KEY))
@@ -54,8 +74,15 @@ export function toggleFavChar(char) {
   const exists = list.some((c) => c.id === char.id)
   if (!exists && list.length >= FAV_LIMIT) return null
   save(k(CHARS_KEY), exists ? list.filter((c) => c.id !== char.id) : [...list, char])
+  // Sync to DB for logged-in users (fire-and-forget)
+  if (_authFetch && char.id) {
+    _authFetch(`${API}/characters/${char.id}/favorite`, { method: 'POST' }).catch(() => {})
+  }
   return !exists
 }
+
+/** Persist a reordered characters list */
+export const saveFavChars = (list) => save(k(CHARS_KEY), list)
 
 // ── Favorite artworks ─────────────────────────────────────────────────────
 export const getFavArtworks  = () => load(k(FAV_ART_KEY))
@@ -66,8 +93,15 @@ export function toggleFavArtwork(artwork) {
   const exists = list.some((a) => a.id === artwork.id)
   if (!exists && list.length >= FAV_LIMIT) return null
   save(k(FAV_ART_KEY), exists ? list.filter((a) => a.id !== artwork.id) : [...list, artwork])
+  // Sync to DB for logged-in users (fire-and-forget)
+  if (_authFetch && artwork.id) {
+    _authFetch(`${API}/artworks/${artwork.id}/favorite`, { method: 'POST' }).catch(() => {})
+  }
   return !exists
 }
+
+/** Persist a reordered artworks list */
+export const saveFavArtworks = (list) => save(k(FAV_ART_KEY), list)
 
 // ── Followed games ────────────────────────────────────────────────────────
 export const getFollowedGames = () => load(k(FOLLOWS_KEY))

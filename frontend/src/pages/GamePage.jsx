@@ -42,13 +42,12 @@ const PLATFORM_COLORS = {
   discord: '#5865f2',
 }
 
-function TabPanel({ tab, gameId, youtubeId, youtubeTitle, initialCharId }) {
+function TabPanel({ tab, gameId, youtubeId, youtubeTitle, initialCharId, initialVideoId }) {
   if (tab === 'Community') return <CommunityTab gameId={gameId} />
-  if (tab === 'News Feed') return <NewsFeedTab gameId={gameId} youtubeId={youtubeId} youtubeTitle={youtubeTitle} />
-  if (tab === 'Official Videos') return <MediaTab gameId={gameId} />
+  if (tab === 'Official Videos') return <MediaTab gameId={gameId} initialVideoId={initialVideoId} />
   if (tab === 'Official Artworks') return <OfficialArtTab gameId={gameId} />
   if (tab === 'Characters') {
-    if (gameId === 'nikke') return <NikkeCharactersTab />
+    if (gameId === 'nikke') return <NikkeCharactersTab initialCharId={initialCharId} />
     return <CastTab gameId={gameId} initialCharId={initialCharId} />
   }
   if (tab === 'Official Platforms') {
@@ -93,13 +92,20 @@ export default function GamePage() {
   const location = useLocation()
   const game = GAMES.find((g) => g.id === gameId)
 
-  const initialTab = location.state?.openTab ?? TABS[0]
-  const initialCharId = location.state?.openCharId ?? null
+  const initialTab     = location.state?.openTab     ?? TABS[0]
+  const initialCharId  = location.state?.openCharId  ?? null
+  const initialVideoId = location.state?.openVideoId ?? null
 
   const [activeTab, setActiveTab] = useState(initialTab)
   const [posterFailed, setPosterFailed] = useState(false)
 
   useEffect(() => { window.scrollTo(0, 0) }, [gameId])
+
+  // Re-apply navigation state when routed to this same game page again
+  // (e.g. clicking a notification while already on /game/:id)
+  useEffect(() => {
+    if (location.state?.openTab) setActiveTab(location.state.openTab)
+  }, [location.key])
   const [following, setFollowing] = useState(() => game ? isFollowingGame(game.id) : false)
 
   const handleFollow = () => {
@@ -206,7 +212,7 @@ export default function GamePage() {
             <NewsFeedTab gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} isVisible={activeTab === 'News Feed'} />
           </div>
           {activeTab !== 'News Feed' && (
-            <TabPanel tab={activeTab} gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} initialCharId={initialCharId} />
+            <TabPanel tab={activeTab} gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} initialCharId={initialCharId} initialVideoId={initialVideoId} />
           )}
         </div>
         <aside className="game-events-panel">

@@ -79,11 +79,12 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle, isVisible
   useEffect(() => {
     setBanners(deriveBanners(gameId))
     const localEntries = BANNER_CONFIG[gameId] || []
-    // If the DB banner has no image_url, patch it from the local config by name
+    // User-uploaded local images (bannerConfig.js) take priority over API images.
+    // If no local image exists, the API image (e.g. HoYo CDN) is used as a fallback.
     const patchImages = (list) => list.map((b) => {
-      if (b.image_url) return b
       const local = localEntries.find((l) => l.name === b.name)
-      return local?.image_url ? { ...b, image_url: local.image_url } : b
+      if (local?.image_url) return { ...b, image_url: local.image_url }
+      return b
     })
     fetch(`/api/games/${gameId}/banners`)
       .then((r) => (r.ok ? r.json() : null))

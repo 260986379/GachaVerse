@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle } from '../utils/roles'
@@ -36,10 +36,8 @@ function UserGridCard({ user }) {
 }
 
 export default function CommunityPage() {
-  const [query,      setQuery]      = useState('')
-  const [allUsers,   setAllUsers]   = useState(null)
-  const [results,    setResults]    = useState(null)   // null = not yet searched
-  const inputRef = useRef(null)
+  const [allUsers, setAllUsers] = useState(null)
+  const [query,    setQuery]    = useState('')
   const { isLoggedIn, loadingAuth, authFetch } = useAuth()
 
   useEffect(() => {
@@ -52,28 +50,20 @@ export default function CommunityPage() {
       .catch(() => setAllUsers([]))
   }, [loadingAuth, isLoggedIn])
 
-  // Debounced search
-  useEffect(() => {
-    const q = query.trim()
-    if (!q) { setResults(null); return }
-    const fetchFn = isLoggedIn ? authFetch : fetch
-    const timer = setTimeout(() => {
-      fetchFn(`${API}/users/search?q=${encodeURIComponent(q)}`)
-        .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
-        .then(data => setResults(Array.isArray(data) ? data : []))
-        .catch(() => setResults([]))
-    }, 220)
-    return () => clearTimeout(timer)
-  }, [query, isLoggedIn])
+  const isLoading = allUsers === null
+  const q = query.trim().toLowerCase()
+  const displayed = q && allUsers
+    ? allUsers.filter(u =>
+        u.username.toLowerCase().includes(q) ||
+        u.bio?.toLowerCase().includes(q)
+      )
+    : allUsers ?? []
 
-  const q            = query.trim()
-  const displayUsers = q ? (results ?? []) : (allUsers ?? [])
-  const isLoading    = !q && allUsers === null
-  const isSearching  = !!q && results === null
-
-  const countLabel = isLoading || isSearching
+  const countLabel = isLoading
     ? '…'
-    : `${displayUsers.length} ${q ? 'result' : 'member'}${displayUsers.length !== 1 ? 's' : ''}`
+    : q
+      ? `${displayed.length} result${displayed.length !== 1 ? 's' : ''}`
+      : `${allUsers.length} member${allUsers.length !== 1 ? 's' : ''}`
 
   return (
     <div className="cpage">
@@ -85,25 +75,15 @@ export default function CommunityPage() {
           <span className="cpage-header__count">{countLabel}</span>
         </div>
 
-        {/* Search bar */}
         <div className="cpage-search">
           <span className="cpage-search__icon">⌕</span>
           <input
-            ref={inputRef}
             className="cpage-search__input"
-            type="text"
+            type="search"
             placeholder="Search users…"
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
-          {query && (
-            <button
-              className="cpage-search__clear"
-              onClick={() => { setQuery(''); inputRef.current?.focus() }}
-            >
-              ✕
-            </button>
-          )}
         </div>
       </div>
 
@@ -111,13 +91,13 @@ export default function CommunityPage() {
       <div className="cpage-content">
         {isLoading ? (
           <p className="cpage-empty">Loading…</p>
-        ) : displayUsers.length === 0 ? (
+        ) : displayed.length === 0 ? (
           <p className="cpage-empty">
-            {q ? `No users found for "${query}".` : 'No community members yet.'}
+            {q ? `No users found for "${query}"` : 'No community members yet.'}
           </p>
         ) : (
           <div className="cpage-grid">
-            {displayUsers.map(u => (
+            {displayed.map(u => (
               <UserGridCard key={u.id} user={u} />
             ))}
           </div>

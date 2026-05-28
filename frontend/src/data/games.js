@@ -45,6 +45,12 @@ export const GAMES = [
     description:
       "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from alien invaders.",
     events: [],
+    officialPlatforms: [
+      { name: 'Official Website', url: 'https://nikke-en.com/', type: 'website' },
+      { name: 'Twitter / X',      url: 'https://x.com/NIKKE_en', type: 'twitter' },
+      { name: 'Reddit',           url: 'https://www.reddit.com/r/NikkeMobile/', type: 'reddit' },
+      { name: 'Discord',          url: 'https://discord.com/invite/nikke-en', type: 'discord' },
+    ],
   },
   {
     id: "genshin-impact",

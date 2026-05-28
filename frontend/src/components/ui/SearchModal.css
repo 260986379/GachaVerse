@@ -49,6 +49,40 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
+/* ── Mode toggle pill ── */
+.search-modal__toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.search-modal__toggle-btn {
+  padding: 0.2rem 0.65rem;
+  border-radius: 5px;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.13s, color 0.13s;
+  white-space: nowrap;
+}
+
+.search-modal__toggle-btn:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-modal__toggle-btn--active {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.92);
+}
+
 .search-modal__icon {
   color: rgba(255, 255, 255, 0.35);
   font-size: 1.25rem;

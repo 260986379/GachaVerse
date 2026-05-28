@@ -64,39 +64,11 @@ module.exports = {
   ],
 
   // ── Genshin Impact ─────────────────────────────────────────────────────────
-  // Version 5.8  Phase 1: May 20 – Jun 9  |  Phase 2: Jun 9 – Jun 30
-  'genshin-impact': [
-    {
-      name: 'Nicole Character Event Wish',
-      type: 'Character',
-      starts_at: '2026-05-20T18:00:00Z',
-      ends_at:   '2026-06-09T14:59:00Z',
-    },
-    {
-      name: 'Durin Character Event Wish',
-      type: 'Character',
-      starts_at: '2026-05-20T18:00:00Z',
-      ends_at:   '2026-06-09T14:59:00Z',
-    },
-    {
-      name: 'Weapon Event Wish',
-      type: 'Weapon',
-      starts_at: '2026-05-20T18:00:00Z',
-      ends_at:   '2026-06-09T14:59:00Z',
-    },
-    {
-      name: 'Lohen Character Event Wish',
-      type: 'Character',
-      starts_at: '2026-06-09T18:00:00Z',
-      ends_at:   '2026-06-30T14:59:00Z',
-    },
-    {
-      name: 'Mavuika Character Event Wish',
-      type: 'Character',
-      starts_at: '2026-06-09T18:00:00Z',
-      ends_at:   '2026-06-30T14:59:00Z',
-    },
-  ],
+  // Banners are fetched live from the HoYoverse announcement API by
+  // genshinBannerFetcher.js — no static entries needed here.
+  // (bannerSyncService falls back to this block only if the API call fails,
+  //  and an empty array is a safe no-op fallback.)
+  'genshin-impact': [],
 
   // ── Honkai: Star Rail ──────────────────────────────────────────────────────
   // Version 3.4  Phase 2: May 13 – May 31  |  Phase 3: May 31 – Jun 19

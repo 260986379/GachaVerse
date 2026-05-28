@@ -57,7 +57,15 @@ export default function CommunityTab({ gameId }) {
       </div>
 
       {activePin && (
-        <BoardLightbox board={activePin} onClose={() => setActivePin(null)} />
+        <BoardLightbox
+          board={activePin}
+          boardOwner={activePin.posted_by_id ? {
+            id:         activePin.posted_by_id,
+            username:   activePin.posted_by,
+            avatar_url: activePin.posted_by_avatar,
+          } : null}
+          onClose={() => setActivePin(null)}
+        />
       )}
     </>
   )

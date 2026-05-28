@@ -253,6 +253,38 @@ const CREATE_USER_FAVORITE_VIDEOS = `
   CREATE INDEX IF NOT EXISTS idx_ufv_video  ON user_favorite_videos(video_id);
 `;
 
+const CREATE_BOARD_COMMENTS = `
+  CREATE TABLE IF NOT EXISTS board_comments (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    board_id   UUID NOT NULL REFERENCES boards(id)  ON DELETE CASCADE,
+    user_id    UUID NOT NULL REFERENCES users(id)   ON DELETE CASCADE,
+    text       TEXT NOT NULL CHECK (char_length(text) <= 280),
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+  CREATE INDEX IF NOT EXISTS idx_board_comments_board ON board_comments(board_id);
+  CREATE INDEX IF NOT EXISTS idx_board_comments_user  ON board_comments(user_id);
+`;
+
+const CREATE_USER_FAVORITE_CHARACTERS = `
+  CREATE TABLE IF NOT EXISTS user_favorite_characters (
+    user_id      UUID NOT NULL REFERENCES users(id)      ON DELETE CASCADE,
+    character_id UUID NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    created_at   TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, character_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_ufc_user ON user_favorite_characters(user_id);
+`;
+
+const CREATE_USER_FAVORITE_ARTWORKS = `
+  CREATE TABLE IF NOT EXISTS user_favorite_artworks (
+    user_id  UUID NOT NULL REFERENCES users(id)          ON DELETE CASCADE,
+    media_id UUID NOT NULL REFERENCES media_content(id)  ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, media_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_ufa_user ON user_favorite_artworks(user_id);
+`;
+
 const CREATE_USER_GAME_ACCOUNTS = `
   CREATE TABLE IF NOT EXISTS user_game_accounts (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -306,6 +338,9 @@ const ALL_TABLES = [
   CREATE_GAME_BANNERS,
   ALTER_GAME_BANNERS_ADD_IMAGE_URL,
   CREATE_USER_FAVORITE_VIDEOS,
+  CREATE_BOARD_COMMENTS,
+  CREATE_USER_FAVORITE_CHARACTERS,
+  CREATE_USER_FAVORITE_ARTWORKS,
   CREATE_USER_GAME_ACCOUNTS,
   CREATE_BOARDS,
 ];

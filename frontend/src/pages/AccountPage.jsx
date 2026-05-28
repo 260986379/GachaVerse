@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
-  getFavVideos, getFavChars, getFavArtworks, toggleFavArtwork, getFollowedGames,
+  getFavVideos, getFavChars, getFavArtworks,
+  toggleFavVideo, toggleFavChar, toggleFavArtwork, getFollowedGames,
+  saveFavVideos, saveFavChars, saveFavArtworks,
   getProfileBanner, setProfileBanner, clearProfileBanner,
   getProfilePfp, setProfilePfp, clearProfilePfp,
 } from '../utils/bookmarks'
@@ -590,6 +592,37 @@ function compressImage(file, maxW, maxH, quality = 0.85) {
   })
 }
 
+// ── Drag-to-reorder ───────────────────────────────────────────────────────
+// Returned handlers go on a draggable wrapper div around each card.
+// onReorder updates state live; onSave persists once the drag ends.
+function useDragReorder(list, onReorder, onSave) {
+  const dragIdx = useRef(null)
+  const listRef = useRef(list)
+  listRef.current = list
+
+  const onDragStart = (i) => (e) => {
+    dragIdx.current = i
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const onDragOver = (i) => (e) => {
+    e.preventDefault()
+    if (dragIdx.current === null || dragIdx.current === i) return
+    const next = [...listRef.current]
+    const [moved] = next.splice(dragIdx.current, 1)
+    next.splice(i, 0, moved)
+    dragIdx.current = i
+    onReorder(next)
+  }
+
+  const onDragEnd = () => {
+    onSave(listRef.current)
+    dragIdx.current = null
+  }
+
+  return { onDragStart, onDragOver, onDragEnd }
+}
+
 export default function AccountPage() {
   const navigate = useNavigate()
   const { user, isLoggedIn, loadingAuth, refreshUser, authFetch } = useAuth()
@@ -625,6 +658,50 @@ export default function AccountPage() {
     setBannerSrc(user?.banner_url || getProfileBanner() || null)
     setPfpSrc(user?.avatar_url   || getProfilePfp()    || null)
   }, [user])
+
+  // When logged in, fetch favorites from DB and merge with local ordering preference
+  useEffect(() => {
+    if (!user?.id) return
+    const merge = (dbItems, localItems) => {
+      // Preserve localStorage order; refresh metadata from DB where available.
+      // Never remove local items just because the DB is empty or hasn't synced yet.
+      const dbById   = Object.fromEntries(dbItems.map(i => [i.id, i]))
+      const updated  = localItems.map(i => dbById[i.id] ?? i)
+      // Append items from DB that aren't in localStorage (favorited from another device)
+      const localIds = new Set(localItems.map(i => i.id))
+      const fresh    = dbItems.filter(i => !localIds.has(i.id))
+      return [...updated, ...fresh]
+    }
+    ;(async () => {
+      try {
+        const [vidRes, charRes, artRes] = await Promise.all([
+          authFetch('/api/videos/favorites'),
+          authFetch('/api/characters/favorites'),
+          authFetch('/api/artworks/favorites'),
+        ])
+        if (vidRes.ok) {
+          const dbVideos = await vidRes.json()
+          const merged = merge(dbVideos, getFavVideos())
+          saveFavVideos(merged)
+          setFavVideos(merged)
+        }
+        if (charRes.ok) {
+          const dbChars = await charRes.json()
+          const merged = merge(dbChars, getFavChars())
+          saveFavChars(merged)
+          setFavChars(merged)
+        }
+        if (artRes.ok) {
+          const dbArtworks = await artRes.json()
+          const merged = merge(dbArtworks, getFavArtworks())
+          saveFavArtworks(merged)
+          setFavArtworks(merged)
+        }
+      } catch {
+        // Silently fall back to localStorage data already loaded above
+      }
+    })()
+  }, [user?.id])
 
   // Load boards from server
   useEffect(() => {
@@ -735,6 +812,16 @@ export default function AccountPage() {
     }
   }
 
+  const handleUnfavVideo = (id) => {
+    toggleFavVideo({ id })
+    setFavVideos(getFavVideos())
+  }
+
+  const handleUnfavChar = (id) => {
+    toggleFavChar({ id })
+    setFavChars(getFavChars())
+  }
+
   const handleUnfavArtwork = (id) => {
     toggleFavArtwork({ id })
     setFavArtworks(getFavArtworks())
@@ -745,6 +832,34 @@ export default function AccountPage() {
     if (!slug) return
     navigate(`/game/${slug}`, { state: { openTab: 'Characters', openCharId: char.id } })
   }
+
+  // Don't render until Firebase has resolved auth state — prevents user.role crash on refresh
+  if (loadingAuth) return null
+
+  // ── Derived lists & drag-reorder hooks ────────────────────────────────
+  const favRegular = favVideos.filter(v => v.category !== 'Music')
+  const favBGM     = favVideos.filter(v => v.category === 'Music')
+
+  const regularDrag = useDragReorder(
+    favRegular,
+    (next) => setFavVideos([...next, ...favBGM]),
+    (next) => saveFavVideos([...next, ...favBGM]),
+  )
+  const bgmDrag = useDragReorder(
+    favBGM,
+    (next) => setFavVideos([...favRegular, ...next]),
+    (next) => saveFavVideos([...favRegular, ...next]),
+  )
+  const charsDrag = useDragReorder(
+    favChars,
+    (next) => setFavChars(next),
+    (next) => saveFavChars(next),
+  )
+  const artworksDrag = useDragReorder(
+    favArtworks,
+    (next) => setFavArtworks(next),
+    (next) => saveFavArtworks(next),
+  )
 
   return (
     <div className="profile-page">
@@ -983,91 +1098,121 @@ export default function AccountPage() {
                 </section>
 
                 {/* Favorite Videos */}
-                {(() => {
-                  const favRegular = favVideos.filter(v => v.category !== 'Music')
-                  const favBGM     = favVideos.filter(v => v.category === 'Music')
-                  const activeInRegular = favRegular.some(v => v.external_id === activeVideoId)
-                  const activeInBGM     = favBGM.some(v => v.external_id === activeVideoId)
-                  return (
+                <section className="profile-section">
+                  <div className="profile-section__header">
+                    <h2 className="profile-section__title">Favorite Videos</h2>
+                    <span className="profile-section__count">{favRegular.length}/9</span>
+                  </div>
+                  {favRegular.length > 0 ? (
                     <>
-                      <section className="profile-section">
-                        <div className="profile-section__header">
-                          <h2 className="profile-section__title">Favorite Videos</h2>
+                      <div className="profile-hscroll">
+                        {favRegular.map((v, i) => (
+                          <div
+                            key={v.id ?? i}
+                            className="fav-drag-item"
+                            draggable
+                            onDragStart={regularDrag.onDragStart(i)}
+                            onDragOver={regularDrag.onDragOver(i)}
+                            onDragEnd={regularDrag.onDragEnd}
+                          >
+                            <VideoCard
+                              video={v}
+                              isActive={activeVideoId === v.external_id}
+                              onClick={() => handleVideoClick(v)}
+                            />
+                            <button
+                              className="fav-item__unfav"
+                              onClick={(e) => { e.stopPropagation(); handleUnfavVideo(v.id) }}
+                              title="Remove from favorites"
+                            >♥</button>
+                          </div>
+                        ))}
+                      </div>
+                      {favRegular.some(v => v.external_id === activeVideoId) && (
+                        <div className="profile-video-player">
+                          <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
+                          {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
+                          <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
+                            ✕ Close
+                          </button>
                         </div>
-                        {favRegular.length > 0 ? (
-                          <>
-                            <div className="profile-hscroll">
-                              {favRegular.map((v, i) => (
-                                <VideoCard
-                                  key={v.id ?? i}
-                                  video={v}
-                                  isActive={activeVideoId === v.external_id}
-                                  onClick={() => handleVideoClick(v)}
-                                />
-                              ))}
-                            </div>
-                            {activeInRegular && (
-                              <div className="profile-video-player">
-                                <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
-                                {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
-                                <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
-                                  ✕ Close
-                                </button>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <p className="profile-empty">No favorited videos yet — heart a video on any game page to add it here.</p>
-                        )}
-                      </section>
-
-                      <section className="profile-section">
-                        <div className="profile-section__header">
-                          <h2 className="profile-section__title">Favorite BGM</h2>
-                        </div>
-                        {favBGM.length > 0 ? (
-                          <>
-                            <div className="profile-hscroll">
-                              {favBGM.map((v, i) => (
-                                <VideoCard
-                                  key={v.id ?? i}
-                                  video={v}
-                                  isActive={activeVideoId === v.external_id}
-                                  onClick={() => handleVideoClick(v)}
-                                />
-                              ))}
-                            </div>
-                            {activeInBGM && (
-                              <div className="profile-video-player">
-                                <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
-                                {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
-                                <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
-                                  ✕ Close
-                                </button>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <p className="profile-empty">No favorited BGM yet — heart a track from the Music section on any game page.</p>
-                        )}
-                      </section>
+                      )}
                     </>
-                  )
-                })()}
+                  ) : (
+                    <p className="profile-empty">No favorited videos yet — heart a video on any game page to add it here.</p>
+                  )}
+                </section>
+
+                {/* Favorite BGM */}
+                <section className="profile-section">
+                  <div className="profile-section__header">
+                    <h2 className="profile-section__title">Favorite BGM</h2>
+                    <span className="profile-section__count">{favBGM.length}/9</span>
+                  </div>
+                  {favBGM.length > 0 ? (
+                    <>
+                      <div className="profile-hscroll">
+                        {favBGM.map((v, i) => (
+                          <div
+                            key={v.id ?? i}
+                            className="fav-drag-item"
+                            draggable
+                            onDragStart={bgmDrag.onDragStart(i)}
+                            onDragOver={bgmDrag.onDragOver(i)}
+                            onDragEnd={bgmDrag.onDragEnd}
+                          >
+                            <VideoCard
+                              video={v}
+                              isActive={activeVideoId === v.external_id}
+                              onClick={() => handleVideoClick(v)}
+                            />
+                            <button
+                              className="fav-item__unfav"
+                              onClick={(e) => { e.stopPropagation(); handleUnfavVideo(v.id) }}
+                              title="Remove from favorites"
+                            >♥</button>
+                          </div>
+                        ))}
+                      </div>
+                      {favBGM.some(v => v.external_id === activeVideoId) && (
+                        <div className="profile-video-player">
+                          <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
+                          {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
+                          <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
+                            ✕ Close
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="profile-empty">No favorited BGM yet — heart a track from the Music section on any game page.</p>
+                  )}
+                </section>
 
                 {/* Favorite Characters */}
                 <section className="profile-section">
                   <div className="profile-section__header">
                     <h2 className="profile-section__title">Favorite Characters</h2>
+                    <span className="profile-section__count">{favChars.length}/9</span>
                   </div>
                   {favChars.length > 0 ? (
                     <div className="profile-char-grid">
                       {favChars.map((c, i) => (
-                        <CharCard
+                        <div
                           key={c.id ?? i}
-                          char={c}
-                          onClick={() => handleCharClick(c)}
-                        />
+                          className="fav-drag-item"
+                          draggable
+                          onDragStart={charsDrag.onDragStart(i)}
+                          onDragOver={charsDrag.onDragOver(i)}
+                          onDragEnd={charsDrag.onDragEnd}
+                        >
+                          <CharCard char={c} onClick={() => handleCharClick(c)} />
+                          <button
+                            className="fav-item__unfav"
+                            onClick={(e) => { e.stopPropagation(); handleUnfavChar(c.id) }}
+                            title="Remove from favorites"
+                          >♥</button>
+                        </div>
                       ))}
                     </div>
                   ) : (
@@ -1079,16 +1224,25 @@ export default function AccountPage() {
                 <section className="profile-section">
                   <div className="profile-section__header">
                     <h2 className="profile-section__title">Favorite Artworks</h2>
+                    <span className="profile-section__count">{favArtworks.length}/9</span>
                   </div>
                   {favArtworks.length > 0 ? (
                     <div className="profile-artwork-grid">
                       {favArtworks.map((a, i) => (
-                        <ArtworkCard
+                        <div
                           key={a.id ?? i}
-                          art={a}
-                          onUnfav={handleUnfavArtwork}
-                          onOpen={setActiveArtwork}
-                        />
+                          className="fav-drag-item"
+                          draggable
+                          onDragStart={artworksDrag.onDragStart(i)}
+                          onDragOver={artworksDrag.onDragOver(i)}
+                          onDragEnd={artworksDrag.onDragEnd}
+                        >
+                          <ArtworkCard
+                            art={a}
+                            onUnfav={handleUnfavArtwork}
+                            onOpen={setActiveArtwork}
+                          />
+                        </div>
                       ))}
                     </div>
                   ) : (
@@ -1109,7 +1263,11 @@ export default function AccountPage() {
         />
       )}
       {activeBoard && (
-        <BoardLightbox board={activeBoard} onClose={() => setActiveBoard(null)} />
+        <BoardLightbox
+          board={activeBoard}
+          boardOwner={user ? { id: user.id, username: user.username, avatar_url: user.avatar_url, role: user.role } : null}
+          onClose={() => setActiveBoard(null)}
+        />
       )}
       {activeArtwork && (
         <ImageLightbox

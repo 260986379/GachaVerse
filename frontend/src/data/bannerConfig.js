@@ -17,12 +17,16 @@ const BANNER_CONFIG = {
     { name: 'Raven Limited-Time Recruitment', banner_type: 'Limited', starts_at: '2026-05-14T00:00:00Z', ends_at: '2026-06-04T23:59:00Z' },
   ],
 
+  // Genshin Impact banner names/dates are auto-fetched from the HoYoverse API.
+  // Only add entries here when you have a local image to attach — the name
+  // must match exactly what the fetcher returns (e.g. "Nicole Character Event Wish").
+  // Drop this block entirely once you have no images to attach.
   'genshin-impact': [
-    { name: 'Nicole Character Event Wish', banner_type: 'Character', starts_at: '2026-05-20T18:00:00Z', ends_at: '2026-06-09T14:59:00Z' },
-    { name: 'Durin Character Event Wish',  banner_type: 'Character', starts_at: '2026-05-20T18:00:00Z', ends_at: '2026-06-09T14:59:00Z' },
-    { name: 'Weapon Event Wish',           banner_type: 'Weapon',    starts_at: '2026-05-20T18:00:00Z', ends_at: '2026-06-09T14:59:00Z' },
-    { name: 'Lohen Character Event Wish',  banner_type: 'Character', starts_at: '2026-06-09T18:00:00Z', ends_at: '2026-06-30T14:59:00Z' },
-    { name: 'Mavuika Character Event Wish',banner_type: 'Character', starts_at: '2026-06-09T18:00:00Z', ends_at: '2026-06-30T14:59:00Z' },
+    // { name: 'Nicole Character Event Wish',  banner_type: 'Character', starts_at: '', ends_at: '', image_url: '/genshin-banners/NicoleBanner.png' },
+    // { name: 'Durin Character Event Wish',   banner_type: 'Character', starts_at: '', ends_at: '', image_url: '/genshin-banners/DurinBanner.png' },
+    // { name: 'Weapon Event Wish',            banner_type: 'Weapon',    starts_at: '', ends_at: '', image_url: '/genshin-banners/WeaponBanner.png' },
+    // { name: 'Lohen Character Event Wish',   banner_type: 'Character', starts_at: '', ends_at: '', image_url: '/genshin-banners/LohenBanner.png' },
+    // { name: 'Mavuika Character Event Wish', banner_type: 'Character', starts_at: '', ends_at: '', image_url: '/genshin-banners/MavuikaBanner.png' },
   ],
 
   'honkai-star-rail': [

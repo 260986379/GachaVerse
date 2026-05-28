@@ -7,7 +7,7 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from '../firebase'
-import { setCurrentUser } from '../utils/bookmarks'
+import { setCurrentUser, setAuthFetch } from '../utils/bookmarks'
 
 const AuthContext = createContext(null)
 
@@ -104,6 +104,11 @@ export function AuthProvider({ children }) {
       },
     })
   }, [getIdToken])
+
+  // Keep bookmarks.js in sync so toggleFav* can call the DB when logged in
+  useEffect(() => {
+    setAuthFetch(user ? authFetch : null)
+  }, [user, authFetch])
 
   // ── Sign-in methods ──────────────────────────────────────────────────────
 

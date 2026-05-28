@@ -401,7 +401,11 @@ export default function UserProfilePage() {
         />
       )}
       {activeBoard && (
-        <BoardLightbox board={activeBoard} onClose={() => setActiveBoard(null)} />
+        <BoardLightbox
+          board={activeBoard}
+          boardOwner={profile ? { id: profile.id, username: profile.username, avatar_url: profile.avatar_url, role: profile.role } : null}
+          onClose={() => setActiveBoard(null)}
+        />
       )}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
     </div>

@@ -205,7 +205,7 @@ function CastFilter({ label, value, onChange, options, renderOption }) {
   )
 }
 
-export default function NikkeCharactersTab() {
+export default function NikkeCharactersTab({ initialCharId = null }) {
   const [activeId, setActiveId]                     = useState(null)
   const [media, setMedia]                           = useState([])
   const [search, setSearch]                         = useState('')
@@ -215,6 +215,7 @@ export default function NikkeCharactersTab() {
   const [filterElement, setFilterElement]           = useState('all')
   const [filterManufacturer, setFilterManufacturer] = useState('all')
   const [filterBurst, setFilterBurst]               = useState('all')
+  const [filterCostume, setFilterCostume]           = useState('all')
   const [favCharIds, setFavCharIds]                 = useState(() => new Set(getFavChars().map((c) => c.id)))
   const [favLimitHit, setFavLimitHit]               = useState(false)
   const panelRef        = useRef(null)
@@ -233,6 +234,14 @@ export default function NikkeCharactersTab() {
     if (result === null) { showLimit(); return }
     refreshFavs()
   }
+
+  // Apply initialCharId after mount effects so GamePage's scrollTo(0,0) fires first
+  // (parent effects run after child effects; setTimeout defers to the next macrotask)
+  useEffect(() => {
+    if (!initialCharId) return
+    const t = setTimeout(() => setActiveId(initialCharId), 0)
+    return () => clearTimeout(t)
+  }, [initialCharId])
 
   // Lazy-load media the first time a character panel is opened
   useEffect(() => {
@@ -259,7 +268,8 @@ export default function NikkeCharactersTab() {
     filterWeapon !== 'all' ||
     filterElement !== 'all' ||
     filterManufacturer !== 'all' ||
-    filterBurst !== 'all'
+    filterBurst !== 'all' ||
+    filterCostume !== 'all'
 
   const filtered = nikkeData.filter((c) => {
     if (q && !c.name.toLowerCase().includes(q)) return false
@@ -269,6 +279,7 @@ export default function NikkeCharactersTab() {
     if (filterElement      !== 'all' && c.element_type !== filterElement)      return false
     if (filterManufacturer !== 'all' && c.manufacturer !== filterManufacturer) return false
     if (filterBurst        !== 'all' && c.burst        !== filterBurst)        return false
+    if (filterCostume      !== 'all' && !nikkeCostumes[c.id])                  return false
     return true
   })
 
@@ -291,6 +302,7 @@ export default function NikkeCharactersTab() {
     setFilterElement('all')
     setFilterManufacturer('all')
     setFilterBurst('all')
+    setFilterCostume('all')
   }
 
   return (
@@ -321,6 +333,14 @@ export default function NikkeCharactersTab() {
             options={['1', '2', '3', 'All']}
             renderOption={(o) => BURST_LABEL[o] ?? o}
           />
+          <select
+            className="cast-filter"
+            value={filterCostume}
+            onChange={(e) => setFilterCostume(e.target.value)}
+          >
+            <option value="all">All Skins</option>
+            <option value="has-costume">Has Skin</option>
+          </select>
           {filtersActive && (
             <button className="cast-clear-btn" onClick={clearFilters}>Clear</button>
           )}
@@ -365,6 +385,9 @@ export default function NikkeCharactersTab() {
                       >
                         {char.rarity}
                       </span>
+                      {nikkeCostumes[char.id] && (
+                        <span className="cast-card__costume-tag">SKIN</span>
+                      )}
                     </div>
                     <p className="cast-card__name">{char.name}</p>
                   </button>

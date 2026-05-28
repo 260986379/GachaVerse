@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import SearchModal from './ui/SearchModal'
+import NotifPanel  from './ui/NotifPanel'
 import AuthModal   from './ui/AuthModal'
 import { useAuth } from '../context/AuthContext'
+import { useNotifications } from '../hooks/useNotifications'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
 import './Navbar.css'
 
@@ -20,11 +22,13 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [authOpen,   setAuthOpen]   = useState(false)
   const [menuOpen,   setMenuOpen]   = useState(false)
+  const [notifOpen,  setNotifOpen]  = useState(false)
   const location                    = useLocation()
   const showSearch                  = !HIDE_SEARCH_ON.includes(location.pathname)
   const menuRef                     = useRef(null)
 
   const { user, logout, loadingAuth } = useAuth()
+  const { items, loading, unreadCount, lastSeen, markAllRead, followingAnyGame } = useNotifications()
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -49,9 +53,27 @@ export default function Navbar() {
               aria-label="Search games"
             >
               <span className="navbar__search-icon">⌕</span>
-              <span className="navbar__search-placeholder">Search games...</span>
+              <span className="navbar__search-placeholder">Search…</span>
             </button>
           )}
+
+          {/* ── Notification bell ── */}
+          <button
+            className="navbar__notif-btn"
+            onClick={() => setNotifOpen(o => !o)}
+            aria-label="Updates"
+            title="Updates"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+              <path d="M10 18a3 3 0 01-2.83-2h5.66A3 3 0 0110 18z" />
+            </svg>
+            {unreadCount > 0 && (
+              <span className="navbar__notif-badge">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
 
           {!loadingAuth && (
             user ? (
@@ -130,6 +152,17 @@ export default function Navbar() {
 
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
       {authOpen   && <AuthModal   onClose={() => setAuthOpen(false)} />}
+      {notifOpen  && (
+        <NotifPanel
+          items={items}
+          loading={loading}
+          unreadCount={unreadCount}
+          lastSeen={lastSeen}
+          markAllRead={markAllRead}
+          followingAnyGame={followingAnyGame}
+          onClose={() => setNotifOpen(false)}
+        />
+      )}
     </>
   )
 }

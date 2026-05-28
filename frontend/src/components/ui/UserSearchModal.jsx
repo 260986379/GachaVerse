@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import { getRoleStyle } from '../../utils/roles'
 import './SearchModal.css'
 import './UserSearchModal.css'
@@ -12,6 +13,7 @@ export default function UserSearchModal({ onClose, initialUsers = [] }) {
   const [hovered, setHovered] = useState(null)
   const navigate  = useNavigate()
   const inputRef  = useRef(null)
+  const { isLoggedIn, authFetch } = useAuth()
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -20,18 +22,19 @@ export default function UserSearchModal({ onClose, initialUsers = [] }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  // Debounced search
+  // Debounced search — auth-aware so Debug accounts are filtered for non-owners
   useEffect(() => {
     const q = query.trim()
     if (!q) { setResults(null); return }
+    const fetchFn = isLoggedIn ? authFetch : fetch
     const timer = setTimeout(() => {
-      fetch(`${API}/users/search?q=${encodeURIComponent(q)}`)
+      fetchFn(`${API}/users/search?q=${encodeURIComponent(q)}`)
         .then(r => r.json())
         .then(setResults)
         .catch(() => setResults([]))
     }, 220)
     return () => clearTimeout(timer)
-  }, [query])
+  }, [query, isLoggedIn])
 
   const handleSelect = (username) => {
     navigate(`/u/${username}`)

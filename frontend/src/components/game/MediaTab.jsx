@@ -56,7 +56,7 @@ const displayTitle = (title, gameId) => {
   return title.replace(/\s*\|[^|]*$/, '').trim()
 }
 
-export default function MediaTab({ gameId }) {
+export default function MediaTab({ gameId, initialVideoId = null }) {
   const [items, setItems] = useState([])
   const [active, setActive] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -78,8 +78,8 @@ export default function MediaTab({ gameId }) {
     if (!isLoggedIn) { refreshFavs(); return }
     authFetch('/api/videos/favorites')
       .then(r => r.json())
-      .then(ids => {
-        if (Array.isArray(ids)) setFavIds(new Set(ids))
+      .then(data => {
+        if (Array.isArray(data)) setFavIds(new Set(data.map(v => v.id)))
         else refreshFavs()
       })
       .catch(refreshFavs)
@@ -97,10 +97,7 @@ export default function MediaTab({ gameId }) {
       return
     }
     refreshFavs()
-    // Sync to server if logged in
-    if (isLoggedIn) {
-      authFetch(`/api/videos/${item.id}/favorite`, { method: 'POST' }).catch(() => {})
-    }
+    // DB sync is handled inside toggleFavVideo via bookmarks.js (_authFetch)
   }
 
   const toggleExpanded = (type) =>
@@ -135,6 +132,17 @@ export default function MediaTab({ gameId }) {
     }
   }, [active])
 
+  // React to a new initialVideoId when already on this game page
+  // (items are already loaded; the fetch effect handles the fresh-navigation case)
+  useEffect(() => {
+    if (!initialVideoId || !items.length) return
+    const target = items.find(v => v.external_id === initialVideoId)
+    if (target) {
+      setActive(target.id)
+      setExpandedSection(target.category)
+    }
+  }, [initialVideoId]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     setLoading(true)
     setError(null)
@@ -143,7 +151,19 @@ export default function MediaTab({ gameId }) {
     setExpandedSection(null)
     fetch(`/api/games/${gameId}/media`)
       .then((r) => { if (!r.ok) throw new Error('Failed to load media'); return r.json() })
-      .then((data) => { setItems(data); setLoading(false) })
+      .then((data) => {
+        setItems(data)
+        setLoading(false)
+        // If navigated here from a notification, auto-open that video's player
+        if (initialVideoId) {
+          const target = data.find(v => v.external_id === initialVideoId)
+          if (target) {
+            setActive(target.id)
+            // Expand the section that contains this video so it's visible
+            setExpandedSection(target.category)
+          }
+        }
+      })
       .catch((err) => { setError(err.message); setLoading(false) })
   }, [gameId])
 

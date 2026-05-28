@@ -79,4 +79,73 @@ const getBoardsByGame = async (req, res, next) => {
   }
 };
 
-module.exports = { getBoards, addBoard, deleteBoard, getBoardsByGame };
+// ── Board comments ────────────────────────────────────────────────────────
+
+/** GET /api/boards/:id/comments — public */
+const getComments = async (req, res, next) => {
+  try {
+    const { rows } = await query(
+      `SELECT bc.id, bc.text, bc.created_at, bc.user_id,
+              u.username, u.avatar_url, u.role
+       FROM board_comments bc
+       JOIN users u ON u.id = bc.user_id
+       WHERE bc.board_id = $1
+       ORDER BY bc.created_at ASC
+       LIMIT 200`,
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** POST /api/boards/:id/comments — authenticated */
+const addComment = async (req, res, next) => {
+  try {
+    const { text } = req.body;
+    if (!text?.trim()) return res.status(400).json({ message: 'text is required.' });
+
+    const { rows } = await query(
+      `INSERT INTO board_comments (board_id, user_id, text)
+       VALUES ($1, $2, $3)
+       RETURNING id, text, created_at, user_id`,
+      [req.params.id, req.user.id, text.trim()]
+    );
+    const comment = rows[0];
+    // Return with full user info so the frontend can display it immediately
+    res.status(201).json({
+      ...comment,
+      username:   req.user.username,
+      avatar_url: req.user.avatar_url,
+      role:       req.user.role,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** DELETE /api/boards/:id/comments/:commentId — own comment OR board owner */
+const deleteComment = async (req, res, next) => {
+  try {
+    const { id: boardId, commentId } = req.params;
+    const userId = req.user.id;
+
+    // Allow if: commenter == user  OR  board owner == user
+    const { rowCount } = await query(
+      `DELETE FROM board_comments
+       WHERE id = $1
+         AND (
+           user_id = $2
+           OR $2 IN (SELECT user_id FROM boards WHERE id = $3)
+         )`,
+      [commentId, userId, boardId]
+    );
+    if (rowCount === 0) return res.status(404).json({ message: 'Comment not found or not authorised.' });
+    res.json({ message: 'Comment deleted.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getBoards, addBoard, deleteBoard, getBoardsByGame, getComments, addComment, deleteComment };

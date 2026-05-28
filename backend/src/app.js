@@ -9,8 +9,11 @@ const gameRoutes = require('./routes/gameRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
-const boardRoutes = require('./routes/boardRoutes');
-const videoRoutes = require('./routes/videoRoutes');
+const boardRoutes     = require('./routes/boardRoutes');
+const videoRoutes     = require('./routes/videoRoutes');
+const characterRoutes     = require('./routes/characterRoutes');
+const artworkRoutes       = require('./routes/artworkRoutes');
+const notificationRoutes  = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -54,8 +57,7 @@ app.post('/api/admin/seed-images', async (req, res) => {
 });
 
 app.post('/api/admin/backfill', async (req, res) => {
-  const { ingestVideosForGame } = require('./services/youtubeIngestionService');
-  const { reclassifyExistingVideos } = require('./services/youtubeIngestionService');
+  const { ingestVideosForGame, reclassifyExistingVideos } = require('./services/youtubeIngestionService');
   const config = require('./config');
   res.json({ message: 'Backfill started in background' });
   try {
@@ -74,8 +76,11 @@ app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
-app.use('/api/boards', boardRoutes);
-app.use('/api/videos', videoRoutes);
+app.use('/api/boards',     boardRoutes);
+app.use('/api/videos',     videoRoutes);
+app.use('/api/characters',    characterRoutes);
+app.use('/api/artworks',      artworkRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use(errorHandler);
 

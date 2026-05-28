@@ -1,11 +1,31 @@
 const { query } = require('../config/db');
 const BANNER_CONFIG = require('../config/bannerConfig');
+const { fetchGenshinBanners } = require('./genshinBannerFetcher');
 
-// Replaces all banner rows for each game found in config.
-// DELETE + INSERT (not upsert) so stale/wrong entries from previous runs are removed.
+// Builds the effective banner config for this sync run.
+// Genshin Impact is fetched live from the HoYoverse announcement API;
+// all other games fall back to the static bannerConfig.js.
+async function buildEffectiveConfig() {
+  const config = { ...BANNER_CONFIG };
+
+  try {
+    const live = await fetchGenshinBanners();
+    config['genshin-impact'] = live;
+    console.log(`[Banners] Fetched ${live.length} Genshin banner(s) live from HoYoverse API`);
+  } catch (err) {
+    console.warn(`[Banners] Genshin live fetch failed — using static config: ${err.message}`);
+  }
+
+  return config;
+}
+
+// Replaces all banner rows for each tracked game.
+// DELETE + INSERT so stale entries from previous runs are removed.
 const syncBanners = async () => {
   try {
-    const slugs = Object.keys(BANNER_CONFIG);
+    const effectiveConfig = await buildEffectiveConfig();
+
+    const slugs = Object.keys(effectiveConfig);
     if (!slugs.length) return;
 
     const placeholders = slugs.map((_, i) => `$${i + 1}`).join(',');
@@ -18,7 +38,7 @@ const syncBanners = async () => {
     const gameMap = Object.fromEntries(games.map((g) => [g.slug, g.id]));
     let count = 0;
 
-    for (const [slug, banners] of Object.entries(BANNER_CONFIG)) {
+    for (const [slug, banners] of Object.entries(effectiveConfig)) {
       const gameId = gameMap[slug];
       if (!gameId) continue;
 

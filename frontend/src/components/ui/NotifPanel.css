@@ -1,0 +1,210 @@
+/* ── Panel width ──────────────────────────────────────────────── */
+.notif-panel {
+  max-width: 520px;
+}
+
+/* ── Header extras ────────────────────────────────────────────── */
+.notif-panel__bell {
+  font-size: 1rem !important;
+}
+
+.notif-panel__title {
+  flex: 1;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.notif-panel__mark-read {
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.notif-panel__mark-read:hover {
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── List ─────────────────────────────────────────────────────── */
+.notif-panel__list {
+  max-height: 60vh;
+}
+
+.notif-panel__section--earlier {
+  margin-top: 0.25rem;
+}
+
+/* ── Notification item ────────────────────────────────────────── */
+.notif-item--unread {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.notif-item__thumb {
+  width: 52px;
+  height: 36px;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.notif-item__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.notif-item__thumb-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--c) 0%, rgba(0,0,0,0.6) 100%);
+  opacity: 0.6;
+}
+
+/* Meta row: game tag · category · NEW */
+.notif-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: nowrap;
+}
+
+.notif-item__game-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.notif-item__dot {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.notif-item__category {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-item__new-badge {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: #e05c7a;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.notif-item__title {
+  font-size: 0.83rem !important;
+  white-space: normal !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+/* ── Hover preview panel ──────────────────────────────────────── */
+.notif-preview-panel {
+  width: 260px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  background: rgba(12, 12, 18, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.7);
+  animation: notif-preview-in 0.15s ease;
+}
+
+@keyframes notif-preview-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.notif-preview__thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.notif-preview__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.notif-preview__thumb-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--c) 0%, rgba(0,0,0,0.6) 100%);
+}
+
+.notif-preview__gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.notif-preview__info {
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.notif-preview__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.notif-preview__game {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.notif-preview__cat {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.notif-preview__title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notif-preview__time {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.32);
+}
