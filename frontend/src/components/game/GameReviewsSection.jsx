@@ -92,7 +92,8 @@ export default function GameReviewsSection({ gameId }) {
             ? { ...r, upvote_count: (r.upvote_count || 0) + (upvoted ? 1 : -1), user_upvoted: upvoted }
             : r
         ))
-    } catch {
+      }
+    } catch (_) {
     } finally {
       setPendingUpvote(null)
     }
