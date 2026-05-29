@@ -73,6 +73,7 @@ export default function NotifPanel({ items, socialItems = [], loading, unreadCou
   return (
     <div className="search-modal-overlay" onClick={onClose}>
       <div className="search-modal-container" onClick={e => e.stopPropagation()}>
+      <div className="notif-panel-anchor">
         <div className="search-modal notif-panel">
 
           {/* Header */}
@@ -176,6 +177,7 @@ export default function NotifPanel({ items, socialItems = [], loading, unreadCou
           </div>
         )}
 
+      </div>
       </div>
     </div>
   )

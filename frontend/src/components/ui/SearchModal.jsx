@@ -105,6 +105,7 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
   return (
     <div className="search-modal-overlay" onClick={onClose}>
       <div className="search-modal-container" onClick={e => e.stopPropagation()}>
+      <div className="search-modal-anchor">
 
         {/* ── Main panel ── */}
         <div className="search-modal">
@@ -285,6 +286,7 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
           </div>
         )}
 
+      </div>
       </div>
     </div>
   )

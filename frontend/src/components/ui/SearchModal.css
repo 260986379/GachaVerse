@@ -11,15 +11,29 @@
   padding-top: 14vh;
 }
 
-/* ── Wrapper: main panel + banner side by side ── */
+/* ── Wrapper: centers the anchor ── */
 .search-modal-container {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
   margin: 0 1rem;
   width: 100%;
   max-width: 900px;
   justify-content: center;
+}
+
+/* ── Anchor: positions preview without displacing main panel ── */
+.search-modal-anchor {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  flex-shrink: 0;
+}
+
+.notif-panel-anchor {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  flex-shrink: 0;
 }
 
 /* ── Main search panel ── */
@@ -261,8 +275,10 @@
 
 /* ── Banner preview panel ── */
 .search-modal__banner-panel {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 0;
   width: 280px;
-  flex-shrink: 0;
   background: rgba(12, 12, 18, 0.97);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;

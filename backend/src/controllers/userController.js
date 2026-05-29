@@ -116,20 +116,38 @@ const getUserGames = async (req, res, next) => {
 
 const addUserGame = async (req, res, next) => {
   try {
-    const { game_id, is_featured = false, personal_notes = null } = req.body;
-    await query(
-      'INSERT INTO user_games (user_id, game_id, is_featured, personal_notes) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING',
-      [req.user.id, game_id, is_featured, personal_notes]
-    );
+    const { game_id, game_slug, is_featured = false, personal_notes = null } = req.body;
+    if (game_slug) {
+      await query(
+        `INSERT INTO user_games (user_id, game_id, is_featured, personal_notes)
+         SELECT $1, id, $3, $4 FROM games WHERE slug = $2
+         ON CONFLICT DO NOTHING`,
+        [req.user.id, game_slug, is_featured, personal_notes]
+      );
+    } else {
+      await query(
+        'INSERT INTO user_games (user_id, game_id, is_featured, personal_notes) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING',
+        [req.user.id, game_id, is_featured, personal_notes]
+      );
+    }
     res.status(201).json({ message: 'Game added to your list' });
   } catch (err) {
     next(err);
   }
 };
 
+const { UUID_RE } = require('../utils/uuid');
+
 const removeUserGame = async (req, res, next) => {
   try {
-    await query('DELETE FROM user_games WHERE user_id=$1 AND game_id=$2', [req.user.id, req.params.id]);
+    if (UUID_RE.test(req.params.id)) {
+      await query('DELETE FROM user_games WHERE user_id=$1 AND game_id=$2', [req.user.id, req.params.id]);
+    } else {
+      await query(
+        'DELETE FROM user_games WHERE user_id=$1 AND game_id=(SELECT id FROM games WHERE slug=$2)',
+        [req.user.id, req.params.id]
+      );
+    }
     res.json({ message: 'Game removed from your list' });
   } catch (err) {
     next(err);

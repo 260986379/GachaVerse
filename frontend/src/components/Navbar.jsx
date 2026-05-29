@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import SearchModal from './ui/SearchModal'
 import NotifPanel  from './ui/NotifPanel'
 import AuthModal   from './ui/AuthModal'
@@ -27,6 +27,7 @@ export default function Navbar() {
   const showSearch                  = !HIDE_SEARCH_ON.includes(location.pathname)
   const menuRef                     = useRef(null)
 
+  const navigate = useNavigate()
   const { user, logout, loadingAuth } = useAuth()
   const { items, socialItems, loading, unreadCount, lastSeen, markAllRead, followingAnyGame } = useNotifications()
 
@@ -38,7 +39,12 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handle)
   }, [menuOpen])
 
-  const handleLogout = () => { setMenuOpen(false); logout() }
+  const handleLogout = async () => {
+    setMenuOpen(false)
+    try { await logout() } catch {}
+    navigate('/')
+    window.scrollTo(0, 0)
+  }
 
   return (
     <>

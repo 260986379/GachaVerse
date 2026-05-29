@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
   getFavVideos, getFavChars, getFavArtworks,
-  toggleFavVideo, toggleFavChar, toggleFavArtwork, getFollowedGames,
+  toggleFavVideo, toggleFavChar, toggleFavArtwork, getFollowedGames, saveFollowedGames,
   saveFavVideos, saveFavChars, saveFavArtworks,
+  writeFavVideosLocal, writeFavCharsLocal, writeFavArtworksLocal,
   getProfileBanner, setProfileBanner, clearProfileBanner,
   getProfilePfp, setProfilePfp, clearProfilePfp,
 } from '../utils/bookmarks'
@@ -12,6 +13,7 @@ import BoardLightbox from '../components/ui/BoardLightbox'
 import ImageLightbox from '../components/ui/ImageLightbox'
 import AuthModal    from '../components/ui/AuthModal'
 import GameCard from '../components/GameCard'
+import { GAMES } from '../data/games'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
 import './AccountPage.css'
@@ -827,39 +829,51 @@ export default function AccountPage() {
   useEffect(() => {
     if (!user?.id) return
     const merge = (dbItems, localItems) => {
-      // Preserve localStorage order; refresh metadata from DB where available.
-      // Never remove local items just because the DB is empty or hasn't synced yet.
-      const dbById   = Object.fromEntries(dbItems.map(i => [i.id, i]))
-      const updated  = localItems.map(i => dbById[i.id] ?? i)
-      // Append items from DB that aren't in localStorage (favorited from another device)
-      const localIds = new Set(localItems.map(i => i.id))
-      const fresh    = dbItems.filter(i => !localIds.has(i.id))
-      return [...updated, ...fresh]
+      // DB is the source of truth for order (sort_order column).
+      // Append any local-only items that haven't synced to DB yet.
+      if (dbItems.length === 0) return localItems
+      const dbIds = new Set(dbItems.map(i => i.id))
+      const localOnly = localItems.filter(i => !dbIds.has(i.id))
+      return [...dbItems, ...localOnly]
     }
     ;(async () => {
       try {
-        const [vidRes, charRes, artRes] = await Promise.all([
+        const [vidRes, charRes, artRes, gamesRes] = await Promise.all([
           authFetch('/api/videos/favorites'),
           authFetch('/api/characters/favorites'),
           authFetch('/api/artworks/favorites'),
+          authFetch(`/api/users/${user.id}/games`),
         ])
         if (vidRes.ok) {
           const dbVideos = await vidRes.json()
           const merged = merge(dbVideos, getFavVideos())
-          saveFavVideos(merged)
+          writeFavVideosLocal(merged)
           setFavVideos(merged)
         }
         if (charRes.ok) {
           const dbChars = await charRes.json()
           const merged = merge(dbChars, getFavChars())
-          saveFavChars(merged)
+          writeFavCharsLocal(merged)
           setFavChars(merged)
         }
         if (artRes.ok) {
           const dbArtworks = await artRes.json()
           const merged = merge(dbArtworks, getFavArtworks())
-          saveFavArtworks(merged)
+          writeFavArtworksLocal(merged)
           setFavArtworks(merged)
+        }
+        if (gamesRes.ok) {
+          const dbGames = await gamesRes.json()
+          const local = getFollowedGames()
+          const localIds = new Set(local.map(g => g.id))
+          const freshFromDb = dbGames
+            .map(g => GAMES.find(lg => lg.id === g.slug))
+            .filter(g => g && !localIds.has(g.id))
+          if (freshFromDb.length > 0) {
+            const merged = [...local, ...freshFromDb]
+            saveFollowedGames(merged)
+            setFollowedGames(merged)
+          }
         }
       } catch {
         // Silently fall back to localStorage data already loaded above

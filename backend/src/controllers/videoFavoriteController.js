@@ -1,10 +1,6 @@
 const { query } = require('../config/db');
+const { UUID_RE } = require('../utils/uuid');
 
-/**
- * POST /api/videos/:id/favorite
- * Toggle a video favorite for the authenticated user.
- * Returns { favorited: bool }
- */
 const addFavorite = async (req, res, next) => {
   try {
     await query(
@@ -29,10 +25,25 @@ const removeFavorite = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/videos/favorites
- * Returns the authenticated user's favorited videos as full objects.
- */
+const reorderFavorites = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) return res.json({ ok: true });
+    const valid = ids.filter(id => UUID_RE.test(id));
+    if (valid.length === 0) return res.json({ ok: true });
+    await query(
+      `UPDATE user_favorite_videos AS ufv
+       SET sort_order = v.pos
+       FROM unnest($1::uuid[]) WITH ORDINALITY AS v(id, pos)
+       WHERE ufv.user_id = $2 AND ufv.video_id = v.id`,
+      [valid, req.user.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getMyFavorites = async (req, res, next) => {
   try {
     const { rows } = await query(
@@ -41,7 +52,7 @@ const getMyFavorites = async (req, res, next) => {
        FROM user_favorite_videos ufv
        JOIN media_content mc ON mc.id = ufv.video_id
        WHERE ufv.user_id = $1
-       ORDER BY ufv.created_at ASC`,
+       ORDER BY ufv.sort_order ASC, ufv.created_at ASC`,
       [req.user.id]
     );
     res.json(rows);
@@ -50,9 +61,6 @@ const getMyFavorites = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/users/:id/favorites/videos — public, view another user's fav videos
- */
 const getPublicFavVideos = async (req, res, next) => {
   try {
     const { rows } = await query(
@@ -61,7 +69,7 @@ const getPublicFavVideos = async (req, res, next) => {
        FROM user_favorite_videos ufv
        JOIN media_content mc ON mc.id = ufv.video_id
        WHERE ufv.user_id = $1
-       ORDER BY ufv.created_at ASC`,
+       ORDER BY ufv.sort_order ASC, ufv.created_at ASC`,
       [req.params.id]
     );
     res.json(rows);
@@ -70,4 +78,4 @@ const getPublicFavVideos = async (req, res, next) => {
   }
 };
 
-module.exports = { addFavorite, removeFavorite, getMyFavorites, getPublicFavVideos };
+module.exports = { addFavorite, removeFavorite, reorderFavorites, getMyFavorites, getPublicFavVideos };

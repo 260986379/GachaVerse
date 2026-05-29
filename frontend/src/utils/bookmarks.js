@@ -62,8 +62,17 @@ export function toggleFavVideo(video) {
   return !exists
 }
 
-/** Persist a reordered video list (regular + BGM combined) */
-export const saveFavVideos = (list) => save(k(VIDEOS_KEY), list)
+/** Write video list to localStorage only — no DB sync. Use during init/merge. */
+export const writeFavVideosLocal = (list) => save(k(VIDEOS_KEY), list)
+
+/** Persist a reordered video list and sync order to DB. Use from drag handlers. */
+export function saveFavVideos(list) {
+  save(k(VIDEOS_KEY), list)
+  if (_authFetch) {
+    const ids = list.map(v => v.id).filter(Boolean)
+    _authFetch(`${API}/videos/favorites/reorder`, { method: 'PATCH', body: JSON.stringify({ ids }) }).catch(() => {})
+  }
+}
 
 // ── Favorite characters ───────────────────────────────────────────────────
 export const getFavChars = () => load(k(CHARS_KEY))
@@ -82,8 +91,17 @@ export function toggleFavChar(char) {
   return !exists
 }
 
-/** Persist a reordered characters list */
-export const saveFavChars = (list) => save(k(CHARS_KEY), list)
+/** Write characters list to localStorage only — no DB sync. Use during init/merge. */
+export const writeFavCharsLocal = (list) => save(k(CHARS_KEY), list)
+
+/** Persist a reordered characters list and sync order to DB. Use from drag handlers. */
+export function saveFavChars(list) {
+  save(k(CHARS_KEY), list)
+  if (_authFetch) {
+    const ids = list.map(c => c.dbId || c.id).filter(Boolean)
+    _authFetch(`${API}/characters/favorites/reorder`, { method: 'PATCH', body: JSON.stringify({ ids }) }).catch(() => {})
+  }
+}
 
 // ── Favorite artworks ─────────────────────────────────────────────────────
 export const getFavArtworks  = () => load(k(FAV_ART_KEY))
@@ -101,8 +119,17 @@ export function toggleFavArtwork(artwork) {
   return !exists
 }
 
-/** Persist a reordered artworks list */
-export const saveFavArtworks = (list) => save(k(FAV_ART_KEY), list)
+/** Write artworks list to localStorage only — no DB sync. Use during init/merge. */
+export const writeFavArtworksLocal = (list) => save(k(FAV_ART_KEY), list)
+
+/** Persist a reordered artworks list and sync order to DB. Use from drag handlers. */
+export function saveFavArtworks(list) {
+  save(k(FAV_ART_KEY), list)
+  if (_authFetch) {
+    const ids = list.map(a => a.id).filter(Boolean)
+    _authFetch(`${API}/artworks/favorites/reorder`, { method: 'PATCH', body: JSON.stringify({ ids }) }).catch(() => {})
+  }
+}
 
 // ── Followed games ────────────────────────────────────────────────────────
 export const getFollowedGames = () => load(k(FOLLOWS_KEY))
@@ -112,10 +139,18 @@ export function toggleFollowGame(game) {
   const list = load(k(FOLLOWS_KEY))
   const exists = list.some((g) => g.id === game.id)
   save(k(FOLLOWS_KEY), exists ? list.filter((g) => g.id !== game.id) : [...list, game])
-  // Notify same-tab listeners (storage event only fires in other tabs)
   window.dispatchEvent(new CustomEvent('gv:followedGamesChanged'))
+  if (_authFetch) {
+    if (exists) {
+      _authFetch(`${API}/users/me/games/${encodeURIComponent(game.id)}`, { method: 'DELETE' }).catch(() => {})
+    } else {
+      _authFetch(`${API}/users/me/games`, { method: 'POST', body: JSON.stringify({ game_slug: game.id }) }).catch(() => {})
+    }
+  }
   return !exists
 }
+
+export const saveFollowedGames = (list) => save(k(FOLLOWS_KEY), list)
 
 // ── Followed users (legacy localStorage — superseded by DB follows) ───────
 export const getFollowedUsers = () => load(k(FOLLOWED_USERS_KEY))

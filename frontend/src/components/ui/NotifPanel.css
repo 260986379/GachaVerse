@@ -168,9 +168,10 @@
 
 /* ── Hover preview panel ──────────────────────────────────────── */
 .notif-preview-panel {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 0;
   width: 260px;
-  flex-shrink: 0;
-  align-self: flex-start;
   background: rgba(12, 12, 18, 0.97);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;

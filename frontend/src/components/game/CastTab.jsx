@@ -388,7 +388,7 @@ export default function CastTab({ gameId, initialCharId }) {
           <CastFilter label="All Rarities" value={filterRarity}  onChange={setFilterRarity}  options={rarityOptions} />
           <CastFilter label="All Elements" value={filterElement} onChange={setFilterElement} options={elementOptions} />
           <CastFilter label="All Types"    value={filterType}    onChange={setFilterType}    options={typeOptions} />
-          <CastFilter label="All Factions" value={filterFaction} onChange={setFilterFaction} options={factionOptions} />
+          {factionOptions.length > 0 && <CastFilter label="All Factions" value={filterFaction} onChange={setFilterFaction} options={factionOptions} />}
           {useVersions && <CastFilter label="All Versions" value={filterVersion} onChange={setFilterVersion} options={majorVersionOptions} renderOption={(o) => /^\d/.test(o) ? `Version ${o}` : o} />}
           {filtersActive && (
             <button className="cast-clear-btn" onClick={clearFilters}>Clear</button>

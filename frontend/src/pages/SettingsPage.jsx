@@ -81,8 +81,9 @@ export default function SettingsPage() {
 
   // ── Logout ────────────────────────────────────────────────────────────
   const handleLogout = async () => {
-    await logout()
+    try { await logout() } catch {}
     navigate('/')
+    window.scrollTo(0, 0)
   }
 
   if (!user) return null

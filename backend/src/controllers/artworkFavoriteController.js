@@ -1,10 +1,6 @@
 const { query } = require('../config/db');
+const { UUID_RE } = require('../utils/uuid');
 
-/**
- * POST /api/artworks/:id/favorite
- * Toggle an artwork favorite for the authenticated user.
- * Returns { favorited: bool }
- */
 const addFavArtwork = async (req, res, next) => {
   try {
     await query(
@@ -29,10 +25,25 @@ const removeFavArtwork = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/artworks/favorites
- * Returns the authenticated user's favorited artworks as full objects.
- */
+const reorderFavArtworks = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) return res.json({ ok: true });
+    const valid = ids.filter(id => UUID_RE.test(id));
+    if (valid.length === 0) return res.json({ ok: true });
+    await query(
+      `UPDATE user_favorite_artworks AS ufa
+       SET sort_order = v.pos
+       FROM unnest($1::uuid[]) WITH ORDINALITY AS v(id, pos)
+       WHERE ufa.user_id = $2 AND ufa.media_id = v.id`,
+      [valid, req.user.id]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getMyFavArtworks = async (req, res, next) => {
   try {
     const { rows } = await query(
@@ -41,7 +52,7 @@ const getMyFavArtworks = async (req, res, next) => {
        FROM user_favorite_artworks ufa
        JOIN media_content mc ON mc.id = ufa.media_id
        WHERE ufa.user_id = $1
-       ORDER BY ufa.created_at ASC`,
+       ORDER BY ufa.sort_order ASC, ufa.created_at ASC`,
       [req.user.id]
     );
     res.json(rows);
@@ -50,9 +61,6 @@ const getMyFavArtworks = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/users/:id/favorites/artworks — public
- */
 const getPublicFavArtworks = async (req, res, next) => {
   try {
     const { rows } = await query(
@@ -61,7 +69,7 @@ const getPublicFavArtworks = async (req, res, next) => {
        FROM user_favorite_artworks ufa
        JOIN media_content mc ON mc.id = ufa.media_id
        WHERE ufa.user_id = $1
-       ORDER BY ufa.created_at ASC`,
+       ORDER BY ufa.sort_order ASC, ufa.created_at ASC`,
       [req.params.id]
     );
     res.json(rows);
@@ -70,4 +78,4 @@ const getPublicFavArtworks = async (req, res, next) => {
   }
 };
 
-module.exports = { addFavArtwork, removeFavArtwork, getMyFavArtworks, getPublicFavArtworks };
+module.exports = { addFavArtwork, removeFavArtwork, reorderFavArtworks, getMyFavArtworks, getPublicFavArtworks };
