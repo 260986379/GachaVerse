@@ -220,6 +220,26 @@ export default function NikkeCharactersTab({ initialCharId = null }) {
   const [favLimitHit, setFavLimitHit]               = useState(false)
   const panelRef        = useRef(null)
   const mediaFetchedRef = useRef(false)
+  // name.toLowerCase() → DB UUID — populated on mount for proper DB sync
+  const dbIdMap = useRef({})
+
+  // Fetch DB character UUIDs once on mount so favorites sync correctly to the DB
+  useEffect(() => {
+    fetch('/api/games/nikke/characters')
+      .then(r => r.ok ? r.json() : [])
+      .then(chars => {
+        const map = {}
+        chars.forEach(c => { map[c.name.toLowerCase()] = c.id })
+        dbIdMap.current = map
+      })
+      .catch(() => {})
+  }, [])
+
+  // Enrich a local JSON char with its DB UUID so the DB sync uses the right PK
+  const enrichChar = (char) => ({
+    ...char,
+    dbId: dbIdMap.current[char.name.toLowerCase()] ?? undefined,
+  })
 
   const refreshFavs = () => setFavCharIds(new Set(getFavChars().map((c) => c.id)))
 
@@ -230,7 +250,7 @@ export default function NikkeCharactersTab({ initialCharId = null }) {
 
   const handleCardFav = (e, char) => {
     e.stopPropagation()
-    const result = toggleFavChar({ ...char, game_slug: 'nikke' })
+    const result = toggleFavChar({ ...enrichChar(char), game_slug: 'nikke' })
     if (result === null) { showLimit(); return }
     refreshFavs()
   }
@@ -292,7 +312,9 @@ export default function NikkeCharactersTab({ initialCharId = null }) {
     { label: 'R',   chars: byRarity('R')   },
   ].filter((g) => g.chars.length > 0)
 
-  const activeChar = activeId ? nikkeData.find((c) => c.id === activeId) : null
+  const activeChar = activeId
+    ? enrichChar(nikkeData.find((c) => c.id === activeId))
+    : null
 
   const clearFilters = () => {
     setSearch('')

@@ -1,0 +1,733 @@
+﻿[
+  {
+    "id": "arlan",
+    "name": "Arlan",
+    "rarity": "SR",
+    "element_type": "Lightning",
+    "combat_type": "Destruction",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Arlan_Portrait.png"
+  },
+  {
+    "id": "asta",
+    "name": "Asta",
+    "rarity": "SR",
+    "element_type": "Fire",
+    "combat_type": "Harmony",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Asta_Portrait.png"
+  },
+  {
+    "id": "bailu",
+    "name": "Bailu",
+    "rarity": "SSR",
+    "element_type": "Lightning",
+    "combat_type": "Abundance",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Bailu_Portrait.png"
+  },
+  {
+    "id": "bronya",
+    "name": "Bronya",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Harmony",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Bronya_Portrait.png"
+  },
+  {
+    "id": "clara",
+    "name": "Clara",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Destruction",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Clara_Portrait.png"
+  },
+  {
+    "id": "dan-heng",
+    "name": "Dan Heng",
+    "rarity": "SR",
+    "element_type": "Wind",
+    "combat_type": "The Hunt",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Dan_Heng_Portrait.png"
+  },
+  {
+    "id": "gepard",
+    "name": "Gepard",
+    "rarity": "SSR",
+    "element_type": "Ice",
+    "combat_type": "Preservation",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Gepard_Portrait.png"
+  },
+  {
+    "id": "herta",
+    "name": "Herta",
+    "rarity": "SR",
+    "element_type": "Ice",
+    "combat_type": "Erudition",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Herta_Portrait.png"
+  },
+  {
+    "id": "himeko",
+    "name": "Himeko",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "Erudition",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Himeko_Portrait.png"
+  },
+  {
+    "id": "hook",
+    "name": "Hook",
+    "rarity": "SR",
+    "element_type": "Fire",
+    "combat_type": "Destruction",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Hook_Portrait.png"
+  },
+  {
+    "id": "jing-yuan",
+    "name": "Jing Yuan",
+    "rarity": "SSR",
+    "element_type": "Lightning",
+    "combat_type": "Erudition",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Jing_Yuan_Portrait.png"
+  },
+  {
+    "id": "march-7th",
+    "name": "March 7th",
+    "rarity": "SR",
+    "element_type": "Ice",
+    "combat_type": "Preservation",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_March_7th_29_Portrait.png"
+  },
+  {
+    "id": "natasha",
+    "name": "Natasha",
+    "rarity": "SR",
+    "element_type": "Physical",
+    "combat_type": "Abundance",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Natasha_Portrait.png"
+  },
+  {
+    "id": "pela",
+    "name": "Pela",
+    "rarity": "SR",
+    "element_type": "Ice",
+    "combat_type": "Nihility",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Pela_Portrait.png"
+  },
+  {
+    "id": "qingque",
+    "name": "Qingque",
+    "rarity": "SR",
+    "element_type": "Quantum",
+    "combat_type": "Erudition",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Qingque_Portrait.png"
+  },
+  {
+    "id": "sampo",
+    "name": "Sampo",
+    "rarity": "SR",
+    "element_type": "Wind",
+    "combat_type": "Nihility",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Sampo_Portrait.png"
+  },
+  {
+    "id": "seele",
+    "name": "Seele",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "The Hunt",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Seele_Portrait.png"
+  },
+  {
+    "id": "serval",
+    "name": "Serval",
+    "rarity": "SR",
+    "element_type": "Lightning",
+    "combat_type": "Erudition",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Serval_Portrait.png"
+  },
+  {
+    "id": "sushang",
+    "name": "Sushang",
+    "rarity": "SR",
+    "element_type": "Physical",
+    "combat_type": "The Hunt",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Sushang_Portrait.png"
+  },
+  {
+    "id": "tingyun",
+    "name": "Tingyun",
+    "rarity": "SR",
+    "element_type": "Lightning",
+    "combat_type": "Harmony",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Tingyun_Portrait.png"
+  },
+  {
+    "id": "welt",
+    "name": "Welt",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Nihility",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Welt_Portrait.png"
+  },
+  {
+    "id": "yanqing",
+    "name": "Yanqing",
+    "rarity": "SSR",
+    "element_type": "Ice",
+    "combat_type": "The Hunt",
+    "version": "1.0",
+    "icon_url": "/characters/hsr/icons/Character_Yanqing_Portrait.png"
+  },
+  {
+    "id": "luocha",
+    "name": "Luocha",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Abundance",
+    "version": "1.1",
+    "icon_url": "/characters/hsr/icons/Character_Luocha_Portrait.png"
+  },
+  {
+    "id": "silver-wolf",
+    "name": "Silver Wolf",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "Nihility",
+    "version": "1.1",
+    "icon_url": "/characters/hsr/icons/Character_Silver_Wolf_Portrait.png"
+  },
+  {
+    "id": "yukong",
+    "name": "Yukong",
+    "rarity": "SR",
+    "element_type": "Imaginary",
+    "combat_type": "Harmony",
+    "version": "1.1",
+    "icon_url": "/characters/hsr/icons/Character_Yukong_Portrait.png"
+  },
+  {
+    "id": "blade",
+    "name": "Blade",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Destruction",
+    "version": "1.2",
+    "icon_url": "/characters/hsr/icons/Character_Blade_Portrait.png"
+  },
+  {
+    "id": "kafka",
+    "name": "Kafka",
+    "rarity": "SSR",
+    "element_type": "Lightning",
+    "combat_type": "Nihility",
+    "version": "1.2",
+    "icon_url": "/characters/hsr/icons/Character_Kafka_Portrait.png"
+  },
+  {
+    "id": "luka",
+    "name": "Luka",
+    "rarity": "SR",
+    "element_type": "Physical",
+    "combat_type": "Nihility",
+    "version": "1.2",
+    "icon_url": "/characters/hsr/icons/Character_Luka_Portrait.png"
+  },
+  {
+    "id": "dan-heng-imbibitor-lunae",
+    "name": "Dan Heng • Imbibitor Lunae",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Destruction",
+    "version": "1.3",
+    "icon_url": "/characters/hsr/icons/Character_Dan_Heng_Imbibitor_Lunae_Portrait.png"
+  },
+  {
+    "id": "fu-xuan",
+    "name": "Fu Xuan",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "Preservation",
+    "version": "1.3",
+    "icon_url": "/characters/hsr/icons/Character_Fu_Xuan_Portrait.png"
+  },
+  {
+    "id": "lynx",
+    "name": "Lynx",
+    "rarity": "SR",
+    "element_type": "Quantum",
+    "combat_type": "Abundance",
+    "version": "1.3",
+    "icon_url": "/characters/hsr/icons/Character_Lynx_Portrait.png"
+  },
+  {
+    "id": "guinaifen",
+    "name": "Guinaifen",
+    "rarity": "SR",
+    "element_type": "Fire",
+    "combat_type": "Nihility",
+    "version": "1.4",
+    "icon_url": "/characters/hsr/icons/Character_Guinaifen_Portrait.png"
+  },
+  {
+    "id": "jingliu",
+    "name": "Jingliu",
+    "rarity": "SSR",
+    "element_type": "Ice",
+    "combat_type": "Destruction",
+    "version": "1.4",
+    "icon_url": "/characters/hsr/icons/Character_Jingliu_Portrait.png"
+  },
+  {
+    "id": "topaz-and-numby",
+    "name": "Topaz & Numby",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "The Hunt",
+    "version": "1.4",
+    "icon_url": "/characters/hsr/icons/Character_Topaz_and_Numby_Portrait.png"
+  },
+  {
+    "id": "argenti",
+    "name": "Argenti",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Erudition",
+    "version": "1.5",
+    "icon_url": "/characters/hsr/icons/Character_Argenti_Portrait.png"
+  },
+  {
+    "id": "hanya",
+    "name": "Hanya",
+    "rarity": "SR",
+    "element_type": "Physical",
+    "combat_type": "Harmony",
+    "version": "1.5",
+    "icon_url": "/characters/hsr/icons/Character_Hanya_Portrait.png"
+  },
+  {
+    "id": "huohuo",
+    "name": "Huohuo",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Abundance",
+    "version": "1.5",
+    "icon_url": "/characters/hsr/icons/Character_Huohuo_Portrait.png"
+  },
+  {
+    "id": "dr-ratio",
+    "name": "Dr. Ratio",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "The Hunt",
+    "version": "1.6",
+    "icon_url": "/characters/hsr/icons/Character_Dr._Ratio_Portrait.png"
+  },
+  {
+    "id": "ruan-mei",
+    "name": "Ruan Mei",
+    "rarity": "SSR",
+    "element_type": "Ice",
+    "combat_type": "Harmony",
+    "version": "1.6",
+    "icon_url": "/characters/hsr/icons/Character_Ruan_Mei_Portrait.png"
+  },
+  {
+    "id": "xueyi",
+    "name": "Xueyi",
+    "rarity": "SR",
+    "element_type": "Quantum",
+    "combat_type": "Destruction",
+    "version": "1.6",
+    "icon_url": "/characters/hsr/icons/Character_Xueyi_Portrait.png"
+  },
+  {
+    "id": "black-swan",
+    "name": "Black Swan",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Nihility",
+    "version": "2.0",
+    "icon_url": "/characters/hsr/icons/Character_Black_Swan_Portrait.png"
+  },
+  {
+    "id": "misha",
+    "name": "Misha",
+    "rarity": "SR",
+    "element_type": "Ice",
+    "combat_type": "Destruction",
+    "version": "2.0",
+    "icon_url": "/characters/hsr/icons/Character_Misha_Portrait.png"
+  },
+  {
+    "id": "sparkle",
+    "name": "Sparkle",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "Harmony",
+    "version": "2.0",
+    "icon_url": "/characters/hsr/icons/Character_Sparkle_Portrait.png"
+  },
+  {
+    "id": "acheron",
+    "name": "Acheron",
+    "rarity": "SSR",
+    "element_type": "Lightning",
+    "combat_type": "Nihility",
+    "version": "2.1",
+    "icon_url": "/characters/hsr/icons/Character_Acheron_Portrait.png"
+  },
+  {
+    "id": "aventurine",
+    "name": "Aventurine",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Preservation",
+    "version": "2.1",
+    "icon_url": "/characters/hsr/icons/Character_Aventurine_Portrait.png"
+  },
+  {
+    "id": "gallagher",
+    "name": "Gallagher",
+    "rarity": "SR",
+    "element_type": "Fire",
+    "combat_type": "Abundance",
+    "version": "2.1",
+    "icon_url": "/characters/hsr/icons/Character_Gallagher_Portrait.png"
+  },
+  {
+    "id": "boothill",
+    "name": "Boothill",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "The Hunt",
+    "version": "2.2",
+    "icon_url": "/characters/hsr/icons/Character_Boothill_Portrait.png"
+  },
+  {
+    "id": "robin",
+    "name": "Robin",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Harmony",
+    "version": "2.2",
+    "icon_url": "/characters/hsr/icons/Character_Robin_Portrait.png"
+  },
+  {
+    "id": "firefly",
+    "name": "Firefly",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "Destruction",
+    "version": "2.3",
+    "icon_url": "/characters/hsr/icons/Character_Firefly_Portrait.png"
+  },
+  {
+    "id": "jade",
+    "name": "Jade",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "Erudition",
+    "version": "2.3",
+    "icon_url": "/characters/hsr/icons/Character_Jade_Portrait.png"
+  },
+  {
+    "id": "jiaoqiu",
+    "name": "Jiaoqiu",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "Nihility",
+    "version": "2.4",
+    "icon_url": "/characters/hsr/icons/Character_Jiaoqiu_Portrait.png"
+  },
+  {
+    "id": "march-7th-hunt",
+    "name": "March 7th (Hunt)",
+    "rarity": "SR",
+    "element_type": "Imaginary",
+    "combat_type": "The Hunt",
+    "version": "2.4",
+    "icon_url": "/characters/hsr/icons/Character_March_7th_29_V2_Portrait.png"
+  },
+  {
+    "id": "yunli",
+    "name": "Yunli",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Destruction",
+    "version": "2.4",
+    "icon_url": "/characters/hsr/icons/Character_Yunli_Portrait.png"
+  },
+  {
+    "id": "feixiao",
+    "name": "Feixiao",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "The Hunt",
+    "version": "2.5",
+    "icon_url": "/characters/hsr/icons/Character_Feixiao_Portrait.png"
+  },
+  {
+    "id": "lingsha",
+    "name": "Lingsha",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "Abundance",
+    "version": "2.5",
+    "icon_url": "/characters/hsr/icons/Character_Lingsha_Portrait.png"
+  },
+  {
+    "id": "moze",
+    "name": "Moze",
+    "rarity": "SR",
+    "element_type": "Lightning",
+    "combat_type": "The Hunt",
+    "version": "2.5",
+    "icon_url": "/characters/hsr/icons/Character_Moze_Portrait.png"
+  },
+  {
+    "id": "rappa",
+    "name": "Rappa",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Erudition",
+    "version": "2.6",
+    "icon_url": "/characters/hsr/icons/Character_Rappa_Portrait.png"
+  },
+  {
+    "id": "fugue",
+    "name": "Fugue",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "Nihility",
+    "version": "2.7",
+    "icon_url": "/characters/hsr/icons/Character_Fugue_Portrait.png"
+  },
+  {
+    "id": "sunday",
+    "name": "Sunday",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Harmony",
+    "version": "2.7",
+    "icon_url": "/characters/hsr/icons/Character_Sunday_Portrait.png"
+  },
+  {
+    "id": "aglaea",
+    "name": "Aglaea",
+    "rarity": "SSR",
+    "element_type": "Lightning",
+    "combat_type": "Remembrance",
+    "version": "3.0",
+    "icon_url": "/characters/hsr/icons/Character_Aglaea_Portrait.png"
+  },
+  {
+    "id": "the-herta",
+    "name": "The Herta",
+    "rarity": "SSR",
+    "element_type": "Ice",
+    "combat_type": "Erudition",
+    "version": "3.0",
+    "icon_url": "/characters/hsr/icons/Character_The_Herta_Portrait.png"
+  },
+  {
+    "id": "mydei",
+    "name": "Mydei",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Destruction",
+    "version": "3.1",
+    "icon_url": "/characters/hsr/icons/Character_Mydei_Portrait.png"
+  },
+  {
+    "id": "tribbie",
+    "name": "Tribbie",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "Harmony",
+    "version": "3.1",
+    "icon_url": "/characters/hsr/icons/Character_Tribbie_Portrait.png"
+  },
+  {
+    "id": "anaxa",
+    "name": "Anaxa",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Erudition",
+    "version": "3.2",
+    "icon_url": "/characters/hsr/icons/Character_Anaxa_Portrait.png"
+  },
+  {
+    "id": "castorice",
+    "name": "Castorice",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "Remembrance",
+    "version": "3.2",
+    "icon_url": "/characters/hsr/icons/Character_Castorice_Portrait.png"
+  },
+  {
+    "id": "cipher",
+    "name": "Cipher",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "Nihility",
+    "version": "3.3",
+    "icon_url": "/characters/hsr/icons/Character_Cipher_Portrait.png"
+  },
+  {
+    "id": "hyacine",
+    "name": "Hyacine",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Remembrance",
+    "version": "3.3",
+    "icon_url": "/characters/hsr/icons/Character_Hyacine_Portrait.png"
+  },
+  {
+    "id": "archer",
+    "name": "Archer",
+    "rarity": "SSR",
+    "element_type": "Quantum",
+    "combat_type": "The Hunt",
+    "version": "3.4",
+    "icon_url": "/characters/hsr/icons/Character_Archer_Portrait.png"
+  },
+  {
+    "id": "phainon",
+    "name": "Phainon",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Destruction",
+    "version": "3.4",
+    "icon_url": "/characters/hsr/icons/Character_Phainon_Portrait.png"
+  },
+  {
+    "id": "saber",
+    "name": "Saber",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Destruction",
+    "version": "3.4",
+    "icon_url": "/characters/hsr/icons/Character_Saber_Portrait.png"
+  },
+  {
+    "id": "cerydra",
+    "name": "Cerydra",
+    "rarity": "SSR",
+    "element_type": "Wind",
+    "combat_type": "Harmony",
+    "version": "3.5",
+    "icon_url": "/characters/hsr/icons/Character_Cerydra_Portrait.png"
+  },
+  {
+    "id": "hysilens",
+    "name": "Hysilens",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Nihility",
+    "version": "3.5",
+    "icon_url": "/characters/hsr/icons/Character_Hysilens_Portrait.png"
+  },
+  {
+    "id": "dan-heng-permansor-terrae",
+    "name": "Dan Heng • Permansor Terrae",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Preservation",
+    "version": "3.6",
+    "icon_url": "/characters/hsr/icons/Character_Dan_Heng_Permansor_Terrae_Portrait.png"
+  },
+  {
+    "id": "evernight",
+    "name": "Evernight",
+    "rarity": "SSR",
+    "element_type": "Ice",
+    "combat_type": "Remembrance",
+    "version": "3.6",
+    "icon_url": "/characters/hsr/icons/Character_Evernight_Portrait.png"
+  },
+  {
+    "id": "cyrene",
+    "name": "Cyrene",
+    "rarity": "SSR",
+    "element_type": "Ice",
+    "combat_type": "Remembrance",
+    "version": "3.7",
+    "icon_url": "/characters/hsr/icons/Character_Cyrene_Portrait.png"
+  },
+  {
+    "id": "the-dahlia",
+    "name": "The Dahlia",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "Nihility",
+    "version": "3.8",
+    "icon_url": "/characters/hsr/icons/Character_The_Dahlia_Portrait.png"
+  },
+  {
+    "id": "sparxie",
+    "name": "Sparxie",
+    "rarity": "SSR",
+    "element_type": "Fire",
+    "combat_type": "Elation",
+    "version": "4.0",
+    "icon_url": "/characters/hsr/icons/Character_Sparxie_Portrait.png"
+  },
+  {
+    "id": "yao-guang",
+    "name": "Yao Guang",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Elation",
+    "version": "4.0",
+    "icon_url": "/characters/hsr/icons/Character_Yao_Guang_Portrait.png"
+  },
+  {
+    "id": "ashveil",
+    "name": "Ashveil",
+    "rarity": "SSR",
+    "element_type": "Lightning",
+    "combat_type": "The Hunt",
+    "version": "4.1",
+    "icon_url": "/characters/hsr/icons/Character_Ashveil_Portrait.png"
+  },
+  {
+    "id": "evanescia",
+    "name": "Evanescia",
+    "rarity": "SSR",
+    "element_type": "Physical",
+    "combat_type": "Elation",
+    "version": "4.2",
+    "icon_url": "/characters/hsr/icons/Character_Evanescia_Portrait.png"
+  },
+  {
+    "id": "silver-wolf-lv999",
+    "name": "Silver Wolf LV.999",
+    "rarity": "SSR",
+    "element_type": "Imaginary",
+    "combat_type": "Elation",
+    "version": "4.2",
+    "icon_url": "/characters/hsr/icons/Character_Silver_Wolf_LV.999_Portrait.png"
+  }
+]
+
+

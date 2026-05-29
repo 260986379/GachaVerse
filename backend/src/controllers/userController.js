@@ -391,6 +391,41 @@ async function _getCounts(userId) {
   return rows[0];
 }
 
+const ASSIGNABLE_ROLES = ['Owner', 'Dev', 'VIP', 'Member', 'Regular', 'Debug'];
+
+const assignRole = async (req, res, next) => {
+  try {
+    const actorRole = req.user.role;
+    if (actorRole !== 'Owner' && actorRole !== 'Dev') {
+      return res.status(403).json({ message: 'Only Owner or Dev can assign roles.' });
+    }
+
+    const { role } = req.body;
+    if (!ASSIGNABLE_ROLES.includes(role)) {
+      return res.status(400).json({ message: 'Invalid role.' });
+    }
+    // Dev cannot assign Owner or Dev roles, and cannot touch users who are Owner/Dev
+    if (actorRole === 'Dev') {
+      if (role === 'Owner' || role === 'Dev') {
+        return res.status(403).json({ message: 'Dev cannot assign Owner or Dev roles.' });
+      }
+      const { rows: target } = await query('SELECT role FROM users WHERE id = $1', [req.params.id]);
+      if (target.length && (target[0].role === 'Owner' || target[0].role === 'Dev')) {
+        return res.status(403).json({ message: 'Dev cannot modify Owner or Dev accounts.' });
+      }
+    }
+
+    const { rows } = await query(
+      'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, username, role',
+      [role, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ message: 'User not found.' });
+    res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getUserProfile,
   getUserByUsername,
@@ -409,4 +444,5 @@ module.exports = {
   getUserGameAccounts,
   upsertGameAccount,
   removeGameAccount,
+  assignRole,
 };

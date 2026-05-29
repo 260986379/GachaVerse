@@ -5,19 +5,50 @@ import { isFavChar, toggleFavChar, getFavChars } from '../../utils/bookmarks'
 const RARITY_COLOR  = { SSR: '#f0b429', SR: '#a78bfa' }
 const RARITY_LABEL  = { SSR: '5★  S-Rank', SR: '4★  A-Rank' }
 const ELEMENT_COLOR = {
-  Physical: '#d4c9b8',
-  Electric: '#7fc8ff',
-  Fire:     '#ff8c42',
-  Ice:      '#7ecfed',
-  Ether:    '#c4a0f0',
+  // ZZZ / NIKKE
+  Physical:  '#d4c9b8',
+  Electric:  '#7fc8ff',
+  Fire:      '#ff8c42',
+  Ice:       '#7ecfed',
+  Ether:     '#c4a0f0',
+  // Genshin Impact
+  Pyro:    '#ff6b35',
+  Hydro:   '#3ab0e8',
+  Cryo:    '#8fd6f0',
+  Electro: '#c07fff',
+  Anemo:   '#4ecfb0',
+  Geo:     '#e8b84b',
+  Dendro:  '#7ecf45',
+  // Honkai: Star Rail
+  Lightning: '#c084fc',
+  Wind:      '#4ecfb0',
+  Quantum:   '#6b5aed',
+  Imaginary: '#e8c44a',
 }
 const TYPE_COLOR = {
+  // ZZZ / NIKKE roles
   Attack:  '#e05555',
   Stun:    '#e8b84b',
   Anomaly: '#c070e0',
   Support: '#5bad6f',
   Defense: '#5b8fe0',
   Rupture: '#d46030',
+  // Genshin weapon types
+  Sword:    '#a8c4d8',
+  Claymore: '#c49090',
+  Bow:      '#90c890',
+  Catalyst: '#c0a0d8',
+  Polearm:  '#d8b870',
+  // HSR paths
+  Destruction:  '#e05555',
+  'The Hunt':   '#f59e0b',
+  Erudition:    '#3b82f6',
+  Harmony:      '#10b981',
+  Nihility:     '#8b5cf6',
+  Preservation: '#64748b',
+  Abundance:    '#22c55e',
+  Remembrance:  '#60a5fa',
+  Elation:      '#f97316',
 }
 
 function getRelatedVideos(char, media) {
@@ -51,8 +82,8 @@ function StatRow({ label, value, color }) {
 }
 
 function CharacterPanel({ char, onClose, relatedVideos, gameSlug, onFavLimit }) {
-  const isSplashArt = char.splash_art_urls?.length > 0
-  const images = (isSplashArt ? char.splash_art_urls : [char.splash_art_url, char.icon_url]).filter(Boolean)
+  const isSplashArt = char.splash_art_urls?.length > 0 || !!char.splash_art_url
+  const images = (char.splash_art_urls?.length > 0 ? char.splash_art_urls : [char.splash_art_url || char.icon_url]).filter(Boolean)
   const [imgIndex, setImgIndex] = useState(0)
   const [activeVideoId, setActiveVideoId] = useState(null)
   const [faved, setFaved] = useState(() => isFavChar(char.id))
@@ -106,12 +137,13 @@ function CharacterPanel({ char, onClose, relatedVideos, gameSlug, onFavLimit }) 
 
           <div className="char-panel__stats">
             <StatRow label="Rarity"  value={RARITY_LABEL[char.rarity] || char.rarity || '—'} color={RARITY_COLOR[char.rarity]} />
-            <StatRow label="Season"  value={char.season ? `Season ${char.season}` : '—'} />
+            {gameSlug !== 'genshin-impact' && gameSlug !== 'honkai-star-rail' && <StatRow label="Season" value={char.season ? `Season ${char.season}` : '—'} />}
             <StatRow label="Element" value={char.element_type || '—'} color={ELEMENT_COLOR[char.element_type]} />
-            <StatRow label="Type"    value={char.combat_type  || '—'} color={TYPE_COLOR[char.combat_type]} />
+            <StatRow label={gameSlug === 'genshin-impact' ? 'Weapon' : gameSlug === 'honkai-star-rail' ? 'Path' : 'Type'} value={char.combat_type || '—'} color={TYPE_COLOR[char.combat_type]} />
+            {char.version && <StatRow label="Version" value={`v${char.version}`} />}
             {char.faction && char.faction !== 'Main Character' && (
               <div className="char-panel__stat char-panel__stat--full">
-                <span className="char-panel__stat-label">Faction</span>
+                <span className="char-panel__stat-label">{gameSlug === 'genshin-impact' ? 'Region' : 'Faction'}</span>
                 <span className="char-panel__stat-value">{char.faction}</span>
               </div>
             )}
@@ -182,6 +214,7 @@ export default function CastTab({ gameId, initialCharId }) {
   const [filterType, setFilterType] = useState('all')
   const [filterFaction, setFilterFaction] = useState('all')
   const [filterSeason, setFilterSeason] = useState('all')
+  const [filterVersion, setFilterVersion] = useState('all')
   // ── All hooks must live above any early returns ──
   const [favCharIds, setFavCharIds] = useState(() => new Set(getFavChars().map((c) => c.id)))
   const refreshFavChars = () => setFavCharIds(new Set(getFavChars().map((c) => c.id)))
@@ -243,9 +276,35 @@ export default function CastTab({ gameId, initialCharId }) {
   const factionOptions  = [...new Set(
     characters.map((c) => c.faction).filter((f) => f && f !== 'Main Character')
   )].sort()
+  // Handles both numeric ("1.0") and named ("Luna I") versions
+  const ROMAN_VAL = { I:1, II:2, III:3, IV:4, V:5, VI:6, VII:7, VIII:8, IX:9, X:10 }
+  const versionSortVal = (v) => {
+    if (!v) return 0
+    if (/^\d/.test(v)) return parseFloat(v)
+    const suffix = v.trim().split(' ').pop()
+    return 1000 + (ROMAN_VAL[suffix] || 0)
+  }
+  const getMajorVersion = (v) => {
+    if (!v) return null
+    if (/^\d/.test(v)) return String(Math.floor(parseFloat(v)))
+    return v.trim().split(' ')[0]   // "Luna I" → "Luna"
+  }
+
+  const versionOptions  = [...new Set(characters.map((c) => c.version).filter(Boolean))]
+    .sort((a, b) => versionSortVal(a) - versionSortVal(b))
+  const majorVersionOptions = [...new Set(versionOptions.map(getMajorVersion).filter(Boolean))]
+    .sort((a, b) => {
+      const aNum = /^\d/.test(a), bNum = /^\d/.test(b)
+      if (aNum && bNum) return parseFloat(a) - parseFloat(b)
+      if (aNum) return -1
+      if (bNum) return 1
+      return a.localeCompare(b)
+    })
+
+  const useVersions = versionOptions.length > 0
 
   const q = search.trim().toLowerCase()
-  const filtersActive = q || filterRarity !== 'all' || filterElement !== 'all' || filterType !== 'all' || filterFaction !== 'all' || filterSeason !== 'all'
+  const filtersActive = q || filterRarity !== 'all' || filterElement !== 'all' || filterType !== 'all' || filterFaction !== 'all' || filterSeason !== 'all' || filterVersion !== 'all'
 
   const applyFilters = (list) => list.filter((c) => {
     const displayName = (c.display_name || c.name).toLowerCase()
@@ -256,6 +315,7 @@ export default function CastTab({ gameId, initialCharId }) {
     if (filterType    !== 'all' && c.combat_type   !== filterType)          return false
     if (filterFaction !== 'all' && c.faction       !== filterFaction)       return false
     if (filterSeason  !== 'all' && String(c.season) !== filterSeason)       return false
+    if (filterVersion !== 'all' && getMajorVersion(c.version) !== filterVersion) return false
     return true
   })
 
@@ -266,11 +326,36 @@ export default function CastTab({ gameId, initialCharId }) {
     .sort((a, b) => (a.display_name || a.name).localeCompare(b.display_name || b.name))
   const season2   = applyFilters(characters.filter((c) => c.season === 2))
     .sort((a, b) => (a.display_name || a.name).localeCompare(b.display_name || b.name))
+  const useSeasons = characters.some((c) => c.season != null)
+
+  // Group by major version: numeric ("1") → "Version 1", named ("Luna") → "Luna"
+  const versionGroups = !useSeasons
+    ? majorVersionOptions
+        .map((major) => ({
+          label: /^\d/.test(major) ? `Version ${major}` : major,
+          chars: applyFilters(
+            characters.filter((c) => c.faction !== 'Main Character' && getMajorVersion(c.version) === major)
+          ).sort((a, b) => {
+            const vDiff = versionSortVal(a.version) - versionSortVal(b.version)
+            if (vDiff !== 0) return vDiff
+            return (a.display_name || a.name).localeCompare(b.display_name || b.name)
+          }),
+        }))
+        .filter((g) => g.chars.length > 0)
+    : []
+
+  // Characters with no version and no season
+  const noGroup = !useSeasons
+    ? applyFilters(characters.filter((c) => c.faction !== 'Main Character' && c.season == null && !c.version))
+        .sort((a, b) => (a.display_name || a.name).localeCompare(b.display_name || b.name))
+    : []
 
   const groups = [
     ...(mainChars.length ? [{ label: 'Main Characters', chars: mainChars }] : []),
     ...(season1.length   ? [{ label: 'Season 1',        chars: season1   }] : []),
     ...(season2.length   ? [{ label: 'Season 2',        chars: season2   }] : []),
+    ...versionGroups,
+    ...(noGroup.length   ? [{ label: 'Characters',      chars: noGroup   }] : []),
   ]
 
   const activeChar = activeId ? characters.find((c) => c.id === activeId) : null
@@ -282,6 +367,7 @@ export default function CastTab({ gameId, initialCharId }) {
     setFilterElement('all')
     setFilterType('all')
     setFilterFaction('all')
+    setFilterVersion('all')
   }
 
   return (
@@ -298,11 +384,12 @@ export default function CastTab({ gameId, initialCharId }) {
           />
         </div>
         <div className="cast-filters">
-          <CastFilter label="All Seasons"  value={filterSeason}  onChange={setFilterSeason}  options={['1', '2']} renderOption={(o) => `Season ${o}`} />
+          {useSeasons && <CastFilter label="All Seasons" value={filterSeason} onChange={setFilterSeason} options={['1', '2']} renderOption={(o) => `Season ${o}`} />}
           <CastFilter label="All Rarities" value={filterRarity}  onChange={setFilterRarity}  options={rarityOptions} />
           <CastFilter label="All Elements" value={filterElement} onChange={setFilterElement} options={elementOptions} />
           <CastFilter label="All Types"    value={filterType}    onChange={setFilterType}    options={typeOptions} />
           <CastFilter label="All Factions" value={filterFaction} onChange={setFilterFaction} options={factionOptions} />
+          {useVersions && <CastFilter label="All Versions" value={filterVersion} onChange={setFilterVersion} options={majorVersionOptions} renderOption={(o) => /^\d/.test(o) ? `Version ${o}` : o} />}
           {filtersActive && (
             <button className="cast-clear-btn" onClick={clearFilters}>Clear</button>
           )}

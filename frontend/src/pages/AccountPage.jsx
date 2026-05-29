@@ -136,6 +136,106 @@ function timeAgoShort(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
+function ratingColor(r) {
+  if (r >= 8) return '#4ade80'
+  if (r >= 5) return '#facc15'
+  return '#f87171'
+}
+
+function formatGameSlug(slug) {
+  return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+function MyReviewsModal({ userId, authFetch, onClose, onStatsChange }) {
+  const navigate = useNavigate()
+  const [reviews, setReviews] = useState(null)
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  useEffect(() => {
+    fetch(`${API}/reviews/user/${userId}`)
+      .then(r => r.json())
+      .then(data => setReviews(Array.isArray(data) ? data : []))
+      .catch(() => setReviews([]))
+  }, [userId])
+
+  const totalUpvotes = reviews?.reduce((sum, r) => sum + (r.upvote_count || 0), 0) ?? 0
+
+  const handleDelete = async (reviewId) => {
+    const res = await authFetch(`${API}/reviews/review/${reviewId}`, { method: 'DELETE' })
+    if (res.ok) {
+      const next = reviews.filter(r => r.id !== reviewId)
+      setReviews(next)
+      onStatsChange({ review_count: next.length, total_upvotes: next.reduce((s, r) => s + (r.upvote_count || 0), 0) })
+    }
+  }
+
+  return (
+    <div className="rv-modal-overlay" onClick={onClose}>
+      <div className="rv-modal" onClick={e => e.stopPropagation()}>
+        <div className="rv-modal__header">
+          <span className="rv-modal__title">
+            My Reviews
+            {reviews?.length > 0 && <span className="rv-modal__count">{reviews.length}</span>}
+            {totalUpvotes > 0 && <span className="rv-modal__upvote-total">▲ {totalUpvotes}</span>}
+          </span>
+          <button className="rv-modal__close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="rv-modal__list">
+          {reviews === null && <p className="rv-modal__empty">Loading…</p>}
+          {reviews?.length === 0 && (
+            <p className="rv-modal__empty">No reviews yet — head to any game's News Feed to leave one.</p>
+          )}
+          {reviews?.map(r => (
+            <div
+              key={r.id}
+              className="rv-card"
+              style={{ '--rc': ratingColor(r.rating) }}
+            >
+              <div className="rv-card__body-col">
+                <button
+                  className="rv-card__game"
+                  onClick={() => { navigate(`/game/${r.game_id}`); onClose() }}
+                >
+                  {formatGameSlug(r.game_id)}
+                  <span className="rv-card__game-arrow">↗</span>
+                </button>
+                {r.body && <p className="rv-card__text">{r.body}</p>}
+                <div className="rv-card__footer">
+                  {r.upvote_count > 0 && (
+                    <span className="rv-card__upvotes">
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11">
+                        <path d="M4 14h4v7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7h4a1 1 0 0 0 .77-1.64l-8-10a1 1 0 0 0-1.54 0l-8 10A1 1 0 0 0 4 14z"/>
+                      </svg>
+                      {r.upvote_count}
+                    </span>
+                  )}
+                  <span className="rv-card__date">
+                    {new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  </span>
+                  <button className="rv-card__delete" onClick={() => handleDelete(r.id)} title="Delete review">
+                    Delete
+                  </button>
+                </div>
+              </div>
+
+              <div className="rv-card__score-col">
+                <span className="rv-card__rating">{r.rating}</span>
+                <span className="rv-card__denom">/10</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ViewNotesModal({ notes, onClose }) {
   const navigate = useNavigate()
 
@@ -705,6 +805,8 @@ export default function AccountPage() {
 
   const [notes,          setNotes]          = useState([])
   const [notesOpen,      setNotesOpen]      = useState(false)
+  const [reviewsOpen,    setReviewsOpen]    = useState(false)
+  const [reviewStats,    setReviewStats]    = useState(null)
 
   const [bannerSrc, setBannerSrc] = useState(null)
   const [pfpSrc,    setPfpSrc]    = useState(null)
@@ -780,6 +882,15 @@ export default function AccountPage() {
     fetch(`/api/users/${user.id}/notes`)
       .then(r => r.ok ? r.json() : [])
       .then(data => setNotes(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }, [user?.id])
+
+  // Load review stats (count + total upvotes received)
+  useEffect(() => {
+    if (!user?.id) return
+    fetch(`${API}/reviews/user/${user.id}/stats`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setReviewStats(data) })
       .catch(() => {})
   }, [user?.id])
 
@@ -869,18 +980,14 @@ export default function AccountPage() {
         const newBoard = await res.json()
         setBoards(prev => [...prev, newBoard])
       }
-    } catch (e) {
-      console.error('[Board] add failed:', e)
-    }
+    } catch {}
   }
 
   const handleDeleteBoard = async (id) => {
     try {
       await authFetch(`/api/boards/${id}`, { method: 'DELETE' })
       setBoards(prev => prev.filter(b => b.id !== id))
-    } catch (e) {
-      console.error('[Board] delete failed:', e)
-    }
+    } catch {}
   }
 
   const handleUnfavVideo = (id) => {
@@ -1068,11 +1175,19 @@ export default function AccountPage() {
 
             </div>
 
-            {/* View Notes button — outside the card */}
+            {/* My Reviews + View Notes buttons — outside the card */}
             {isLoggedIn && (
-              <button className="up-note-btn" onClick={() => setNotesOpen(true)}>
-                ✉ View Notes{notes.length > 0 ? ` · ${notes.length}` : ''}
-              </button>
+              <>
+                <button className="up-note-btn" onClick={() => setReviewsOpen(true)}>
+                  ★ My Reviews
+                  {reviewStats?.total_upvotes > 0 && (
+                    <span className="up-note-btn__badge">▲ {reviewStats.total_upvotes}</span>
+                  )}
+                </button>
+                <button className="up-note-btn" onClick={() => setNotesOpen(true)}>
+                  ✉ View Notes{notes.length > 0 ? ` · ${notes.length}` : ''}
+                </button>
+              </>
             )}
 
           </aside>
@@ -1087,23 +1202,25 @@ export default function AccountPage() {
               />
             ) : (
               <>
-                {/* Badges */}
-                <section className="profile-section">
-                  <div className="profile-section__header">
-                    <h2 className="profile-section__title">Badges</h2>
-                  </div>
-                  <div className="profile-badges">
-                    <span
-                      className="profile-badge"
-                      style={{
-                        '--badge-color': getRoleStyle(user.role).color,
-                        '--badge-glow':  getRoleGlow(user.role) ?? 'transparent',
-                      }}
-                    >
-                      {user.role}
-                    </span>
-                  </div>
-                </section>
+                {/* Badges — only shown for non-Regular roles */}
+                {isLoggedIn && user.role !== 'Regular' && (
+                  <section className="profile-section">
+                    <div className="profile-section__header">
+                      <h2 className="profile-section__title">Badges</h2>
+                    </div>
+                    <div className="profile-badges">
+                      <span
+                        className="profile-badge"
+                        style={{
+                          '--badge-color': getRoleStyle(user.role).color,
+                          '--badge-glow':  getRoleGlow(user.role) ?? 'transparent',
+                        }}
+                      >
+                        {user.role}
+                      </span>
+                    </div>
+                  </section>
+                )}
 
                 {/* Board */}
                 <section className="profile-section">
@@ -1371,6 +1488,14 @@ export default function AccountPage() {
         <ViewNotesModal
           notes={notes}
           onClose={() => setNotesOpen(false)}
+        />
+      )}
+      {reviewsOpen && user && (
+        <MyReviewsModal
+          userId={user.id}
+          authFetch={authFetch}
+          onClose={() => setReviewsOpen(false)}
+          onStatsChange={setReviewStats}
         />
       )}
     </div>

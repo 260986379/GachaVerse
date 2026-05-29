@@ -93,11 +93,12 @@ export default function GamePage() {
   const game = GAMES.find((g) => g.id === gameId)
 
   const initialTab     = location.state?.openTab     ?? TABS[0]
-  const initialCharId  = location.state?.openCharId  ?? null
   const initialVideoId = location.state?.openVideoId ?? null
 
   const [activeTab, setActiveTab] = useState(initialTab)
   const [posterFailed, setPosterFailed] = useState(false)
+  // Consumed once then cleared so CastTab doesn't re-expand on tab remount
+  const [initialCharId, setInitialCharId] = useState(location.state?.openCharId ?? null)
 
   useEffect(() => { window.scrollTo(0, 0) }, [gameId])
 
@@ -105,7 +106,13 @@ export default function GamePage() {
   // (e.g. clicking a notification while already on /game/:id)
   useEffect(() => {
     if (location.state?.openTab) setActiveTab(location.state.openTab)
+    if (location.state?.openCharId) setInitialCharId(location.state.openCharId)
   }, [location.key])
+
+  // Clear the pending charId once the user navigates away from Characters
+  useEffect(() => {
+    if (activeTab !== 'Characters') setInitialCharId(null)
+  }, [activeTab])
   const [following, setFollowing] = useState(() => game ? isFollowingGame(game.id) : false)
 
   const handleFollow = () => {
@@ -144,9 +151,9 @@ export default function GamePage() {
 
         <div className="game-hero__bottom">
           <div className="game-hero__poster">
-            {game.youtubeId && !posterFailed ? (
+            {(game.posterImage || game.youtubeId) && !posterFailed ? (
               <img
-                src={`https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg`}
+                src={game.posterImage ?? `https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg`}
                 alt={game.name}
                 className="game-hero__poster-img"
                 onError={() => setPosterFailed(true)}

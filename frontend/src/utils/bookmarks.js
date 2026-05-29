@@ -57,7 +57,7 @@ export function toggleFavVideo(video) {
   save(k(VIDEOS_KEY), exists ? list.filter((v) => v.id !== video.id) : [...list, video])
   // Sync to DB for logged-in users (fire-and-forget)
   if (_authFetch && video.id) {
-    _authFetch(`${API}/videos/${video.id}/favorite`, { method: 'POST' }).catch(() => {})
+    _authFetch(`${API}/videos/${video.id}/favorite`, { method: exists ? 'DELETE' : 'POST' }).catch(() => {})
   }
   return !exists
 }
@@ -74,9 +74,10 @@ export function toggleFavChar(char) {
   const exists = list.some((c) => c.id === char.id)
   if (!exists && list.length >= FAV_LIMIT) return null
   save(k(CHARS_KEY), exists ? list.filter((c) => c.id !== char.id) : [...list, char])
-  // Sync to DB for logged-in users (fire-and-forget)
-  if (_authFetch && char.id) {
-    _authFetch(`${API}/characters/${char.id}/favorite`, { method: 'POST' }).catch(() => {})
+  // Sync to DB for logged-in users — prefer dbId (UUID) over local slug id
+  const dbCharId = char.dbId || char.id
+  if (_authFetch && dbCharId) {
+    _authFetch(`${API}/characters/${dbCharId}/favorite`, { method: exists ? 'DELETE' : 'POST' }).catch(() => {})
   }
   return !exists
 }
@@ -95,7 +96,7 @@ export function toggleFavArtwork(artwork) {
   save(k(FAV_ART_KEY), exists ? list.filter((a) => a.id !== artwork.id) : [...list, artwork])
   // Sync to DB for logged-in users (fire-and-forget)
   if (_authFetch && artwork.id) {
-    _authFetch(`${API}/artworks/${artwork.id}/favorite`, { method: 'POST' }).catch(() => {})
+    _authFetch(`${API}/artworks/${artwork.id}/favorite`, { method: exists ? 'DELETE' : 'POST' }).catch(() => {})
   }
   return !exists
 }

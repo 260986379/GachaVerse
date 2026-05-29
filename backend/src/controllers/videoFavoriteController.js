@@ -5,29 +5,25 @@ const { query } = require('../config/db');
  * Toggle a video favorite for the authenticated user.
  * Returns { favorited: bool }
  */
-const toggleFavorite = async (req, res, next) => {
+const addFavorite = async (req, res, next) => {
   try {
-    const userId  = req.user.id;
-    const videoId = req.params.id;
-
-    const existing = await query(
-      'SELECT 1 FROM user_favorite_videos WHERE user_id = $1 AND video_id = $2',
-      [userId, videoId]
-    );
-
-    if (existing.rows.length > 0) {
-      await query(
-        'DELETE FROM user_favorite_videos WHERE user_id = $1 AND video_id = $2',
-        [userId, videoId]
-      );
-      return res.json({ favorited: false });
-    }
-
     await query(
       'INSERT INTO user_favorite_videos (user_id, video_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-      [userId, videoId]
+      [req.user.id, req.params.id]
     );
     res.json({ favorited: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const removeFavorite = async (req, res, next) => {
+  try {
+    await query(
+      'DELETE FROM user_favorite_videos WHERE user_id = $1 AND video_id = $2',
+      [req.user.id, req.params.id]
+    );
+    res.json({ favorited: false });
   } catch (err) {
     next(err);
   }
@@ -54,4 +50,24 @@ const getMyFavorites = async (req, res, next) => {
   }
 };
 
-module.exports = { toggleFavorite, getMyFavorites };
+/**
+ * GET /api/users/:id/favorites/videos — public, view another user's fav videos
+ */
+const getPublicFavVideos = async (req, res, next) => {
+  try {
+    const { rows } = await query(
+      `SELECT mc.id, mc.title, mc.external_id, mc.thumbnail_url,
+              mc.source_url, mc.category, mc.published_at
+       FROM user_favorite_videos ufv
+       JOIN media_content mc ON mc.id = ufv.video_id
+       WHERE ufv.user_id = $1
+       ORDER BY ufv.created_at ASC`,
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { addFavorite, removeFavorite, getMyFavorites, getPublicFavVideos };

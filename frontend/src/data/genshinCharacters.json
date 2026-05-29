@@ -1,0 +1,1142 @@
+[
+  {
+    "id": "amber",
+    "name": "Amber",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Bow",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Amber_Icon.webp"
+  },
+  {
+    "id": "barbara",
+    "name": "Barbara",
+    "rarity": "SR",
+    "element_type": "Hydro",
+    "combat_type": "Catalyst",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Barbara_Icon.webp"
+  },
+  {
+    "id": "beidou",
+    "name": "Beidou",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Claymore",
+    "faction": "Liyue",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Beidou_Icon.webp"
+  },
+  {
+    "id": "bennett",
+    "name": "Bennett",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Sword",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Bennett_Icon.webp"
+  },
+  {
+    "id": "chongyun",
+    "name": "Chongyun",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Claymore",
+    "faction": "Liyue",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Chongyun_Icon.webp"
+  },
+  {
+    "id": "diluc",
+    "name": "Diluc",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Claymore",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Diluc_Icon.webp"
+  },
+  {
+    "id": "fischl",
+    "name": "Fischl",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Bow",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Fischl_Icon.webp"
+  },
+  {
+    "id": "jean",
+    "name": "Jean",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Sword",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Jean_Icon.webp"
+  },
+  {
+    "id": "kaeya",
+    "name": "Kaeya",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Sword",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Kaeya_Icon.webp"
+  },
+  {
+    "id": "keqing",
+    "name": "Keqing",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Sword",
+    "faction": "Liyue",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Keqing_Icon.webp"
+  },
+  {
+    "id": "klee",
+    "name": "Klee",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Catalyst",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Klee_Icon.webp"
+  },
+  {
+    "id": "lisa",
+    "name": "Lisa",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Catalyst",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Lisa_Icon.webp"
+  },
+  {
+    "id": "mona",
+    "name": "Mona",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Catalyst",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Mona_Icon.webp"
+  },
+  {
+    "id": "ningguang",
+    "name": "Ningguang",
+    "rarity": "SR",
+    "element_type": "Geo",
+    "combat_type": "Catalyst",
+    "faction": "Liyue",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Ningguang_Icon.webp"
+  },
+  {
+    "id": "noelle",
+    "name": "Noelle",
+    "rarity": "SR",
+    "element_type": "Geo",
+    "combat_type": "Claymore",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Noelle_Icon.webp"
+  },
+  {
+    "id": "qiqi",
+    "name": "Qiqi",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Sword",
+    "faction": "Liyue",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Qiqi_Icon.webp"
+  },
+  {
+    "id": "razor",
+    "name": "Razor",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Claymore",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Razor_Icon.webp"
+  },
+  {
+    "id": "sucrose",
+    "name": "Sucrose",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Sucrose_Icon.webp"
+  },
+  {
+    "id": "venti",
+    "name": "Venti",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Bow",
+    "faction": "Mondstadt",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Venti_Icon.webp"
+  },
+  {
+    "id": "xiangling",
+    "name": "Xiangling",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Polearm",
+    "faction": "Liyue",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Xiangling_Icon.webp"
+  },
+  {
+    "id": "xingqiu",
+    "name": "Xingqiu",
+    "rarity": "SR",
+    "element_type": "Hydro",
+    "combat_type": "Sword",
+    "faction": "Liyue",
+    "version": "1.0",
+    "icon_url": "/characters/genshin/icons/Xingqiu_Icon.webp"
+  },
+  {
+    "id": "diona",
+    "name": "Diona",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Bow",
+    "faction": "Mondstadt",
+    "version": "1.1",
+    "icon_url": "/characters/genshin/icons/Diona_Icon.webp"
+  },
+  {
+    "id": "tartaglia",
+    "name": "Tartaglia",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Bow",
+    "faction": "Snezhnaya",
+    "version": "1.1",
+    "icon_url": "/characters/genshin/icons/Tartaglia_Icon.webp"
+  },
+  {
+    "id": "xinyan",
+    "name": "Xinyan",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Claymore",
+    "faction": "Liyue",
+    "version": "1.1",
+    "icon_url": "/characters/genshin/icons/Xinyan_Icon.webp"
+  },
+  {
+    "id": "zhongli",
+    "name": "Zhongli",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Polearm",
+    "faction": "Liyue",
+    "version": "1.1",
+    "icon_url": "/characters/genshin/icons/Zhongli_Icon.webp"
+  },
+  {
+    "id": "albedo",
+    "name": "Albedo",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Sword",
+    "faction": "Mondstadt",
+    "version": "1.2",
+    "icon_url": "/characters/genshin/icons/Albedo_Icon.webp"
+  },
+  {
+    "id": "ganyu",
+    "name": "Ganyu",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Bow",
+    "faction": "Liyue",
+    "version": "1.2",
+    "icon_url": "/characters/genshin/icons/Ganyu_Icon.webp"
+  },
+  {
+    "id": "xiao",
+    "name": "Xiao",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Polearm",
+    "faction": "Liyue",
+    "version": "1.3",
+    "icon_url": "/characters/genshin/icons/Xiao_Icon.webp"
+  },
+  {
+    "id": "hu-tao",
+    "name": "Hu Tao",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Polearm",
+    "faction": "Liyue",
+    "version": "1.3",
+    "icon_url": "/characters/genshin/icons/Hu_Tao_Icon.webp"
+  },
+  {
+    "id": "rosaria",
+    "name": "Rosaria",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Polearm",
+    "faction": "Mondstadt",
+    "version": "1.4",
+    "icon_url": "/characters/genshin/icons/Rosaria_Icon.webp"
+  },
+  {
+    "id": "yanfei",
+    "name": "Yanfei",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Catalyst",
+    "faction": "Liyue",
+    "version": "1.5",
+    "icon_url": "/characters/genshin/icons/Yanfei_Icon.webp"
+  },
+  {
+    "id": "eula",
+    "name": "Eula",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Claymore",
+    "faction": "Mondstadt",
+    "version": "1.5",
+    "icon_url": "/characters/genshin/icons/Eula_Icon.webp"
+  },
+  {
+    "id": "kaedehara-kazuha",
+    "name": "Kaedehara Kazuha",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Sword",
+    "faction": "Inazuma",
+    "version": "1.6",
+    "icon_url": "/characters/genshin/icons/Kaedehara_Kazuha_Icon.webp"
+  },
+  {
+    "id": "kamisato-ayaka",
+    "name": "Kamisato Ayaka",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Sword",
+    "faction": "Inazuma",
+    "version": "2.0",
+    "icon_url": "/characters/genshin/icons/Kamisato_Ayaka_Icon.webp"
+  },
+  {
+    "id": "sayu",
+    "name": "Sayu",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Claymore",
+    "faction": "Inazuma",
+    "version": "2.0",
+    "icon_url": "/characters/genshin/icons/Sayu_Icon.webp"
+  },
+  {
+    "id": "yoimiya",
+    "name": "Yoimiya",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Bow",
+    "faction": "Inazuma",
+    "version": "2.0",
+    "icon_url": "/characters/genshin/icons/Yoimiya_Icon.webp"
+  },
+  {
+    "id": "aloy",
+    "name": "Aloy",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Bow",
+    "faction": "None",
+    "version": "2.1",
+    "icon_url": "/characters/genshin/icons/Aloy_Icon.webp"
+  },
+  {
+    "id": "kujou-sara",
+    "name": "Kujou Sara",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Bow",
+    "faction": "Inazuma",
+    "version": "2.1",
+    "icon_url": "/characters/genshin/icons/Kujou_Sara_Icon.webp"
+  },
+  {
+    "id": "raiden-shogun",
+    "name": "Raiden Shogun",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Polearm",
+    "faction": "Inazuma",
+    "version": "2.1",
+    "icon_url": "/characters/genshin/icons/Raiden_Shogun_Icon.webp"
+  },
+  {
+    "id": "sangonomiya-kokomi",
+    "name": "Sangonomiya Kokomi",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Catalyst",
+    "faction": "Inazuma",
+    "version": "2.1",
+    "icon_url": "/characters/genshin/icons/Sangonomiya_Kokomi_Icon.webp"
+  },
+  {
+    "id": "thoma",
+    "name": "Thoma",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Polearm",
+    "faction": "Inazuma",
+    "version": "2.2",
+    "icon_url": "/characters/genshin/icons/Thoma_Icon.webp"
+  },
+  {
+    "id": "arataki-itto",
+    "name": "Arataki Itto",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Claymore",
+    "faction": "Inazuma",
+    "version": "2.3",
+    "icon_url": "/characters/genshin/icons/Arataki_Itto_Icon.webp"
+  },
+  {
+    "id": "gorou",
+    "name": "Gorou",
+    "rarity": "SR",
+    "element_type": "Geo",
+    "combat_type": "Bow",
+    "faction": "Inazuma",
+    "version": "2.3",
+    "icon_url": "/characters/genshin/icons/Gorou_Icon.webp"
+  },
+  {
+    "id": "shenhe",
+    "name": "Shenhe",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Polearm",
+    "faction": "Liyue",
+    "version": "2.4",
+    "icon_url": "/characters/genshin/icons/Shenhe_Icon.webp"
+  },
+  {
+    "id": "yun-jin",
+    "name": "Yun Jin",
+    "rarity": "SR",
+    "element_type": "Geo",
+    "combat_type": "Polearm",
+    "faction": "Liyue",
+    "version": "2.4",
+    "icon_url": "/characters/genshin/icons/Yun_Jin_Icon.webp"
+  },
+  {
+    "id": "yae-miko",
+    "name": "Yae Miko",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Catalyst",
+    "faction": "Inazuma",
+    "version": "2.5",
+    "icon_url": "/characters/genshin/icons/Yae_Miko_Icon.webp"
+  },
+  {
+    "id": "kamisato-ayato",
+    "name": "Kamisato Ayato",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Sword",
+    "faction": "Inazuma",
+    "version": "2.6",
+    "icon_url": "/characters/genshin/icons/Kamisato_Ayato_Icon.webp"
+  },
+  {
+    "id": "yelan",
+    "name": "Yelan",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Bow",
+    "faction": "Liyue",
+    "version": "2.7",
+    "icon_url": "/characters/genshin/icons/Yelan_Icon.webp"
+  },
+  {
+    "id": "kuki-shinobu",
+    "name": "Kuki Shinobu",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Sword",
+    "faction": "Inazuma",
+    "version": "2.7",
+    "icon_url": "/characters/genshin/icons/Kuki_Shinobu_Icon.webp"
+  },
+  {
+    "id": "shikanoin-heizou",
+    "name": "Shikanoin Heizou",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Inazuma",
+    "version": "2.8",
+    "icon_url": "/characters/genshin/icons/Shikanoin_Heizou_Icon.webp"
+  },
+  {
+    "id": "collei",
+    "name": "Collei",
+    "rarity": "SR",
+    "element_type": "Dendro",
+    "combat_type": "Bow",
+    "faction": "Sumeru",
+    "version": "3.0",
+    "icon_url": "/characters/genshin/icons/Collei_Icon.webp"
+  },
+  {
+    "id": "tighnari",
+    "name": "Tighnari",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Bow",
+    "faction": "Sumeru",
+    "version": "3.0",
+    "icon_url": "/characters/genshin/icons/Tighnari_Icon.webp"
+  },
+  {
+    "id": "dori",
+    "name": "Dori",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Claymore",
+    "faction": "Sumeru",
+    "version": "3.0",
+    "icon_url": "/characters/genshin/icons/Dori_Icon.webp"
+  },
+  {
+    "id": "candace",
+    "name": "Candace",
+    "rarity": "SR",
+    "element_type": "Hydro",
+    "combat_type": "Polearm",
+    "faction": "Sumeru",
+    "version": "3.1",
+    "icon_url": "/characters/genshin/icons/Candace_Icon.webp"
+  },
+  {
+    "id": "cyno",
+    "name": "Cyno",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Polearm",
+    "faction": "Sumeru",
+    "version": "3.1",
+    "icon_url": "/characters/genshin/icons/Cyno_Icon.webp"
+  },
+  {
+    "id": "nilou",
+    "name": "Nilou",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Sword",
+    "faction": "Sumeru",
+    "version": "3.1",
+    "icon_url": "/characters/genshin/icons/Nilou_Icon.webp"
+  },
+  {
+    "id": "nahida",
+    "name": "Nahida",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Catalyst",
+    "faction": "Sumeru",
+    "version": "3.2",
+    "icon_url": "/characters/genshin/icons/Nahida_Icon.webp"
+  },
+  {
+    "id": "layla",
+    "name": "Layla",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Sword",
+    "faction": "Sumeru",
+    "version": "3.2",
+    "icon_url": "/characters/genshin/icons/Layla_Icon.webp"
+  },
+  {
+    "id": "faruzan",
+    "name": "Faruzan",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Bow",
+    "faction": "Sumeru",
+    "version": "3.3",
+    "icon_url": "/characters/genshin/icons/Faruzan_Icon.webp"
+  },
+  {
+    "id": "wanderer",
+    "name": "Wanderer",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Sumeru",
+    "version": "3.3",
+    "icon_url": "/characters/genshin/icons/Wanderer_Icon.webp"
+  },
+  {
+    "id": "alhaitham",
+    "name": "Alhaitham",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Sword",
+    "faction": "Sumeru",
+    "version": "3.4",
+    "icon_url": "/characters/genshin/icons/Alhaitham_Icon.webp"
+  },
+  {
+    "id": "yaoyao",
+    "name": "Yaoyao",
+    "rarity": "SR",
+    "element_type": "Dendro",
+    "combat_type": "Polearm",
+    "faction": "Liyue",
+    "version": "3.4",
+    "icon_url": "/characters/genshin/icons/Yaoyao_Icon.webp"
+  },
+  {
+    "id": "dehya",
+    "name": "Dehya",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Claymore",
+    "faction": "Sumeru",
+    "version": "3.5",
+    "icon_url": "/characters/genshin/icons/Dehya_Icon.webp"
+  },
+  {
+    "id": "mika",
+    "name": "Mika",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Polearm",
+    "faction": "Mondstadt",
+    "version": "3.5",
+    "icon_url": "/characters/genshin/icons/Mika_Icon.webp"
+  },
+  {
+    "id": "baizhu",
+    "name": "Baizhu",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Catalyst",
+    "faction": "Liyue",
+    "version": "3.6",
+    "icon_url": "/characters/genshin/icons/Baizhu_Icon.webp"
+  },
+  {
+    "id": "kaveh",
+    "name": "Kaveh",
+    "rarity": "SR",
+    "element_type": "Dendro",
+    "combat_type": "Claymore",
+    "faction": "Sumeru",
+    "version": "3.6",
+    "icon_url": "/characters/genshin/icons/Kaveh_Icon.webp"
+  },
+  {
+    "id": "kirara",
+    "name": "Kirara",
+    "rarity": "SR",
+    "element_type": "Dendro",
+    "combat_type": "Sword",
+    "faction": "Inazuma",
+    "version": "3.7",
+    "icon_url": "/characters/genshin/icons/Kirara_Icon.webp"
+  },
+  {
+    "id": "lynette",
+    "name": "Lynette",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Sword",
+    "faction": "Fontaine",
+    "version": "4.0",
+    "icon_url": "/characters/genshin/icons/Lynette_Icon.webp"
+  },
+  {
+    "id": "lyney",
+    "name": "Lyney",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Bow",
+    "faction": "Fontaine",
+    "version": "4.0",
+    "icon_url": "/characters/genshin/icons/Lyney_Icon.webp"
+  },
+  {
+    "id": "freminet",
+    "name": "Freminet",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Claymore",
+    "faction": "Fontaine",
+    "version": "4.0",
+    "icon_url": "/characters/genshin/icons/Freminet_Icon.webp"
+  },
+  {
+    "id": "neuvillette",
+    "name": "Neuvillette",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Catalyst",
+    "faction": "Fontaine",
+    "version": "4.1",
+    "icon_url": "/characters/genshin/icons/Neuvillette_Icon.webp"
+  },
+  {
+    "id": "wriothesley",
+    "name": "Wriothesley",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Catalyst",
+    "faction": "Fontaine",
+    "version": "4.1",
+    "icon_url": "/characters/genshin/icons/Wriothesley_Icon.webp"
+  },
+  {
+    "id": "charlotte",
+    "name": "Charlotte",
+    "rarity": "SR",
+    "element_type": "Cryo",
+    "combat_type": "Catalyst",
+    "faction": "Fontaine",
+    "version": "4.2",
+    "icon_url": "/characters/genshin/icons/Charlotte_Icon.webp"
+  },
+  {
+    "id": "furina",
+    "name": "Furina",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Sword",
+    "faction": "Fontaine",
+    "version": "4.2",
+    "icon_url": "/characters/genshin/icons/Furina_Icon.webp"
+  },
+  {
+    "id": "navia",
+    "name": "Navia",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Claymore",
+    "faction": "Fontaine",
+    "version": "4.3",
+    "icon_url": "/characters/genshin/icons/Navia_Icon.webp"
+  },
+  {
+    "id": "chevreuse",
+    "name": "Chevreuse",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Polearm",
+    "faction": "Fontaine",
+    "version": "4.3",
+    "icon_url": "/characters/genshin/icons/Chevreuse_Icon.webp"
+  },
+  {
+    "id": "gaming",
+    "name": "Gaming",
+    "rarity": "SR",
+    "element_type": "Pyro",
+    "combat_type": "Claymore",
+    "faction": "Liyue",
+    "version": "4.4",
+    "icon_url": "/characters/genshin/icons/Gaming_Icon.webp"
+  },
+  {
+    "id": "xianyun",
+    "name": "Xianyun",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Liyue",
+    "version": "4.4",
+    "icon_url": "/characters/genshin/icons/Xianyun_Icon.webp"
+  },
+  {
+    "id": "chiori",
+    "name": "Chiori",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Sword",
+    "faction": "Inazuma",
+    "version": "4.5",
+    "icon_url": "/characters/genshin/icons/Chiori_Icon.webp"
+  },
+  {
+    "id": "arlecchino",
+    "name": "Arlecchino",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Polearm",
+    "faction": "Snezhnaya",
+    "version": "4.6",
+    "icon_url": "/characters/genshin/icons/Arlecchino_Icon.webp"
+  },
+  {
+    "id": "clorinde",
+    "name": "Clorinde",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Sword",
+    "faction": "Fontaine",
+    "version": "4.7",
+    "icon_url": "/characters/genshin/icons/Clorinde_Icon.webp"
+  },
+  {
+    "id": "sethos",
+    "name": "Sethos",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Bow",
+    "faction": "Sumeru",
+    "version": "4.7",
+    "icon_url": "/characters/genshin/icons/Sethos_Icon.webp"
+  },
+  {
+    "id": "sigewinne",
+    "name": "Sigewinne",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Bow",
+    "faction": "Fontaine",
+    "version": "4.7",
+    "icon_url": "/characters/genshin/icons/Sigewinne_Icon.webp"
+  },
+  {
+    "id": "emilie",
+    "name": "Emilie",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Polearm",
+    "faction": "Fontaine",
+    "version": "4.8",
+    "icon_url": "/characters/genshin/icons/Emilie_Icon.webp"
+  },
+  {
+    "id": "kachina",
+    "name": "Kachina",
+    "rarity": "SR",
+    "element_type": "Geo",
+    "combat_type": "Polearm",
+    "faction": "Natlan",
+    "version": "5.0",
+    "icon_url": "/characters/genshin/icons/Kachina_Icon.webp"
+  },
+  {
+    "id": "mualani",
+    "name": "Mualani",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Catalyst",
+    "faction": "Natlan",
+    "version": "5.0",
+    "icon_url": "/characters/genshin/icons/Mualani_Icon.webp"
+  },
+  {
+    "id": "kinich",
+    "name": "Kinich",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Claymore",
+    "faction": "Natlan",
+    "version": "5.0",
+    "icon_url": "/characters/genshin/icons/Kinich_Icon.webp"
+  },
+  {
+    "id": "xilonen",
+    "name": "Xilonen",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Sword",
+    "faction": "Natlan",
+    "version": "5.1",
+    "icon_url": "/characters/genshin/icons/Xilonen_Icon.webp"
+  },
+  {
+    "id": "chasca",
+    "name": "Chasca",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Bow",
+    "faction": "Natlan",
+    "version": "5.2",
+    "icon_url": "/characters/genshin/icons/Chasca_Icon.webp"
+  },
+  {
+    "id": "ororon",
+    "name": "Ororon",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Bow",
+    "faction": "Natlan",
+    "version": "5.2",
+    "icon_url": "/characters/genshin/icons/Ororon_Icon.webp"
+  },
+  {
+    "id": "citlali",
+    "name": "Citlali",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Catalyst",
+    "faction": "Natlan",
+    "version": "5.3",
+    "icon_url": "/characters/genshin/icons/Citlali_Icon.webp"
+  },
+  {
+    "id": "mavuika",
+    "name": "Mavuika",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Claymore",
+    "faction": "Natlan",
+    "version": "5.3",
+    "icon_url": "/characters/genshin/icons/Mavuika_Icon.webp"
+  },
+  {
+    "id": "lan-yan",
+    "name": "Lan Yan",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Liyue",
+    "version": "5.3",
+    "icon_url": "/characters/genshin/icons/Lan_Yan_Icon.webp"
+  },
+  {
+    "id": "yumemizuki-mizuki",
+    "name": "Yumemizuki Mizuki",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Inazuma",
+    "version": "5.4",
+    "icon_url": "/characters/genshin/icons/Yumemizuki_Mizuki_Icon.webp"
+  },
+  {
+    "id": "iansan",
+    "name": "Iansan",
+    "rarity": "SR",
+    "element_type": "Electro",
+    "combat_type": "Polearm",
+    "faction": "Natlan",
+    "version": "5.5",
+    "icon_url": "/characters/genshin/icons/Iansan_Icon.webp"
+  },
+  {
+    "id": "varesa",
+    "name": "Varesa",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Catalyst",
+    "faction": "Natlan",
+    "version": "5.5",
+    "icon_url": "/characters/genshin/icons/Varesa_Icon.webp"
+  },
+  {
+    "id": "escoffier",
+    "name": "Escoffier",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Polearm",
+    "faction": "Fontaine",
+    "version": "5.6",
+    "icon_url": "/characters/genshin/icons/Escoffier_Icon.webp"
+  },
+  {
+    "id": "ifa",
+    "name": "Ifa",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Natlan",
+    "version": "5.6",
+    "icon_url": "/characters/genshin/icons/Ifa_Icon.webp"
+  },
+  {
+    "id": "dahlia",
+    "name": "Dahlia",
+    "rarity": "SR",
+    "element_type": "Hydro",
+    "combat_type": "Sword",
+    "faction": "Mondstadt",
+    "version": "5.7",
+    "icon_url": "/characters/genshin/icons/Dahlia_Icon.webp"
+  },
+  {
+    "id": "skirk",
+    "name": "Skirk",
+    "rarity": "SSR",
+    "element_type": "Cryo",
+    "combat_type": "Sword",
+    "faction": "None",
+    "version": "5.7",
+    "icon_url": "/characters/genshin/icons/Skirk_Icon.webp"
+  },
+  {
+    "id": "ineffa",
+    "name": "Ineffa",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Polearm",
+    "faction": "Nod-Krai",
+    "version": "5.8",
+    "icon_url": "/characters/genshin/icons/Ineffa_Icon.webp"
+  },
+  {
+    "id": "aino",
+    "name": "Aino",
+    "rarity": "SR",
+    "element_type": "Hydro",
+    "combat_type": "Claymore",
+    "faction": "Nod-Krai",
+    "version": "Luna I",
+    "icon_url": "/characters/genshin/icons/Aino_Icon.webp"
+  },
+  {
+    "id": "lauma",
+    "name": "Lauma",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Catalyst",
+    "faction": "Nod-Krai",
+    "version": "Luna I",
+    "icon_url": "/characters/genshin/icons/Lauma_Icon.webp"
+  },
+  {
+    "id": "flins",
+    "name": "Flins",
+    "rarity": "SSR",
+    "element_type": "Electro",
+    "combat_type": "Polearm",
+    "faction": "Nod-Krai",
+    "version": "Luna I",
+    "icon_url": "/characters/genshin/icons/Flins_Icon.webp"
+  },
+  {
+    "id": "nefer",
+    "name": "Nefer",
+    "rarity": "SSR",
+    "element_type": "Dendro",
+    "combat_type": "Catalyst",
+    "faction": "Nod-Krai",
+    "version": "Luna II",
+    "icon_url": "/characters/genshin/icons/Nefer_Icon.webp"
+  },
+  {
+    "id": "durin",
+    "name": "Durin",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Sword",
+    "faction": "Mondstadt",
+    "version": "Luna III",
+    "icon_url": "/characters/genshin/icons/Durin_Icon.webp"
+  },
+  {
+    "id": "jahoda",
+    "name": "Jahoda",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Bow",
+    "faction": "Nod-Krai",
+    "version": "Luna III",
+    "icon_url": "/characters/genshin/icons/Jahoda_Icon.webp"
+  },
+  {
+    "id": "columbina",
+    "name": "Columbina",
+    "rarity": "SSR",
+    "element_type": "Hydro",
+    "combat_type": "Catalyst",
+    "faction": "Nod-Krai",
+    "version": "Luna IV",
+    "icon_url": "/characters/genshin/icons/Columbina_Icon.webp"
+  },
+  {
+    "id": "illuga",
+    "name": "Illuga",
+    "rarity": "SR",
+    "element_type": "Geo",
+    "combat_type": "Polearm",
+    "faction": "Nod-Krai",
+    "version": "Luna IV",
+    "icon_url": "/characters/genshin/icons/Illuga_Icon.webp"
+  },
+  {
+    "id": "zibai",
+    "name": "Zibai",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Sword",
+    "faction": "Liyue",
+    "version": "Luna IV",
+    "icon_url": "/characters/genshin/icons/Zibai_Icon.webp"
+  },
+  {
+    "id": "varka",
+    "name": "Varka",
+    "rarity": "SSR",
+    "element_type": "Anemo",
+    "combat_type": "Claymore",
+    "faction": "Mondstadt",
+    "version": "Luna V",
+    "icon_url": "/characters/genshin/icons/Varka_Icon.webp"
+  },
+  {
+    "id": "linnea",
+    "name": "Linnea",
+    "rarity": "SSR",
+    "element_type": "Geo",
+    "combat_type": "Bow",
+    "faction": "Nod-Krai",
+    "version": "Luna VI",
+    "icon_url": "/characters/genshin/icons/Linnea_Icon.webp"
+  },
+  {
+    "id": "nicole",
+    "name": "Nicole",
+    "rarity": "SSR",
+    "element_type": "Pyro",
+    "combat_type": "Catalyst",
+    "faction": "None",
+    "version": "Luna VII",
+    "icon_url": "/characters/genshin/icons/Nicole_Icon.webp"
+  },
+  {
+    "id": "prune",
+    "name": "Prune",
+    "rarity": "SR",
+    "element_type": "Anemo",
+    "combat_type": "Catalyst",
+    "faction": "Mondstadt",
+    "version": "Luna VII",
+    "icon_url": "/characters/genshin/icons/Prune_Icon.webp"
+  }
+]

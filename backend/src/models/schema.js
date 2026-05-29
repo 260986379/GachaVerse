@@ -329,6 +329,31 @@ const CREATE_PROFILE_NOTES = `
   CREATE INDEX IF NOT EXISTS idx_profile_notes_target ON profile_notes(target_user_id);
 `;
 
+const ALTER_CHARACTERS_ADD_VERSION = `
+  ALTER TABLE characters ADD COLUMN IF NOT EXISTS version VARCHAR(10);
+`;
+
+const CREATE_GAME_REVIEWS = `
+  CREATE TABLE IF NOT EXISTS game_reviews (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id    VARCHAR(100) NOT NULL,
+    user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating     SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 10),
+    body       TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE (game_id, user_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_game_reviews_game ON game_reviews(game_id, created_at DESC);
+`;
+
+const CREATE_REVIEW_UPVOTES = `
+  CREATE TABLE IF NOT EXISTS review_upvotes (
+    review_id UUID NOT NULL REFERENCES game_reviews(id) ON DELETE CASCADE,
+    user_id   UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (review_id, user_id)
+  );
+`;
+
 const ALL_TABLES = [
   CREATE_USERS,
   ALTER_USERS_ADD_FIREBASE_UID,
@@ -366,6 +391,9 @@ const ALL_TABLES = [
   CREATE_BOARDS,
   CREATE_PROFILE_NOTES,
   CREATE_USER_NOTIFICATIONS,
+  ALTER_CHARACTERS_ADD_VERSION,
+  CREATE_GAME_REVIEWS,
+  CREATE_REVIEW_UPVOTES,
 ];
 
 module.exports = { ALL_TABLES };

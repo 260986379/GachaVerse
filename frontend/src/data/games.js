@@ -86,6 +86,8 @@ export const GAMES = [
     color1: "#1d4ed8",
     color2: "#4c1d95",
     youtubeId: "LkxwwIyXJxE",
+    bannerImage: "https://img.youtube.com/vi/NyM_seY0XKg/maxresdefault.jpg",
+    posterImage: "https://img.youtube.com/vi/NyM_seY0XKg/maxresdefault.jpg",
     description:
       "Board a space station and embark on an intergalactic adventure across the stars in this turn-based RPG.",
     events: [],

@@ -17,8 +17,12 @@ const {
   getUserGameAccounts,
   upsertGameAccount,
   removeGameAccount,
+  assignRole,
 } = require('../controllers/userController');
 const { getNotes, upsertNote, deleteNote, getMyNote } = require('../controllers/profileNoteController');
+const { getPublicFavVideos }    = require('../controllers/videoFavoriteController');
+const { getPublicFavChars }     = require('../controllers/characterFavoriteController');
+const { getPublicFavArtworks }  = require('../controllers/artworkFavoriteController');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 // Community / Search / Directory
@@ -47,6 +51,14 @@ router.get('/:id/following',         optionalAuth, getFollowing);
 router.get('/:id/follow-status',     authenticateToken, getFollowStatus);
 router.post('/:id/follow',           authenticateToken, followUser);
 router.delete('/:id/follow',         authenticateToken, unfollowUser);
+
+// Public favorites (viewed on other users' profiles)
+router.get('/:id/favorites/videos',     getPublicFavVideos);
+router.get('/:id/favorites/characters', getPublicFavChars);
+router.get('/:id/favorites/artworks',   getPublicFavArtworks);
+
+// Role assignment (Owner / Dev only)
+router.patch('/:id/role', authenticateToken, assignRole);
 
 // Profile notes
 router.get('/:id/notes',             getNotes);

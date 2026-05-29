@@ -134,4 +134,18 @@ const getZZZPlayer = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners, getZZZPlayer };
+const getLatestVideoDates = async (req, res, next) => {
+  try {
+    const { rows } = await query(
+      `SELECT g.slug, MAX(m.published_at) AS latest_published_at
+       FROM games g
+       LEFT JOIN media_content m ON m.game_id = g.id AND m.status = 'published'
+       GROUP BY g.slug`
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners, getZZZPlayer, getLatestVideoDates };

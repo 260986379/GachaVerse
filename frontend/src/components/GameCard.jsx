@@ -6,8 +6,8 @@ export default function GameCard({ game, size = 'md' }) {
   const navigate = useNavigate()
   const [imgFailed, setImgFailed] = useState(false)
 
-  const thumbUrl = game.youtubeId && !imgFailed
-    ? `https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg`
+  const thumbUrl = !imgFailed
+    ? (game.posterImage ?? (game.youtubeId ? `https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg` : null))
     : null
 
   return (

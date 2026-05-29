@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
+import { GAMES } from '../data/games'
 import AuthModal from '../components/ui/AuthModal'
 import BoardLightbox from '../components/ui/BoardLightbox'
+import ImageLightbox from '../components/ui/ImageLightbox'
+import GameCard from '../components/GameCard'
 import './AccountPage.css'
 import './UserProfilePage.css'
 
@@ -186,8 +189,36 @@ export default function UserProfilePage() {
   const [boards,        setBoards]        = useState([])
   const [activeBoard,   setActiveBoard]   = useState(null)
   const [gameAccounts,  setGameAccounts]  = useState([])
+  const [followedGames, setFollowedGames] = useState([])
+  const [favVideos,     setFavVideos]     = useState([])
+  const [favChars,      setFavChars]      = useState([])
+  const [favArtworks,   setFavArtworks]   = useState([])
+  const [activeArtwork, setActiveArtwork] = useState(null)
   const [myNote,        setMyNote]        = useState(undefined) // undefined = not fetched yet
   const [noteOpen,      setNoteOpen]      = useState(false)
+  const [roleAssigning, setRoleAssigning] = useState(false)
+
+  const canAssignRoles = me?.role === 'Owner' || me?.role === 'Dev'
+  const assignableRoles = me?.role === 'Owner'
+    ? ['Owner', 'Dev', 'VIP', 'Member', 'Regular', 'Debug']
+    : ['VIP', 'Member', 'Regular', 'Debug']
+
+  const handleAssignRole = async (role) => {
+    if (!profile) return
+    setRoleAssigning(true)
+    try {
+      const res = await authFetch(`${API}/users/${profile.id}/role`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role }),
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setProfile(prev => ({ ...prev, role: updated.role }))
+      }
+    } finally {
+      setRoleAssigning(false)
+    }
+  }
 
   /* Scroll to top on every profile visit */
   useEffect(() => {
@@ -217,17 +248,21 @@ export default function UserProfilePage() {
       .catch(() => { setNotFound(true); setLoading(false) })
   }, [username, loadingAuth, isLoggedIn])
 
-  /* Fetch boards + linked game accounts when profile loads */
+  /* Fetch boards + linked game accounts + public favorites when profile loads */
   useEffect(() => {
     if (!profile?.id) return
-    fetch(`${API}/boards/user/${profile.id}`)
-      .then(r => { if (!r.ok) throw new Error(); return r.json() })
-      .then(data => setBoards(Array.isArray(data) ? data : []))
-      .catch(() => setBoards([]))
-    fetch(`${API}/users/${profile.id}/game-accounts`)
-      .then(r => { if (!r.ok) throw new Error(); return r.json() })
-      .then(data => setGameAccounts(Array.isArray(data) ? data : []))
-      .catch(() => setGameAccounts([]))
+    const get = (url, setter) =>
+      fetch(url)
+        .then(r => { if (!r.ok) throw new Error(); return r.json() })
+        .then(data => setter(Array.isArray(data) ? data : []))
+        .catch(() => setter([]))
+
+    get(`${API}/boards/user/${profile.id}`,              setBoards)
+    get(`${API}/users/${profile.id}/game-accounts`,      setGameAccounts)
+    get(`${API}/users/${profile.id}/games`,              setFollowedGames)
+    get(`${API}/users/${profile.id}/favorites/videos`,   setFavVideos)
+    get(`${API}/users/${profile.id}/favorites/characters`, setFavChars)
+    get(`${API}/users/${profile.id}/favorites/artworks`, setFavArtworks)
   }, [profile?.id])
 
   /* Check follow status once profile + auth are both ready */
@@ -380,23 +415,39 @@ export default function UserProfilePage() {
           {/* ── Main content ── */}
           <main className="profile-main">
 
-            {/* Badges */}
-            <section className="profile-section">
-              <div className="profile-section__header">
-                <h2 className="profile-section__title">Badges</h2>
-              </div>
-              <div className="profile-badges">
-                <span
-                  className="profile-badge"
-                  style={{
-                    '--badge-color': getRoleStyle(profile.role).color,
-                    '--badge-glow':  getRoleGlow(profile.role) ?? 'transparent',
-                  }}
-                >
-                  {profile.role}
-                </span>
-              </div>
-            </section>
+            {/* Badges — only shown for non-Regular roles, or always shown to Owner/Dev for assignment */}
+            {(profile.role !== 'Regular' || canAssignRoles) && (
+              <section className="profile-section">
+                <div className="profile-section__header">
+                  <h2 className="profile-section__title">Badges</h2>
+                  {canAssignRoles && (
+                    <select
+                      className="role-assign-select"
+                      value={profile.role}
+                      disabled={roleAssigning}
+                      onChange={(e) => handleAssignRole(e.target.value)}
+                    >
+                      {assignableRoles.map(r => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                {profile.role !== 'Regular' && (
+                  <div className="profile-badges">
+                    <span
+                      className="profile-badge"
+                      style={{
+                        '--badge-color': getRoleStyle(profile.role).color,
+                        '--badge-glow':  getRoleGlow(profile.role) ?? 'transparent',
+                      }}
+                    >
+                      {profile.role}
+                    </span>
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Board — read-only */}
             <section className="profile-section">
@@ -458,44 +509,145 @@ export default function UserProfilePage() {
               </div>
             </section>
 
-            {/* Followed Games — read-only, empty */}
+            {/* Followed Games */}
             <section className="profile-section">
               <div className="profile-section__header">
                 <h2 className="profile-section__title">Followed Games</h2>
               </div>
-              <p className="profile-empty">No followed games to display.</p>
+              {followedGames.length > 0 ? (
+                <div className="profile-hscroll">
+                  {followedGames
+                    .map(g => GAMES.find(lg => lg.id === g.slug))
+                    .filter(Boolean)
+                    .map(g => <GameCard key={g.id} game={g} />)
+                  }
+                </div>
+              ) : (
+                <p className="profile-empty">No followed games yet.</p>
+              )}
             </section>
 
-            {/* Favorite Videos — read-only, empty */}
-            <section className="profile-section">
-              <div className="profile-section__header">
-                <h2 className="profile-section__title">Favorite Videos</h2>
-              </div>
-              <p className="profile-empty">No favorited videos to display.</p>
-            </section>
+            {/* Favorite Videos */}
+            {(() => {
+              const regular = favVideos.filter(v => v.category !== 'Music')
+              const bgm     = favVideos.filter(v => v.category === 'Music')
+              return (
+                <>
+                  <section className="profile-section">
+                    <div className="profile-section__header">
+                      <h2 className="profile-section__title">Favorite Videos</h2>
+                      {regular.length > 0 && <span className="profile-section__count">{regular.length}</span>}
+                    </div>
+                    {regular.length > 0 ? (
+                      <div className="profile-hscroll">
+                        {regular.map(v => (
+                          <a
+                            key={v.id}
+                            className="ps-video-card"
+                            href={`https://www.youtube.com/watch?v=${v.external_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <div className="ps-video-card__thumb">
+                              {v.thumbnail_url
+                                ? <img src={v.thumbnail_url} alt={v.title} loading="lazy" />
+                                : <div className="ps-video-card__thumb-fallback" />
+                              }
+                              <div className="ps-video-card__play">▶</div>
+                            </div>
+                            <p className="ps-video-card__title">{v.title}</p>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="profile-empty">No favorited videos yet.</p>
+                    )}
+                  </section>
 
-            {/* Favorite BGM — read-only, empty */}
-            <section className="profile-section">
-              <div className="profile-section__header">
-                <h2 className="profile-section__title">Favorite BGM</h2>
-              </div>
-              <p className="profile-empty">No favorited BGM to display.</p>
-            </section>
+                  <section className="profile-section">
+                    <div className="profile-section__header">
+                      <h2 className="profile-section__title">Favorite BGM</h2>
+                      {bgm.length > 0 && <span className="profile-section__count">{bgm.length}</span>}
+                    </div>
+                    {bgm.length > 0 ? (
+                      <div className="profile-hscroll">
+                        {bgm.map(v => (
+                          <a
+                            key={v.id}
+                            className="ps-video-card"
+                            href={`https://www.youtube.com/watch?v=${v.external_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <div className="ps-video-card__thumb">
+                              {v.thumbnail_url
+                                ? <img src={v.thumbnail_url} alt={v.title} loading="lazy" />
+                                : <div className="ps-video-card__thumb-fallback" />
+                              }
+                              <div className="ps-video-card__play">▶</div>
+                            </div>
+                            <p className="ps-video-card__title">{v.title}</p>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="profile-empty">No favorited BGM yet.</p>
+                    )}
+                  </section>
+                </>
+              )
+            })()}
 
-            {/* Favorite Characters — read-only, empty */}
+            {/* Favorite Characters */}
             <section className="profile-section">
               <div className="profile-section__header">
                 <h2 className="profile-section__title">Favorite Characters</h2>
+                {favChars.length > 0 && <span className="profile-section__count">{favChars.length}</span>}
               </div>
-              <p className="profile-empty">No favorited characters to display.</p>
+              {favChars.length > 0 ? (
+                <div className="profile-char-grid">
+                  {favChars.map(c => (
+                    <div key={c.id} className="ps-char-card">
+                      <div className="ps-char-card__portrait">
+                        {c.icon_url
+                          ? <img src={c.icon_url} alt={c.display_name || c.name} loading="lazy" />
+                          : <div className="ps-char-card__fallback">{(c.display_name || c.name)[0]}</div>
+                        }
+                      </div>
+                      <p className="ps-char-card__name">{c.display_name || c.name}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="profile-empty">No favorited characters yet.</p>
+              )}
             </section>
 
-            {/* Favorite Artworks — read-only, empty */}
+            {/* Favorite Artworks */}
             <section className="profile-section">
               <div className="profile-section__header">
                 <h2 className="profile-section__title">Favorite Artworks</h2>
+                {favArtworks.length > 0 && <span className="profile-section__count">{favArtworks.length}</span>}
               </div>
-              <p className="profile-empty">No favorited artworks to display.</p>
+              {favArtworks.length > 0 ? (
+                <div className="profile-artwork-grid">
+                  {favArtworks.map(a => (
+                    <div key={a.id} className="ps-artwork-card">
+                      <div className="ps-artwork-card__thumb" onClick={() => setActiveArtwork(a)}>
+                        {a.thumbnail_url
+                          ? <img src={a.thumbnail_url} alt={a.title} loading="lazy" />
+                          : <div className="ps-artwork-card__fallback" />
+                        }
+                      </div>
+                      <div className="ps-artwork-card__footer">
+                        <p className="ps-artwork-card__title">{a.title}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="profile-empty">No favorited artworks yet.</p>
+              )}
             </section>
 
           </main>
@@ -524,6 +676,14 @@ export default function UserProfilePage() {
           onSaved={(note) => setMyNote(note)}
           onDeleted={() => setMyNote(null)}
           onClose={() => setNoteOpen(false)}
+        />
+      )}
+      {activeArtwork && (
+        <ImageLightbox
+          src={activeArtwork.source_url || activeArtwork.thumbnail_url}
+          title={activeArtwork.title}
+          sourceUrl={activeArtwork.source_url}
+          onClose={() => setActiveArtwork(null)}
         />
       )}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}

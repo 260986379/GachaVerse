@@ -67,8 +67,8 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
   const handleSelectGame = (gameId) => { navigate(`/game/${gameId}`); onClose() }
   const handleSelectUser = (username) => { navigate(`/u/${username}`); onClose() }
 
-  const thumbUrl  = (id) => `https://img.youtube.com/vi/${id}/mqdefault.jpg`
-  const bannerUrl = (id) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+  const thumbUrl  = (game) => game.posterImage ?? `https://img.youtube.com/vi/${game.youtubeId}/mqdefault.jpg`
+  const bannerUrl = (game) => game.posterImage ?? `https://img.youtube.com/vi/${game.youtubeId}/hqdefault.jpg`
 
   const q = query.trim().toLowerCase()
 
@@ -93,7 +93,7 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
       onClick={() => handleSelectGame(game.id)}
       onMouseEnter={() => setHoveredGame(game)}
     >
-      <img className="search-modal__result-icon" src={thumbUrl(game.youtubeId)} alt="" draggable={false} />
+      <img className="search-modal__result-icon" src={thumbUrl(game)} alt="" draggable={false} />
       <div className="search-modal__result-info">
         <span className="search-modal__result-name">{game.name}</span>
         <span className="search-modal__result-meta">{game.genre} &middot; {game.developer}</span>
@@ -232,7 +232,7 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
             <div className="search-modal__banner-img-wrap">
               <img
                 className="search-modal__banner-img"
-                src={bannerUrl(hoveredGame.youtubeId)}
+                src={bannerUrl(hoveredGame)}
                 alt={hoveredGame.name}
                 draggable={false}
               />
