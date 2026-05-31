@@ -338,10 +338,9 @@ const ensureInitialGameAndIngestionLogs = async () => {
   await seedNewsAndMedia();
 
   const slugs = SEED_GAMES.map((g) => g.slug);
-  const placeholders = slugs.map((_, i) => `$${i + 1}`).join(',');
   const { rows } = await query(
-    `SELECT id, slug FROM games WHERE slug IN (${placeholders})`,
-    slugs,
+    'SELECT id, slug FROM games WHERE slug = ANY($1)',
+    [slugs],
   );
   const gameMap = Object.fromEntries(rows.map((r) => [r.slug, r.id]));
 

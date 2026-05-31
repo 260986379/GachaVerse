@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { getRoleStyle } from '../../utils/roles'
+import ReportModal from './ReportModal'
 import './BoardLightbox.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
@@ -24,6 +25,7 @@ export default function BoardLightbox({ board, boardOwner, onClose }) {
   const [submitting,    setSubmitting]   = useState(false)
   const [following,     setFollowing]    = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
+  const [reporting,     setReporting]    = useState(false)
   const listRef = useRef(null)
 
   const isOwnBoard = !!(boardOwner?.id && user?.id === boardOwner.id)
@@ -101,6 +103,7 @@ export default function BoardLightbox({ board, boardOwner, onClose }) {
   const canDelete = (c) => !!(user && (c.user_id === user.id || isOwnBoard))
 
   return (
+    <>
     <div className="lightbox-overlay" onClick={onClose}>
       <button className="lightbox__close" onClick={onClose}>✕</button>
       <div className="lightbox__container" onClick={e => e.stopPropagation()}>
@@ -131,13 +134,18 @@ export default function BoardLightbox({ board, boardOwner, onClose }) {
                 </div>
               </div>
               {!isOwnBoard && isLoggedIn && (
-                <button
-                  className={`lightbox__follow-btn${following ? ' lightbox__follow-btn--on' : ''}`}
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                >
-                  {following ? '✓ Following' : '+ Follow'}
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    className={`lightbox__follow-btn${following ? ' lightbox__follow-btn--on' : ''}`}
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                  >
+                    {following ? '✓ Following' : '+ Follow'}
+                  </button>
+                  <button className="lightbox__report-btn" onClick={() => setReporting(true)} title="Report this board">
+                    Report
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -198,5 +206,15 @@ export default function BoardLightbox({ board, boardOwner, onClose }) {
         </div>
       </div>
     </div>
+
+    {reporting && (
+      <ReportModal
+        contentType="board"
+        contentId={board.id}
+        contentPreview={board.caption || board.game_name}
+        onClose={() => setReporting(false)}
+      />
+    )}
+    </>
   )
 }

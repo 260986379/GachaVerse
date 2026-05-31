@@ -26,16 +26,19 @@ const createPost = async (req, res, next) => {
 const getAllPosts = async (req, res, next) => {
   try {
     const { game_id, user_id } = req.query;
-    let text = `SELECT p.*, u.username, u.avatar_url FROM posts p JOIN users u ON p.user_id=u.id`;
-    const params = [];
-    const conditions = [];
+    const BASE = `SELECT p.*, u.username, u.avatar_url FROM posts p JOIN users u ON p.user_id=u.id`;
 
-    if (game_id) { conditions.push(`p.game_id=$${params.push(game_id)}`); }
-    if (user_id) { conditions.push(`p.user_id=$${params.push(user_id)}`); }
-    if (conditions.length) text += ` WHERE ${conditions.join(' AND ')}`;
-    text += ' ORDER BY p.created_at DESC';
+    let rows;
+    if (game_id && user_id) {
+      ({ rows } = await query(`${BASE} WHERE p.game_id=$1 AND p.user_id=$2 ORDER BY p.created_at DESC`, [game_id, user_id]));
+    } else if (game_id) {
+      ({ rows } = await query(`${BASE} WHERE p.game_id=$1 ORDER BY p.created_at DESC`, [game_id]));
+    } else if (user_id) {
+      ({ rows } = await query(`${BASE} WHERE p.user_id=$1 ORDER BY p.created_at DESC`, [user_id]));
+    } else {
+      ({ rows } = await query(`${BASE} ORDER BY p.created_at DESC`));
+    }
 
-    const { rows } = await query(text, params);
     res.json(rows);
   } catch (err) {
     next(err);

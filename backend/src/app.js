@@ -15,6 +15,7 @@ const characterRoutes     = require('./routes/characterRoutes');
 const artworkRoutes       = require('./routes/artworkRoutes');
 const notificationRoutes  = require('./routes/notificationRoutes');
 const reviewRoutes        = require('./routes/reviewRoutes');
+const reportRoutes        = require('./routes/reportRoutes');
 
 const app = express();
 
@@ -115,6 +116,7 @@ app.use('/api/characters',    characterRoutes);
 app.use('/api/artworks',      artworkRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews',       reviewRoutes);
+app.use('/api/reports',       reportRoutes);
 
 app.use(errorHandler);
 

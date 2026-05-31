@@ -10,41 +10,17 @@ import './ExplorePage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
-function VolumeIcon({ muted }) {
-  return (
-    <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-      {muted ? (
-        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18V20.1c1.16-.3 2.22-.86 3.1-1.61l2.32 2.33L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
-      ) : (
-        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-      )}
-    </svg>
-  )
-}
-
 function SpotlightHero() {
   const [index, setIndex] = useState(0)
-  const [videoVisible, setVideoVisible] = useState(false)
-  const [volume, setVolume] = useState(0)
   const navigate = useNavigate()
   const playerRef = useRef(null)
-  const videoWrapRef = useRef(null)
+  const embedWrapRef = useRef(null)
+  const firstRender = useRef(true)
   const game = FEATURED_GAMES[index]
 
-  const handleVolume = (val) => {
-    setVolume(val)
-    if (!playerRef.current) return
-    if (val === 0) {
-      playerRef.current.mute()
-    } else {
-      playerRef.current.unMute()
-      playerRef.current.setVolume(val)
-    }
-  }
-
-  // Initialize the YT player once, imperatively inside the wrapper div
+  // Mount the IFrame API player once inside the embed wrap
   useEffect(() => {
-    const wrap = videoWrapRef.current
+    const wrap = embedWrapRef.current
     if (!wrap || !FEATURED_GAMES[0].youtubeId) return
 
     const container = document.createElement('div')
@@ -53,91 +29,67 @@ function SpotlightHero() {
     loadYTApi(() => {
       if (!wrap.isConnected) return
       playerRef.current = new window.YT.Player(container, {
+        width: '100%',
+        height: '100%',
         videoId: FEATURED_GAMES[0].youtubeId,
-        playerVars: {
-          autoplay: 1,
-          mute: 1,
-          controls: 0,
-          modestbranding: 1,
-          rel: 0,
-          playsinline: 1,
-        },
+        playerVars: { autoplay: 1, mute: 1, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
         events: {
           onReady: (e) => e.target.playVideo(),
           onStateChange: (e) => {
-            if (e.data === 1) setVideoVisible(true)
-            if (e.data === 0) setIndex((i) => (i + 1) % FEATURED_GAMES.length)
+            if (e.data === window.YT.PlayerState.ENDED) {
+              setIndex(i => (i + 1) % FEATURED_GAMES.length)
+            }
           },
         },
       })
     })
 
-    return () => {
-      playerRef.current?.destroy()
-      playerRef.current = null
-    }
+    return () => { playerRef.current?.destroy(); playerRef.current = null }
   }, [])
 
-  // When index changes after mount, load the new video into the existing player
-  const firstRender = useRef(true)
+  // Load the new video when index changes (skip on first render)
   useEffect(() => {
     if (firstRender.current) { firstRender.current = false; return }
     const g = FEATURED_GAMES[index]
     if (playerRef.current && g.youtubeId) {
-      setVideoVisible(false)
-      setVolume(0)
-      playerRef.current.mute()
       playerRef.current.loadVideoById(g.youtubeId)
     }
   }, [index])
 
-  const go = (dir) => {
-    setIndex((i) => (i + dir + FEATURED_GAMES.length) % FEATURED_GAMES.length)
-  }
+  const go = (dir) => setIndex(i => (i + dir + FEATURED_GAMES.length) % FEATURED_GAMES.length)
+
+  const thumbUrl = game.youtubeId
+    ? `https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg`
+    : null
 
   return (
     <div className="spotlight" style={{ '--c1': game.color1, '--c2': game.color2 }}>
       <div className="spotlight__bg" />
-      <div
-        className={`spotlight__video-wrap${videoVisible ? ' spotlight__video-wrap--visible' : ''}`}
-        ref={videoWrapRef}
-      />
-
+      {thumbUrl && (
+        <div className="spotlight__thumb" style={{ backgroundImage: `url(${thumbUrl})` }} />
+      )}
       <div className="spotlight__gradient-top" />
       <div className="spotlight__gradient-left" />
       <div className="spotlight__gradient-bottom" />
-      <div className="spotlight__shield" />
 
-      <div className="spotlight__content">
-        <div className="spotlight__tags">
-          {game.tags.map((t) => (
-            <span key={t} className="spotlight__tag">{t}</span>
-          ))}
-        </div>
-        <h1 className="spotlight__title">{game.name}</h1>
-        <p className="spotlight__dev">{game.developer} · {game.genre}</p>
-        <p className="spotlight__desc">{game.description}</p>
-        <div className="spotlight__actions">
-          <button className="spotlight__btn spotlight__btn--primary" onClick={() => navigate(`/game/${game.id}`)}>
-            View Game
-          </button>
-          <div className="spotlight__volume">
-            <button
-              className="spotlight__vol-btn"
-              onClick={() => handleVolume(volume === 0 ? 60 : 0)}
-            >
-              <VolumeIcon muted={volume === 0} />
+      <div className="spotlight__body">
+        <div className="spotlight__content">
+          <div className="spotlight__tags">
+            {game.tags.map((t) => (
+              <span key={t} className="spotlight__tag">{t}</span>
+            ))}
+          </div>
+          <h1 className="spotlight__title">{game.name}</h1>
+          <p className="spotlight__dev">{game.developer} · {game.genre}</p>
+          <p className="spotlight__desc">{game.description}</p>
+          <div className="spotlight__actions">
+            <button className="spotlight__btn spotlight__btn--primary" onClick={() => navigate(`/game/${game.id}`)}>
+              View Game
             </button>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={volume}
-              onChange={(e) => handleVolume(Number(e.target.value))}
-              className="spotlight__vol-slider"
-            />
           </div>
         </div>
+
+        <div className="spotlight__embed-wrap" ref={embedWrapRef} />
       </div>
 
       <button className="spotlight__arrow spotlight__arrow--left" onClick={() => go(-1)}>‹</button>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import ReportModal from '../ui/ReportModal'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
@@ -79,6 +80,7 @@ export default function GameReviewsSection({ gameId }) {
   }
 
   const [pendingUpvote, setPendingUpvote] = useState(null)
+  const [reportingReview, setReportingReview] = useState(null)
 
   const handleUpvote = async (review) => {
     if (!isLoggedIn || review.user_id === user?.id || pendingUpvote === review.id) return
@@ -102,6 +104,7 @@ export default function GameReviewsSection({ gameId }) {
   const displayRating = hovered || rating
 
   return (
+    <>
     <div className="reviews-section">
       <div className="reviews-section__header">
         <h3 className="reviews-section__title">User Reviews</h3>
@@ -224,11 +227,28 @@ export default function GameReviewsSection({ gameId }) {
                   </svg>
                   <span>{r.upvote_count || 0}</span>
                 </button>
+                {!isOwn && isLoggedIn && (
+                  <button
+                    className="review-card__report"
+                    onClick={() => setReportingReview(r)}
+                    title="Report this review"
+                  >Report</button>
+                )}
               </div>
             </div>
           )
         })}
       </div>
     </div>
+
+    {reportingReview && (
+      <ReportModal
+        contentType="review"
+        contentId={reportingReview.id}
+        contentPreview={reportingReview.body ? reportingReview.body.slice(0, 80) : `${reportingReview.rating}/10 review by ${reportingReview.username}`}
+        onClose={() => setReportingReview(null)}
+      />
+    )}
+    </>
   )
 }

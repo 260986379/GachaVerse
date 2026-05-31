@@ -1,5 +1,11 @@
 const { query } = require('../config/db');
-const { fetchZZZPlayer } = require('../services/enkaService');
+const { fetchZZZPlayer, fetchGenshinPlayer, fetchHSRPlayer } = require('../services/enkaService');
+
+const PLAYER_FETCHERS = {
+  'zenless-zone-zero': fetchZZZPlayer,
+  'genshin-impact':    fetchGenshinPlayer,
+  'honkai-star-rail':  fetchHSRPlayer,
+};
 
 // Resolves a route param that may be a UUID or a slug to a game row.
 const resolveGame = async (idOrSlug) => {
@@ -120,13 +126,15 @@ const getGameArt = async (req, res, next) => {
 
 const UID_RE = /^\d{9,10}$/;
 
-const getZZZPlayer = async (req, res, next) => {
+const getPlayer = async (req, res, next) => {
   try {
-    const { uid } = req.params;
+    const { id: gameId, uid } = req.params;
     if (!UID_RE.test(uid)) {
       return res.status(400).json({ message: 'Invalid UID format — must be 9–10 digits.' });
     }
-    const data = await fetchZZZPlayer(uid);
+    const fetcher = PLAYER_FETCHERS[gameId];
+    if (!fetcher) return res.status(404).json({ message: 'No player API available for this game.' });
+    const data = await fetcher(uid);
     res.json(data);
   } catch (err) {
     if (err.status) return res.status(err.status).json({ message: err.message });
@@ -148,4 +156,4 @@ const getLatestVideoDates = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners, getZZZPlayer, getLatestVideoDates };
+module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners, getPlayer, getLatestVideoDates };

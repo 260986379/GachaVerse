@@ -2039,6 +2039,18 @@
   cursor: wait;
 }
 
+.review-card__report {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.62rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.review-card__report:hover { color: #f87171; }
+
 /* ── Favorites limit toast ──────────────────────────────────────── */
 .fav-limit-toast {
   position: fixed;

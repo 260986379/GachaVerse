@@ -321,10 +321,28 @@
   word-break: break-word;
 }
 
+.note-modal__item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .note-modal__item-time {
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.25);
 }
+
+.note-modal__item-report {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.65rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.note-modal__item-report:hover { color: #f87171; }
 
 /* ── My Reviews modal ───────────────────────────────────────────── */
 .rv-modal-overlay {

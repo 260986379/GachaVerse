@@ -12,10 +12,70 @@ import './UserProfilePage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
-const SHOWCASE_GAMES = [
-  { id: 'zenless-zone-zero', name: 'Zenless Zone Zero', color1: '#f59e42', color2: '#b04a00' },
-  { id: 'nikke',             name: 'NIKKE',             color1: '#4a90e2', color2: '#1a3a6a' },
-]
+const GAME_CARD_STATS = {
+  'zenless-zone-zero': (uid, pd) => [
+    { label: 'UID',    value: uid },
+    { label: 'Level',  value: pd?.level  ?? '—' },
+    { label: 'Server', value: pd?.region ?? '—' },
+  ],
+  'genshin-impact': (uid, pd) => [
+    { label: 'UID',    value: uid },
+    { label: 'AR',     value: pd?.level  ?? '—' },
+    { label: 'Server', value: pd?.region ?? '—' },
+  ],
+  'honkai-star-rail': (uid, pd) => [
+    { label: 'UID',    value: uid },
+    { label: 'TL',     value: pd?.level  ?? '—' },
+    { label: 'Server', value: pd?.region ?? '—' },
+  ],
+}
+function getCardStats(gameId, uid, pd) {
+  return (GAME_CARD_STATS[gameId] ?? ((uid) => [
+    { label: 'UID',   value: uid },
+    { label: 'Level', value: '—' },
+    { label: 'Rank',  value: '—' },
+  ]))(uid, pd)
+}
+
+const GAME_VIEW_CONFIG = {
+  'zenless-zone-zero': {
+    rosterKey:    'agents',
+    rosterLabel:  'Agent Showcase',
+    levelLabel:   'Inter-Knot Lv',
+    headerStatus: (pd) => `${pd.region} · Inter-Knot Lv.${pd.level}`,
+  },
+  'genshin-impact': {
+    rosterKey:    'characters',
+    rosterLabel:  'Character Showcase',
+    levelLabel:   'Adventure Rank',
+    headerStatus: (pd) => `${pd.region} · AR${pd.level}`,
+    extraStats:   (pd) => [
+      pd.worldLevel   != null && { label: 'World Level',   value: pd.worldLevel },
+      pd.achievements != null && { label: 'Achievements',  value: pd.achievements.toLocaleString() },
+      (pd.abyssFloor  != null && pd.abyssFloor > 0)
+        && { label: 'Spiral Abyss', value: `Floor ${pd.abyssFloor}-${pd.abyssLevel}` },
+    ].filter(Boolean),
+  },
+  'honkai-star-rail': {
+    rosterKey:    'characters',
+    rosterLabel:  'Character Showcase',
+    levelLabel:   'Trailblaze Lv',
+    headerStatus: (pd) => `${pd.region} · TL${pd.level}`,
+    extraStats:   (pd) => [
+      pd.worldLevel   != null && { label: 'Equilibrium Lv',   value: pd.worldLevel },
+      pd.achievements != null && { label: 'Achievements',     value: pd.achievements.toLocaleString() },
+      (pd.mocFloor    != null && pd.mocFloor > 0)
+        && { label: 'Memory of Chaos', value: `Floor ${pd.mocFloor}` },
+    ].filter(Boolean),
+  },
+}
+const DEFAULT_VIEW_CONFIG = {
+  rosterKey:    'characters',
+  rosterLabel:  'Character Showcase',
+  levelLabel:   'Level',
+  headerStatus: (pd) => `${pd.region} · Lv.${pd.level}`,
+}
+
 
 /* ── Reusable sub-components ─────────────────────────────────────── */
 
@@ -172,6 +232,203 @@ function LeaveNoteModal({ targetId, existingNote, onSaved, onDeleted, onClose, a
   )
 }
 
+function ShowcaseAgentCard({ agent, onClick }) {
+  return (
+    <button
+      className="ps-char-card ga-showcase-card"
+      style={{ '--accent': agent.elementColor }}
+      onClick={onClick}
+    >
+      <div className="ps-char-card__portrait ga-showcase-card__portrait">
+        {agent.portraitUrl
+          ? <img src={agent.portraitUrl} alt={agent.displayName} loading="lazy" />
+          : <div className="ps-char-card__fallback">{agent.displayName[0]}</div>
+        }
+        <span className="ga-showcase-card__rarity">{agent.rarity}</span>
+        <span className="ga-showcase-card__lv">Lv.{agent.level}</span>
+        {(agent.mindscapeLevel > 0 || agent.constellations > 0 || agent.eidolons > 0) && (
+          <span className="ga-showcase-card__mindscape">
+            {agent.mindscapeLevel > 0 ? `M${agent.mindscapeLevel}`
+              : agent.eidolons > 0   ? `E${agent.eidolons}`
+              : `C${agent.constellations}`}
+          </span>
+        )}
+      </div>
+      <p className="ps-char-card__name">{agent.displayName}</p>
+      <p className="ga-showcase-card__element" style={{ color: agent.elementColor }}>{agent.element}</p>
+    </button>
+  )
+}
+
+function AgentDetailModal({ agent, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div className="agent-modal-overlay" onClick={onClose}>
+      <div className="agent-modal" onClick={e => e.stopPropagation()}>
+        <button className="agent-modal__close" onClick={onClose}>✕</button>
+        <div className="agent-modal__header" style={{ '--accent': agent.elementColor }}>
+          <div className="agent-modal__portrait">
+            {(agent.portraitUrl || agent.iconUrl)
+              ? <img src={agent.portraitUrl || agent.iconUrl} alt={agent.displayName} />
+              : <div className="agent-modal__portrait-fallback">{agent.displayName[0]}</div>
+            }
+          </div>
+          <div className="agent-modal__identity">
+            <span className="agent-modal__rarity-badge">{agent.rarity}-Rank</span>
+            <h2 className="agent-modal__name">{agent.displayName}</h2>
+            <div className="agent-modal__tags">
+              <span className="agent-modal__element" style={{ color: agent.elementColor }}>{agent.element}</span>
+              {agent.profession && (<>
+                <span className="agent-modal__tag-sep">·</span>
+                <span className="agent-modal__profession">{agent.profession}</span>
+              </>)}
+            </div>
+          </div>
+        </div>
+        <div className="agent-modal__stats">
+          {[
+            ['Level',           `Lv.${agent.level}`],
+            ['Ascension',       `${agent.promotionLevel}/6`],
+            agent.mindscapeLevel !== undefined && ['Mindscape',      `M${agent.mindscapeLevel}`],
+            agent.coreSkillLevel !== undefined && ['Core Skill',     `${agent.coreSkillLevel}/6`],
+            agent.constellations !== undefined && ['Constellations', `C${agent.constellations}`],
+            agent.eidolons       !== undefined && ['Eidolons',       `E${agent.eidolons}`],
+          ].filter(Boolean).map(([label, value]) => (
+            <div key={label} className="agent-modal__stat">
+              <span className="agent-modal__stat-value">{value}</span>
+              <span className="agent-modal__stat-label">{label}</span>
+            </div>
+          ))}
+        </div>
+        {agent.weapon && (
+          <div className="agent-modal__section">
+            <h3 className="agent-modal__section-title">
+              {agent.mindscapeLevel !== undefined ? 'W-Engine'
+                : agent.eidolons !== undefined    ? 'Light Cone'
+                : 'Weapon'}
+            </h3>
+            <div className="agent-modal__weapon">
+              {agent.weapon.iconUrl && (
+                <img className="agent-modal__weapon-icon" src={agent.weapon.iconUrl} alt={agent.weapon.name} />
+              )}
+              <div className="agent-modal__weapon-info">
+                <p className="agent-modal__weapon-name">{agent.weapon.name}</p>
+                <p className="agent-modal__weapon-meta">
+                  Lv.{agent.weapon.level}
+                  <span className="agent-modal__weapon-sep" />
+                  Refinement {agent.weapon.refinement}
+                  <span className="agent-modal__weapon-sep" />
+                  {agent.weapon.rarity}-Rank
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function PublicGameAccountView({ game, profileUsername, onBack }) {
+  const viewCfg = GAME_VIEW_CONFIG[game.id] ?? DEFAULT_VIEW_CONFIG
+  const [playerData,  setPlayerData]  = useState(null)
+  const [loading,     setLoading]     = useState(true)
+  const [error,       setError]       = useState(null)
+  const [activeAgent, setActiveAgent] = useState(null)
+
+  useEffect(() => {
+    fetch(`/api/games/${game.id}/player/${game.uid}`)
+      .then(r => r.json())
+      .then(data => { setPlayerData(data); setLoading(false) })
+      .catch(err => { setError(err.message); setLoading(false) })
+  }, [game.id, game.uid])
+
+  const roster = playerData ? (playerData[viewCfg.rosterKey] ?? []) : []
+
+  return (
+    <div className="ga-view">
+      <div className="ga-header" style={{ '--g1': game.color1, '--g2': game.color2 }}>
+        <button className="ga-header__back" onClick={onBack}>← {profileUsername}'s Profile</button>
+        <div className="ga-header__info">
+          <h2 className="ga-header__game-name">
+            {playerData ? playerData.nickname : game.name}
+          </h2>
+          <span className="ga-header__status">
+            {playerData ? viewCfg.headerStatus(playerData) : loading ? 'Loading…' : 'Account not linked'}
+          </span>
+        </div>
+        {playerData?.bio && <p className="ga-header__bio">{playerData.bio}</p>}
+      </div>
+
+      {loading && <p className="ga-loading">Loading profile…</p>}
+      {error   && <p className="ga-loading" style={{ color: 'rgba(255,100,100,0.8)' }}>{error}</p>}
+
+      {playerData && (
+        <>
+          <div className="ga-stats-row">
+            <div className="ga-stat">
+              <span className="ga-stat__value">{playerData.uid}</span>
+              <span className="ga-stat__label">UID</span>
+            </div>
+            <div className="ga-stat">
+              <span className="ga-stat__value">{playerData.region}</span>
+              <span className="ga-stat__label">Server</span>
+            </div>
+            <div className="ga-stat">
+              <span className="ga-stat__value">{playerData.level}</span>
+              <span className="ga-stat__label">{viewCfg.levelLabel}</span>
+            </div>
+            <div className="ga-stat">
+              <span className="ga-stat__value">{roster.length}</span>
+              <span className="ga-stat__label">Characters Showcased</span>
+            </div>
+          </div>
+
+          {viewCfg.extraStats && (() => {
+            const extras = viewCfg.extraStats(playerData)
+            return extras.length > 0 ? (
+              <div className="ga-stats-row">
+                {extras.map(({ label, value }) => (
+                  <div key={label} className="ga-stat">
+                    <span className="ga-stat__value">{value}</span>
+                    <span className="ga-stat__label">{label}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null
+          })()}
+
+          <div className="ga-sections">
+            <section className="profile-section">
+              <div className="profile-section__header">
+                <h2 className="profile-section__title">{viewCfg.rosterLabel}</h2>
+              </div>
+              {roster.length > 0 ? (
+                <div className="ga-agents-grid">
+                  {roster.map(a => (
+                    <ShowcaseAgentCard key={a.id} agent={a} onClick={() => setActiveAgent(a)} />
+                  ))}
+                </div>
+              ) : (
+                <p className="profile-empty">No characters in showcase — the player hasn't set one up in-game yet.</p>
+              )}
+            </section>
+          </div>
+        </>
+      )}
+
+      {activeAgent && (
+        <AgentDetailModal agent={activeAgent} onClose={() => setActiveAgent(null)} />
+      )}
+    </div>
+  )
+}
+
 /* ── Main page ───────────────────────────────────────────────────── */
 
 export default function UserProfilePage() {
@@ -188,7 +445,9 @@ export default function UserProfilePage() {
   const [authOpen,     setAuthOpen]     = useState(false)
   const [boards,        setBoards]        = useState([])
   const [activeBoard,   setActiveBoard]   = useState(null)
-  const [gameAccounts,  setGameAccounts]  = useState([])
+  const [gameAccounts,    setGameAccounts]    = useState([])
+  const [linkedPlayerData, setLinkedPlayerData] = useState({})
+  const [selectedAccount, setSelectedAccount] = useState(null)
   const [followedGames, setFollowedGames] = useState([])
   const [favVideos,     setFavVideos]     = useState([])
   const [favChars,      setFavChars]      = useState([])
@@ -264,6 +523,18 @@ export default function UserProfilePage() {
     get(`${API}/users/${profile.id}/favorites/characters`, setFavChars)
     get(`${API}/users/${profile.id}/favorites/artworks`, setFavArtworks)
   }, [profile?.id])
+
+  /* Fetch player data for each linked account to populate showcase cards */
+  useEffect(() => {
+    if (gameAccounts.length === 0) return
+    gameAccounts.forEach(a => {
+      if (!a.uid) return
+      fetch(`/api/games/${a.game_id}/player/${a.uid}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => { if (data) setLinkedPlayerData(prev => ({ ...prev, [a.game_id]: data })) })
+        .catch(() => {})
+    })
+  }, [gameAccounts])
 
   /* Check follow status once profile + auth are both ready */
   useEffect(() => {
@@ -414,7 +685,15 @@ export default function UserProfilePage() {
 
           {/* ── Main content ── */}
           <main className="profile-main">
+            {selectedAccount && (
+              <PublicGameAccountView
+                game={selectedAccount}
+                profileUsername={profile.username}
+                onBack={() => setSelectedAccount(null)}
+              />
+            )}
 
+            {!selectedAccount && (<>
             {/* Badges — only shown for non-Regular roles, or always shown to Owner/Dev for assignment */}
             {(profile.role !== 'Regular' || canAssignRoles) && (
               <section className="profile-section">
@@ -478,36 +757,52 @@ export default function UserProfilePage() {
             </section>
 
             {/* Game Account Showcase */}
-            <section className="profile-section">
-              <div className="profile-section__header">
-                <h2 className="profile-section__title">Game Account Showcase</h2>
-              </div>
-              <div className="profile-hscroll">
-                {SHOWCASE_GAMES.map(g => {
-                  const linked = gameAccounts.find(a => a.game_id === g.id)
-                  return (
-                    <div
-                      key={g.id}
-                      className="ps-game-card"
-                      style={{ '--g1': g.color1, '--g2': g.color2 }}
-                    >
-                      <div className="ps-game-card__cover" />
-                      <div className="ps-game-card__body">
-                        <p className="ps-game-card__name">{g.name}</p>
-                        <div className="ps-game-card__stats">
-                          <span className="ps-game-card__stat">
-                            <span>UID</span>
-                            <span>{linked ? linked.uid : '—'}</span>
-                          </span>
-                          <span className="ps-game-card__stat"><span>Level</span><span>—</span></span>
-                          <span className="ps-game-card__stat"><span>Rank</span><span>—</span></span>
-                        </div>
-                      </div>
+            {(() => {
+              const linkedGames = gameAccounts
+                .map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid } : null })
+                .filter(Boolean)
+              return (
+                <section className="profile-section">
+                  <div className="profile-section__header">
+                    <h2 className="profile-section__title">Game Account Showcase</h2>
+                  </div>
+                  {linkedGames.length > 0 ? (
+                    <div className="profile-hscroll">
+                      {linkedGames.map(g => {
+                        const thumb = g.bannerImage
+                          || (g.youtubeId ? `https://img.youtube.com/vi/${g.youtubeId}/mqdefault.jpg` : null)
+                          || g.posterImage || null
+                        return (
+                        <button
+                          key={g.id}
+                          className="ps-game-card ps-game-card--interactive"
+                          style={{ '--g1': g.color1, '--g2': g.color2 }}
+                          onClick={() => setSelectedAccount(g)}
+                        >
+                          <div className="ps-game-card__cover">
+                            {thumb && <img src={thumb} alt={g.name} loading="lazy" />}
+                          </div>
+                          <div className="ps-game-card__body">
+                            <p className="ps-game-card__name">{g.name}</p>
+                            <div className="ps-game-card__stats">
+                              {getCardStats(g.id, g.uid, linkedPlayerData[g.id]).map(({ label, value }) => (
+                                <span key={label} className="ps-game-card__stat">
+                                  <span>{label}</span><span>{value}</span>
+                                </span>
+                              ))}
+                            </div>
+                            <span className="ps-game-card__cta">View Account →</span>
+                          </div>
+                        </button>
+                        )
+                      })}
                     </div>
-                  )
-                })}
-              </div>
-            </section>
+                  ) : (
+                    <p className="profile-empty">No game accounts linked yet.</p>
+                  )}
+                </section>
+              )
+            })()}
 
             {/* Followed Games */}
             <section className="profile-section">
@@ -650,6 +945,7 @@ export default function UserProfilePage() {
               )}
             </section>
 
+            </>)}
           </main>
         </div>
       </div>

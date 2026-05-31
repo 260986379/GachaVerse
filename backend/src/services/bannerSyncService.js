@@ -28,10 +28,9 @@ const syncBanners = async () => {
     const slugs = Object.keys(effectiveConfig);
     if (!slugs.length) return;
 
-    const placeholders = slugs.map((_, i) => `$${i + 1}`).join(',');
     const { rows: games } = await query(
-      `SELECT id, slug FROM games WHERE slug IN (${placeholders})`,
-      slugs
+      'SELECT id, slug FROM games WHERE slug = ANY($1)',
+      [slugs]
     );
     if (!games.length) return;
 

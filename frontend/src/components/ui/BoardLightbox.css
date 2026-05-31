@@ -183,6 +183,19 @@
   cursor: not-allowed;
 }
 
+.lightbox__report-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.68rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+  transition: color 0.15s;
+}
+.lightbox__report-btn:hover { color: #f87171; }
+
 /* ── Comments list ────────────────────────────────────────────── */
 .lightbox__comments-list {
   flex: 1;

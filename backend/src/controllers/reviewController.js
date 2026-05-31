@@ -1,38 +1,45 @@
 const { query } = require('../config/db');
 
+// Safe server-side constants — never derived from user input
+const ORDER_TOP = 'COUNT(uv.user_id) DESC, r.created_at DESC';
+const ORDER_LATEST = 'r.created_at DESC';
+
 const getReviews = async (req, res, next) => {
   try {
     const { gameId } = req.params;
-    const sort = req.query.sort === 'top' ? 'top' : 'latest';
+    const orderBy = req.query.sort === 'top' ? ORDER_TOP : ORDER_LATEST;
     const userId = req.user?.id || null;
 
-    const orderBy = sort === 'top'
-      ? 'COUNT(uv.user_id) DESC, r.created_at DESC'
-      : 'r.created_at DESC';
-
-    const userUpvotedExpr = userId
-      ? `COALESCE(BOOL_OR(uv.user_id = $2), FALSE) AS user_upvoted`
-      : `FALSE AS user_upvoted`;
-
-    const { rows } = await query(
-      `SELECT
-         r.id,
-         r.rating,
-         r.body,
-         r.created_at,
-         u.id        AS user_id,
-         u.username,
-         u.avatar_url,
-         COUNT(uv.user_id)::int AS upvote_count,
-         ${userUpvotedExpr}
-       FROM game_reviews r
-       JOIN users u ON r.user_id = u.id
-       LEFT JOIN review_upvotes uv ON uv.review_id = r.id
-       WHERE r.game_id = $1
-       GROUP BY r.id, u.id
-       ORDER BY ${orderBy}`,
-      userId ? [gameId, userId] : [gameId]
-    );
+    let rows;
+    if (userId) {
+      ({ rows } = await query(
+        `SELECT r.id, r.rating, r.body, r.created_at,
+                u.id AS user_id, u.username, u.avatar_url,
+                COUNT(uv.user_id)::int AS upvote_count,
+                COALESCE(BOOL_OR(uv.user_id = $2), FALSE) AS user_upvoted
+         FROM game_reviews r
+         JOIN users u ON r.user_id = u.id
+         LEFT JOIN review_upvotes uv ON uv.review_id = r.id
+         WHERE r.game_id = $1
+         GROUP BY r.id, u.id
+         ORDER BY ${orderBy}`,
+        [gameId, userId]
+      ));
+    } else {
+      ({ rows } = await query(
+        `SELECT r.id, r.rating, r.body, r.created_at,
+                u.id AS user_id, u.username, u.avatar_url,
+                COUNT(uv.user_id)::int AS upvote_count,
+                FALSE AS user_upvoted
+         FROM game_reviews r
+         JOIN users u ON r.user_id = u.id
+         LEFT JOIN review_upvotes uv ON uv.review_id = r.id
+         WHERE r.game_id = $1
+         GROUP BY r.id, u.id
+         ORDER BY ${orderBy}`,
+        [gameId]
+      ));
+    }
 
     res.json(rows);
   } catch (err) {

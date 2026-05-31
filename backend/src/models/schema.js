@@ -364,6 +364,23 @@ const ALTER_FAV_ARTWORKS_ADD_SORT_ORDER = `
   ALTER TABLE user_favorite_artworks   ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0;
 `;
 
+const CREATE_REPORTS = `
+  CREATE TABLE IF NOT EXISTS reports (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    reporter_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+    content_type    VARCHAR(20) NOT NULL CHECK (content_type IN ('board', 'review', 'note')),
+    content_id      UUID NOT NULL,
+    content_preview TEXT,
+    reason          TEXT,
+    status          VARCHAR(20) NOT NULL DEFAULT 'pending'
+                      CHECK (status IN ('pending', 'resolved', 'dismissed')),
+    created_at      TIMESTAMP DEFAULT NOW(),
+    resolved_by     UUID REFERENCES users(id) ON DELETE SET NULL,
+    resolved_at     TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status, created_at DESC);
+`;
+
 const ALL_TABLES = [
   CREATE_USERS,
   ALTER_USERS_ADD_FIREBASE_UID,
@@ -407,6 +424,7 @@ const ALL_TABLES = [
   ALTER_FAV_VIDEOS_ADD_SORT_ORDER,
   ALTER_FAV_CHARACTERS_ADD_SORT_ORDER,
   ALTER_FAV_ARTWORKS_ADD_SORT_ORDER,
+  CREATE_REPORTS,
 ];
 
 module.exports = { ALL_TABLES };

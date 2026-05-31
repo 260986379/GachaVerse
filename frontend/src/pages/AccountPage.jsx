@@ -12,6 +12,7 @@ import YouTubeEmbed from '../components/ui/YouTubeEmbed'
 import BoardLightbox from '../components/ui/BoardLightbox'
 import ImageLightbox from '../components/ui/ImageLightbox'
 import AuthModal    from '../components/ui/AuthModal'
+import ReportModal  from '../components/ui/ReportModal'
 import GameCard from '../components/GameCard'
 import { GAMES } from '../data/games'
 import { useAuth } from '../context/AuthContext'
@@ -41,6 +42,72 @@ const DEFAULT_GAME_META = {
   statLabels: ['Level', 'Rank', 'Server', 'UID'],
   rosterLabel: 'Characters',
   pullLabel: 'Gacha History',
+}
+
+const ACCOUNT_FEATURE_GAMES = new Set(['zenless-zone-zero', 'genshin-impact', 'honkai-star-rail'])
+
+const GAME_CARD_STATS = {
+  'zenless-zone-zero': (uid, pd) => [
+    { label: 'UID',    value: uid },
+    { label: 'Level',  value: pd?.level  ?? '—' },
+    { label: 'Server', value: pd?.region ?? '—' },
+  ],
+  'genshin-impact': (uid, pd) => [
+    { label: 'UID',    value: uid },
+    { label: 'AR',     value: pd?.level  ?? '—' },
+    { label: 'Server', value: pd?.region ?? '—' },
+  ],
+  'honkai-star-rail': (uid, pd) => [
+    { label: 'UID',    value: uid },
+    { label: 'TL',     value: pd?.level  ?? '—' },
+    { label: 'Server', value: pd?.region ?? '—' },
+  ],
+}
+function getCardStats(gameId, uid, pd) {
+  return (GAME_CARD_STATS[gameId] ?? ((uid) => [
+    { label: 'UID',   value: uid },
+    { label: 'Level', value: '—' },
+    { label: 'Rank',  value: '—' },
+  ]))(uid, pd)
+}
+
+const GAME_VIEW_CONFIG = {
+  'zenless-zone-zero': {
+    rosterKey:    'agents',
+    rosterLabel:  'Agent Showcase',
+    levelLabel:   'Inter-Knot Lv',
+    headerStatus: (pd) => `${pd.region} · Inter-Knot Lv.${pd.level}`,
+  },
+  'genshin-impact': {
+    rosterKey:    'characters',
+    rosterLabel:  'Character Showcase',
+    levelLabel:   'Adventure Rank',
+    headerStatus: (pd) => `${pd.region} · AR${pd.level}`,
+    extraStats:   (pd) => [
+      pd.worldLevel   != null && { label: 'World Level',   value: pd.worldLevel },
+      pd.achievements != null && { label: 'Achievements',  value: pd.achievements.toLocaleString() },
+      (pd.abyssFloor  != null && pd.abyssFloor > 0)
+        && { label: 'Spiral Abyss', value: `Floor ${pd.abyssFloor}-${pd.abyssLevel}` },
+    ].filter(Boolean),
+  },
+  'honkai-star-rail': {
+    rosterKey:    'characters',
+    rosterLabel:  'Character Showcase',
+    levelLabel:   'Trailblaze Lv',
+    headerStatus: (pd) => `${pd.region} · TL${pd.level}`,
+    extraStats:   (pd) => [
+      pd.worldLevel   != null && { label: 'Equilibrium Lv',   value: pd.worldLevel },
+      pd.achievements != null && { label: 'Achievements',     value: pd.achievements.toLocaleString() },
+      (pd.mocFloor    != null && pd.mocFloor > 0)
+        && { label: 'Memory of Chaos', value: `Floor ${pd.mocFloor}` },
+    ].filter(Boolean),
+  },
+}
+const DEFAULT_VIEW_CONFIG = {
+  rosterKey:    'characters',
+  rosterLabel:  'Character Showcase',
+  levelLabel:   'Level',
+  headerStatus: (pd) => `${pd.region} · Lv.${pd.level}`,
 }
 
 function SocialStat({ label, value, onClick }) {
@@ -240,6 +307,7 @@ function MyReviewsModal({ userId, authFetch, onClose, onStatsChange }) {
 
 function ViewNotesModal({ notes, onClose }) {
   const navigate = useNavigate()
+  const [reportingNote, setReportingNote] = useState(null)
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
@@ -275,30 +343,57 @@ function ViewNotesModal({ notes, onClose }) {
                   <span className="note-modal__item-username">{n.author_username}</span>
                 </button>
                 <p className="note-modal__item-content">{n.content}</p>
-                <span className="note-modal__item-time">{timeAgoShort(n.created_at)}</span>
+                <div className="note-modal__item-footer">
+                  <span className="note-modal__item-time">{timeAgoShort(n.created_at)}</span>
+                  <button className="note-modal__item-report" onClick={() => setReportingNote(n)}>
+                    Report
+                  </button>
+                </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      {reportingNote && (
+        <ReportModal
+          contentType="note"
+          contentId={reportingNote.id}
+          contentPreview={reportingNote.content}
+          onClose={() => setReportingNote(null)}
+        />
+      )}
     </div>
   )
 }
 
-function GameAccountCard({ game, onClick }) {
+function GameAccountCard({ game, playerData, onClick, onRemove }) {
+  const stats = getCardStats(game.id, game.uid, playerData)
+  const thumb = game.bannerImage
+    || (game.youtubeId ? `https://img.youtube.com/vi/${game.youtubeId}/mqdefault.jpg` : null)
+    || game.posterImage || null
   return (
     <button
       className="ps-game-card ps-game-card--interactive"
       style={{ '--g1': game.color1, '--g2': game.color2 }}
       onClick={onClick}
     >
-      <div className="ps-game-card__cover" />
+      <div className="ps-game-card__cover">
+        {thumb && <img src={thumb} alt={game.name} loading="lazy" />}
+        <button
+          className="ps-game-card__remove"
+          onClick={e => { e.stopPropagation(); onRemove() }}
+          title="Remove"
+        >✕</button>
+      </div>
       <div className="ps-game-card__body">
         <p className="ps-game-card__name">{game.name}</p>
         <div className="ps-game-card__stats">
-          <span className="ps-game-card__stat"><span>UID</span><span>—</span></span>
-          <span className="ps-game-card__stat"><span>Level</span><span>—</span></span>
-          <span className="ps-game-card__stat"><span>Rank</span><span>—</span></span>
+          {stats.map(({ label, value }) => (
+            <span key={label} className="ps-game-card__stat">
+              <span>{label}</span><span>{value}</span>
+            </span>
+          ))}
         </div>
         <span className="ps-game-card__cta">View Account →</span>
       </div>
@@ -320,8 +415,12 @@ function ShowcaseAgentCard({ agent, onClick }) {
         }
         <span className="ga-showcase-card__rarity">{agent.rarity}</span>
         <span className="ga-showcase-card__lv">Lv.{agent.level}</span>
-        {agent.mindscapeLevel > 0 && (
-          <span className="ga-showcase-card__mindscape">M{agent.mindscapeLevel}</span>
+        {(agent.mindscapeLevel > 0 || agent.constellations > 0 || agent.eidolons > 0) && (
+          <span className="ga-showcase-card__mindscape">
+            {agent.mindscapeLevel > 0 ? `M${agent.mindscapeLevel}`
+              : agent.eidolons > 0   ? `E${agent.eidolons}`
+              : `C${agent.constellations}`}
+          </span>
         )}
       </div>
       <p className="ps-char-card__name">{agent.displayName}</p>
@@ -360,8 +459,10 @@ function AgentDetailModal({ agent, onClose }) {
               <span className="agent-modal__element" style={{ color: agent.elementColor }}>
                 {agent.element}
               </span>
-              <span className="agent-modal__tag-sep">·</span>
-              <span className="agent-modal__profession">{agent.profession}</span>
+              {agent.profession && (<>
+                <span className="agent-modal__tag-sep">·</span>
+                <span className="agent-modal__profession">{agent.profession}</span>
+              </>)}
             </div>
           </div>
         </div>
@@ -369,11 +470,13 @@ function AgentDetailModal({ agent, onClose }) {
         {/* Stats */}
         <div className="agent-modal__stats">
           {[
-            ['Level',      `Lv.${agent.level}`],
-            ['Ascension',  `${agent.promotionLevel}/6`],
-            ['Mindscape',  `M${agent.mindscapeLevel}`],
-            ['Core Skill', `${agent.coreSkillLevel}/6`],
-          ].map(([label, value]) => (
+            ['Level',           `Lv.${agent.level}`],
+            ['Ascension',       `${agent.promotionLevel}/6`],
+            agent.mindscapeLevel !== undefined && ['Mindscape',      `M${agent.mindscapeLevel}`],
+            agent.coreSkillLevel !== undefined && ['Core Skill',     `${agent.coreSkillLevel}/6`],
+            agent.constellations !== undefined && ['Constellations', `C${agent.constellations}`],
+            agent.eidolons       !== undefined && ['Eidolons',       `E${agent.eidolons}`],
+          ].filter(Boolean).map(([label, value]) => (
             <div key={label} className="agent-modal__stat">
               <span className="agent-modal__stat-value">{value}</span>
               <span className="agent-modal__stat-label">{label}</span>
@@ -381,10 +484,14 @@ function AgentDetailModal({ agent, onClose }) {
           ))}
         </div>
 
-        {/* W-Engine */}
+        {/* Weapon */}
         {agent.weapon && (
           <div className="agent-modal__section">
-            <h3 className="agent-modal__section-title">W-Engine</h3>
+            <h3 className="agent-modal__section-title">
+              {agent.mindscapeLevel !== undefined ? 'W-Engine'
+                : agent.eidolons !== undefined    ? 'Light Cone'
+                : 'Weapon'}
+            </h3>
             <div className="agent-modal__weapon">
               {agent.weapon.iconUrl && (
                 <img
@@ -412,27 +519,97 @@ function AgentDetailModal({ agent, onClose }) {
 }
 
 
+function GamePickerModal({ linkedGameIds, onSelect, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const available    = GAMES.filter(g =>  ACCOUNT_FEATURE_GAMES.has(g.id))
+  const maintenance  = GAMES.filter(g => !ACCOUNT_FEATURE_GAMES.has(g.id))
+
+  const renderCard = (game) => {
+    const enabled = ACCOUNT_FEATURE_GAMES.has(game.id)
+    const linked  = linkedGameIds.has(game.id)
+    const thumb   = game.youtubeId
+      ? `https://img.youtube.com/vi/${game.youtubeId}/mqdefault.jpg`
+      : game.posterImage || null
+    return (
+      <button
+        key={game.id}
+        className={`game-picker-card${!enabled ? ' game-picker-card--maintenance' : ''}${linked ? ' game-picker-card--linked' : ''}`}
+        style={{ '--g1': game.color1, '--g2': game.color2 }}
+        onClick={() => { if (enabled && !linked) onSelect(game) }}
+        disabled={!enabled || linked}
+      >
+        <div className="game-picker-card__thumb">
+          {thumb && <img src={thumb} alt={game.name} loading="lazy" />}
+          {(!enabled || linked) && (
+            <div className="game-picker-card__overlay">
+              {!enabled && (
+                <span className="game-picker-card__badge game-picker-card__badge--maintenance">
+                  In Maintenance
+                </span>
+              )}
+              {linked && enabled && (
+                <span className="game-picker-card__badge game-picker-card__badge--linked">
+                  Added
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+        <p className="game-picker-card__name">{game.name}</p>
+      </button>
+    )
+  }
+
+  return (
+    <div className="game-picker-overlay" onClick={onClose}>
+      <div className="game-picker" onClick={e => e.stopPropagation()}>
+        <div className="game-picker__header">
+          <h3 className="game-picker__title">Select a Game</h3>
+          <button className="game-picker__close" onClick={onClose}>✕</button>
+        </div>
+        <div className="game-picker__body">
+          <div className="game-picker__grid">
+            {available.map(renderCard)}
+          </div>
+          {maintenance.length > 0 && (
+            <>
+              <div className="game-picker__divider">
+                <span>In Maintenance</span>
+              </div>
+              <div className="game-picker__grid">
+                {maintenance.map(renderCard)}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function GameAccountView({ game, onBack }) {
-  const meta = GAME_ACCOUNT_META[game.id] ?? DEFAULT_GAME_META
-  const isZZZ = game.id === 'zenless-zone-zero'
+  const viewCfg = GAME_VIEW_CONFIG[game.id] ?? DEFAULT_VIEW_CONFIG
   const { user, authFetch } = useAuth()
 
-  const [uid, setUid] = useState('')
-  const [playerData, setPlayerData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [changing, setChanging] = useState(false)
+  const [uid,         setUid]         = useState('')
+  const [playerData,  setPlayerData]  = useState(null)
+  const [loading,     setLoading]     = useState(false)
+  const [error,       setError]       = useState(null)
+  const [changing,    setChanging]    = useState(false)
   const [activeAgent, setActiveAgent] = useState(null)
 
   // Auto-load if a UID was previously saved on the server
   useEffect(() => {
-    if (!isZZZ || !user?.id) return
+    if (!user?.id) return
     authFetch(`/api/users/${user.id}/game-accounts`)
       .then(r => r.json())
       .then(accounts => {
-        const linked = Array.isArray(accounts)
-          ? accounts.find(a => a.game_id === game.id)
-          : null
+        const linked = Array.isArray(accounts) ? accounts.find(a => a.game_id === game.id) : null
         if (linked) fetchPlayer(linked.uid)
       })
       .catch(() => {})
@@ -442,10 +619,9 @@ function GameAccountView({ game, onBack }) {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/games/${game.id}/player/${targetUid}`)
+      const res  = await fetch(`/api/games/${game.id}/player/${targetUid}`)
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Failed to load profile')
-      // Save to server
       await authFetch(`/api/users/me/game-accounts/${game.id}`, {
         method: 'PUT',
         body: JSON.stringify({ uid: targetUid }),
@@ -476,11 +652,8 @@ function GameAccountView({ game, onBack }) {
     setChanging(false)
   }
 
-  const headerStatus = playerData
-    ? `${playerData.region} · Inter-Knot Lv.${playerData.level}`
-    : 'Account not linked'
-
-  const showLinkForm = isZZZ && (!playerData || changing)
+  const showLinkForm = !playerData || changing
+  const roster = playerData ? (playerData[viewCfg.rosterKey] ?? []) : []
 
   return (
     <div className="ga-view">
@@ -490,16 +663,16 @@ function GameAccountView({ game, onBack }) {
           <h2 className="ga-header__game-name">
             {playerData && !changing ? playerData.nickname : game.name}
           </h2>
-          <span className="ga-header__status">{playerData && !changing ? headerStatus : 'Account not linked'}</span>
+          <span className="ga-header__status">
+            {playerData && !changing ? viewCfg.headerStatus(playerData) : 'Account not linked'}
+          </span>
         </div>
         {playerData?.bio && !changing && (
           <p className="ga-header__bio">{playerData.bio}</p>
         )}
       </div>
 
-      {loading && (
-        <p className="ga-loading">Loading profile…</p>
-      )}
+      {loading && <p className="ga-loading">Loading profile…</p>}
 
       {showLinkForm && !loading && (
         <form className="ga-uid-form" onSubmit={handleLink}>
@@ -540,18 +713,32 @@ function GameAccountView({ game, onBack }) {
             </div>
             <div className="ga-stat">
               <span className="ga-stat__value">{playerData.level}</span>
-              <span className="ga-stat__label">Inter-Knot Lv</span>
+              <span className="ga-stat__label">{viewCfg.levelLabel}</span>
             </div>
             <div className="ga-stat">
-              <span className="ga-stat__value">{playerData.agents.length}/6</span>
-              <span className="ga-stat__label">Showcase</span>
+              <span className="ga-stat__value">{roster.length}</span>
+              <span className="ga-stat__label">Characters Showcased</span>
             </div>
           </div>
+
+          {viewCfg.extraStats && (() => {
+            const extras = viewCfg.extraStats(playerData)
+            return extras.length > 0 ? (
+              <div className="ga-stats-row">
+                {extras.map(({ label, value }) => (
+                  <div key={label} className="ga-stat">
+                    <span className="ga-stat__value">{value}</span>
+                    <span className="ga-stat__label">{label}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null
+          })()}
 
           <div className="ga-sections">
             <section className="profile-section">
               <div className="profile-section__header">
-                <h2 className="profile-section__title">Agent Showcase</h2>
+                <h2 className="profile-section__title">{viewCfg.rosterLabel}</h2>
                 <div className="ga-account-actions">
                   <button className="ga-reload-btn" onClick={() => { setUid(''); setChanging(true) }}>
                     Change UID
@@ -561,34 +748,18 @@ function GameAccountView({ game, onBack }) {
                   </button>
                 </div>
               </div>
-              <div className="ga-agents-grid">
-                {playerData.agents.map(a => (
-                  <ShowcaseAgentCard key={a.id} agent={a} onClick={() => setActiveAgent(a)} />
-                ))}
-              </div>
+              {roster.length > 0 ? (
+                <div className="ga-agents-grid">
+                  {roster.map(a => (
+                    <ShowcaseAgentCard key={a.id} agent={a} onClick={() => setActiveAgent(a)} />
+                  ))}
+                </div>
+              ) : (
+                <p className="profile-empty">No characters in showcase — set one up in-game to display it here.</p>
+              )}
             </section>
-
           </div>
         </>
-      )}
-
-      {!playerData && !showLinkForm && !loading && (
-        <div className="ga-sections">
-          <div className="ga-two-col">
-            <section className="profile-section">
-              <div className="profile-section__header">
-                <h2 className="profile-section__title">{meta.pullLabel}</h2>
-              </div>
-              <p className="profile-empty">Link your account to see pull history.</p>
-            </section>
-            <section className="profile-section">
-              <div className="profile-section__header">
-                <h2 className="profile-section__title">Achievements</h2>
-              </div>
-              <p className="profile-empty">Link your account to see achievements.</p>
-            </section>
-          </div>
-        </div>
       )}
 
       {activeAgent && (
@@ -803,7 +974,10 @@ export default function AccountPage() {
   const [activeArtwork,  setActiveArtwork]  = useState(null)
   const [activeVideoId,    setActiveVideoId]    = useState(null)
   const [activeVideoTitle, setActiveVideoTitle] = useState('')
-  const [selectedGame, setSelectedGame] = useState(null)
+  const [selectedGame,    setSelectedGame]    = useState(null)
+  const [showcaseGames,      setShowcaseGames]      = useState([])
+  const [showcasePlayerData, setShowcasePlayerData] = useState({})
+  const [showGamePicker,     setShowGamePicker]     = useState(false)
 
   const [notes,          setNotes]          = useState([])
   const [notesOpen,      setNotesOpen]      = useState(false)
@@ -907,6 +1081,50 @@ export default function AccountPage() {
       .then(data => { if (data) setReviewStats(data) })
       .catch(() => {})
   }, [user?.id])
+
+  // Load game account showcase
+  useEffect(() => {
+    if (!user?.id) return
+    authFetch(`/api/users/${user.id}/game-accounts`)
+      .then(r => r.json())
+      .then(accounts => {
+        if (!Array.isArray(accounts)) return
+        const games = accounts.map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid } : null }).filter(Boolean)
+        setShowcaseGames(games)
+      })
+      .catch(() => {})
+  }, [user?.id])
+
+  useEffect(() => {
+    if (showcaseGames.length === 0) return
+    showcaseGames.forEach(game => {
+      if (!game.uid || !ACCOUNT_FEATURE_GAMES.has(game.id)) return
+      fetch(`/api/games/${game.id}/player/${game.uid}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => { if (data) setShowcasePlayerData(prev => ({ ...prev, [game.id]: data })) })
+        .catch(() => {})
+    })
+  }, [showcaseGames])
+
+  const handleRemoveShowcaseGame = async (gameId) => {
+    try {
+      await authFetch(`/api/users/me/game-accounts/${gameId}`, { method: 'DELETE' })
+    } catch {}
+    setShowcasePlayerData(prev => { const next = { ...prev }; delete next[gameId]; return next })
+    refreshShowcase()
+  }
+
+  const refreshShowcase = () => {
+    if (!user?.id) return
+    authFetch(`/api/users/${user.id}/game-accounts`)
+      .then(r => r.json())
+      .then(accounts => {
+        if (!Array.isArray(accounts)) return
+        const games = accounts.map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid } : null }).filter(Boolean)
+        setShowcaseGames(games)
+      })
+      .catch(() => {})
+  }
 
 
   // Save bio edit
@@ -1212,7 +1430,7 @@ export default function AccountPage() {
             {selectedGame ? (
               <GameAccountView
                 game={selectedGame}
-                onBack={() => setSelectedGame(null)}
+                onBack={() => { setSelectedGame(null); refreshShowcase() }}
               />
             ) : (
               <>
@@ -1285,11 +1503,31 @@ export default function AccountPage() {
                   <div className="profile-section__header">
                     <h2 className="profile-section__title">Game Account Showcase</h2>
                   </div>
-                  <div className="profile-hscroll">
-                    {SHOWCASE_GAMES.map((g) => (
-                      <GameAccountCard key={g.id} game={g} onClick={() => setSelectedGame(g)} />
-                    ))}
-                  </div>
+                  {showcaseGames.length > 0 ? (
+                    <div className="profile-hscroll">
+                      {showcaseGames.map((g) => (
+                        <GameAccountCard
+                          key={g.id}
+                          game={g}
+                          playerData={showcasePlayerData[g.id]}
+                          onClick={() => setSelectedGame(g)}
+                          onRemove={() => handleRemoveShowcaseGame(g.id)}
+                        />
+                      ))}
+                      {showcaseGames.length < 9 && (
+                        <button className="ga-showcase-add-btn" onClick={() => setShowGamePicker(true)}>
+                          + Add
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="ga-showcase-empty">
+                      <p className="ga-showcase-empty__text">No game accounts linked yet.</p>
+                      <button className="ga-showcase-add-hero" onClick={() => setShowGamePicker(true)}>
+                        + Add your game's account
+                      </button>
+                    </div>
+                  )}
                 </section>
 
                 {/* Followed Games */}
@@ -1486,6 +1724,13 @@ export default function AccountPage() {
           title={activeArtwork.title}
           sourceUrl={activeArtwork.source_url}
           onClose={() => setActiveArtwork(null)}
+        />
+      )}
+      {showGamePicker && (
+        <GamePickerModal
+          linkedGameIds={new Set(showcaseGames.map(g => g.id))}
+          onSelect={(game) => { setShowGamePicker(false); setSelectedGame(game) }}
+          onClose={() => setShowGamePicker(false)}
         />
       )}
       {authModalOpen && (

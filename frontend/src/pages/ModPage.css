@@ -1,0 +1,197 @@
+.mod-page {
+  min-height: calc(100vh - 60px);
+  padding: 2rem 1.5rem;
+}
+
+.mod-page__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+.mod-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.mod-header__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.mod-header__count {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Filters ──────────────────────────────────────────────────── */
+.mod-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.mod-filters__group {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.mod-filter-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.72rem;
+  font-family: inherit;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.mod-filter-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.mod-filter-btn--active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Empty ────────────────────────────────────────────────────── */
+.mod-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* ── Report list ─────────────────────────────────────────────── */
+.mod-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mod-card {
+  background: #0f0f18;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mod-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mod-card__type {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--tc, #888);
+  background: color-mix(in srgb, var(--tc, #888) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tc, #888) 30%, transparent);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+}
+
+.mod-card__time {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.mod-card__preview {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.65rem;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mod-card__meta {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.mod-card__meta strong {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.mod-card__reason {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+}
+
+.mod-card__resolved-by {
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.mod-card__resolved-by strong {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.mod-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.mod-card__btn {
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.mod-card__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mod-card__btn--resolve {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+.mod-card__btn--resolve:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.mod-card__btn--dismiss {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.45);
+}
+.mod-card__btn--dismiss:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.7);
+}
