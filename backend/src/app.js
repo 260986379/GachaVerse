@@ -26,11 +26,19 @@ app.use(morgan('dev'));
 app.get('/api/hello', (req, res) => res.json({ message: 'Hello from GachaVerse Backend!' }));
 
 app.post('/api/admin/seed-characters', async (req, res) => {
-  res.json({ message: 'Character seed started in background' });
+  res.json({ message: 'All character seeds started in background' });
   try {
-    const { seedZZZCharacters } = require('../scripts/seedZZZCharacters');
+    const { seedZZZCharacters }    = require('../scripts/seedZZZCharacters');
+    const { seedNikkeCharacters }  = require('../scripts/seedNikkeCharacters');
+    const { seedGenshinCharacters } = require('../scripts/seedGenshinCharacters');
+    const { seedHSRCharacters }    = require('../scripts/seedHSRCharacters');
+    const { seedWuwaCharacters }   = require('../scripts/seedWuwaCharacters');
     await seedZZZCharacters();
-    console.log('[Admin] Character seed complete.');
+    await seedNikkeCharacters();
+    await seedGenshinCharacters();
+    await seedHSRCharacters();
+    await seedWuwaCharacters();
+    console.log('[Admin] All character seeds complete.');
   } catch (err) {
     console.error('[Admin] Character seed error:', err.message);
   }

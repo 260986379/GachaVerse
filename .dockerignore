@@ -2,6 +2,5 @@
 backend/.env
 backend/firebase-service-account.json
 **/*.log
-backend/scripts
 .git
 .gitignore
