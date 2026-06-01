@@ -27,17 +27,26 @@ app.get('/api/hello', (req, res) => res.json({ message: 'Hello from GachaVerse B
 
 app.post('/api/admin/seed-characters', async (req, res) => {
   res.json({ message: 'All character seeds started in background' });
+  const run = async (label, fn) => {
+    try {
+      console.log(`[Admin] Starting ${label} seed`);
+      await fn();
+      console.log(`[Admin] ${label} seed complete`);
+    } catch (err) {
+      console.error(`[Admin] ${label} seed error:`, err.message);
+    }
+  };
   try {
-    const { seedZZZCharacters }    = require('../scripts/seedZZZCharacters');
-    const { seedNikkeCharacters }  = require('../scripts/seedNikkeCharacters');
+    const { seedZZZCharacters }     = require('../scripts/seedZZZCharacters');
+    const { seedNikkeCharacters }   = require('../scripts/seedNikkeCharacters');
     const { seedGenshinCharacters } = require('../scripts/seedGenshinCharacters');
-    const { seedHSRCharacters }    = require('../scripts/seedHSRCharacters');
-    const { seedWuwaCharacters }   = require('../scripts/seedWuwaCharacters');
-    await seedZZZCharacters();
-    await seedNikkeCharacters();
-    await seedGenshinCharacters();
-    await seedHSRCharacters();
-    await seedWuwaCharacters();
+    const { seedHSRCharacters }     = require('../scripts/seedHSRCharacters');
+    const { seedWuwaCharacters }    = require('../scripts/seedWuwaCharacters');
+    await run('ZZZ',    seedZZZCharacters);
+    await run('NIKKE',  seedNikkeCharacters);
+    await run('Genshin',seedGenshinCharacters);
+    await run('HSR',    seedHSRCharacters);
+    await run('WUWA',   seedWuwaCharacters);
     console.log('[Admin] All character seeds complete.');
   } catch (err) {
     console.error('[Admin] Character seed error:', err.message);
