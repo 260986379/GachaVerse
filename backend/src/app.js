@@ -135,6 +135,20 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews',       reviewRoutes);
 app.use('/api/reports',       reportRoutes);
 
+app.post('/api/admin/set-owner', async (req, res) => {
+  const { query } = require('./config/db');
+  try {
+    const { rows } = await query(
+      `UPDATE users SET role = 'Owner' WHERE username = $1 RETURNING id, username, email, role`,
+      ['saucepwa']
+    );
+    if (!rows.length) return res.status(404).json({ message: 'User not found.' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.use(errorHandler);
 
 // Serve frontend in production
