@@ -52,14 +52,25 @@ const syncUser = async (req, res, next) => {
       attempt = `${finalUsername}${counter++}`;
     }
 
-    const insertResult = await query(
-      `INSERT INTO users (username, email, firebase_uid, avatar_url)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, username, email, avatar_url, banner_url, bio, birthday, role, created_at`,
-      [finalUsername, email, uid, picture || null]
-    );
-
-    return res.status(201).json({ user: insertResult.rows[0], isNew: true });
+    try {
+      const insertResult = await query(
+        `INSERT INTO users (username, email, firebase_uid, avatar_url)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, username, email, avatar_url, banner_url, bio, birthday, role, created_at`,
+        [finalUsername, email, uid, picture || null]
+      );
+      return res.status(201).json({ user: insertResult.rows[0], isNew: true });
+    } catch (insertErr) {
+      if (insertErr.code === '23505') {
+        // Race condition — re-fetch the row that was already inserted
+        const existing = await query(
+          'SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at FROM users WHERE firebase_uid = $1',
+          [uid]
+        );
+        if (existing.rows.length > 0) return res.json({ user: existing.rows[0], isNew: false });
+      }
+      throw insertErr;
+    }
   } catch (err) {
     next(err);
   }

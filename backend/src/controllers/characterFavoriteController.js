@@ -48,7 +48,7 @@ const getMyFavChars = async (req, res, next) => {
   try {
     const { rows } = await query(
       `SELECT c.id, c.name, c.display_name, c.icon_url, c.rarity,
-              c.element_type, c.role, c.weapon_type,
+              c.element_type, c.weapon_type,
               g.slug AS game_slug
        FROM user_favorite_characters ufc
        JOIN characters c ON c.id = ufc.character_id
