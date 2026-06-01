@@ -47,7 +47,10 @@ const main = async () => {
 
   const { rows: total } = await query(`SELECT COUNT(*) FROM characters WHERE game_id = $1`, [gameId]);
   console.log(`\nDone — ${added} inserted, ${updated} updated. Total HSR: ${total[0].count}`);
-  process.exit(0);
 };
 
-main().catch(err => { console.error(err); process.exit(1); });
+if (require.main === module) {
+  main().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); });
+}
+
+module.exports = { seedHSRCharacters: main };
