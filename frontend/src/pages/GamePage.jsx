@@ -133,6 +133,7 @@ export default function GamePage() {
     )
   }
 
+
   return (
     <div className="game-page">
       <div className="game-hero" style={{ '--c1': game.color1, '--c2': game.color2 }}>

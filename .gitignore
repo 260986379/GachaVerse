@@ -25,3 +25,6 @@ frontend/build/
 # One-off scripts
 verify_events.mjs
 verify_gamepage*.png
+
+# Local deploy scripts
+deploy.ps1

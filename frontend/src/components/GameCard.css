@@ -91,3 +91,22 @@
   font-size: 0.75rem;
   color: #666;
 }
+
+.game-card--locked {
+  cursor: default;
+}
+
+.game-card--locked .game-card__overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.game-card__coming-soon {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+}

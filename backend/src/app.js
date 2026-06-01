@@ -53,6 +53,17 @@ app.post('/api/admin/seed-characters', async (req, res) => {
   }
 });
 
+app.post('/api/admin/tag-videos', async (req, res) => {
+  res.json({ message: 'Video tagging started in background' });
+  try {
+    const { tagVideos } = require('../scripts/tagVideos');
+    await tagVideos();
+    console.log('[Admin] Video tagging complete.');
+  } catch (err) {
+    console.error('[Admin] Video tagging error:', err.message);
+  }
+});
+
 app.post('/api/admin/seed-lore', async (req, res) => {
   res.json({ message: 'Lore seed started in background' });
   try {
@@ -113,9 +124,15 @@ app.post('/api/admin/backfill', async (req, res) => {
   res.json({ message: 'Backfill started in background' });
   try {
     await ingestVideosForGame('zenless-zone-zero', config.ZZZ_YOUTUBE_CHANNEL_ID, { forceBackfill: true });
-    await ingestVideosForGame('nikke', config.NIKKE_YOUTUBE_CHANNEL_ID, { forceBackfill: true });
+    await ingestVideosForGame('nikke',             config.NIKKE_YOUTUBE_CHANNEL_ID,    { forceBackfill: true });
+    await ingestVideosForGame('genshin-impact',    config.GENSHIN_YOUTUBE_CHANNEL_ID,  { forceBackfill: true });
+    await ingestVideosForGame('honkai-star-rail',  config.HSR_YOUTUBE_CHANNEL_ID,      { forceBackfill: true });
+    await ingestVideosForGame('wuthering-waves',   config.WW_YOUTUBE_CHANNEL_ID,       { forceBackfill: true });
     await reclassifyExistingVideos('zenless-zone-zero');
     await reclassifyExistingVideos('nikke');
+    await reclassifyExistingVideos('genshin-impact');
+    await reclassifyExistingVideos('honkai-star-rail');
+    await reclassifyExistingVideos('wuthering-waves');
     console.log('[Admin] Force backfill complete.');
   } catch (err) {
     console.error('[Admin] Backfill error:', err.message);
@@ -134,20 +151,6 @@ app.use('/api/artworks',      artworkRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews',       reviewRoutes);
 app.use('/api/reports',       reportRoutes);
-
-app.post('/api/admin/set-owner', async (req, res) => {
-  const { query } = require('./config/db');
-  try {
-    const { rows } = await query(
-      `UPDATE users SET role = 'Owner' WHERE username = $1 RETURNING id, username, email, role`,
-      ['saucepwa']
-    );
-    if (!rows.length) return res.status(404).json({ message: 'User not found.' });
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 app.use(errorHandler);
 

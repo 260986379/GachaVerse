@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './GameCard.css'
 
-export default function GameCard({ game, size = 'md' }) {
+export default function GameCard({ game, size = 'md', locked = false }) {
   const navigate = useNavigate()
   const [imgFailed, setImgFailed] = useState(false)
 
@@ -12,8 +12,8 @@ export default function GameCard({ game, size = 'md' }) {
 
   return (
     <div
-      className={`game-card game-card--${size}`}
-      onClick={() => navigate(`/game/${game.id}`)}
+      className={`game-card game-card--${size}${locked ? ' game-card--locked' : ''}`}
+      onClick={locked ? undefined : () => navigate(`/game/${game.id}`)}
       style={{ '--c1': game.color1, '--c2': game.color2 }}
     >
       <div className="game-card__poster">
@@ -28,7 +28,10 @@ export default function GameCard({ game, size = 'md' }) {
           <span className="game-card__initial">{game.name[0]}</span>
         )}
         <div className="game-card__overlay">
-          <span className="game-card__play-icon">▶</span>
+          {locked
+            ? <span className="game-card__coming-soon">Coming Soon</span>
+            : <span className="game-card__play-icon">▶</span>
+          }
         </div>
       </div>
       <div className="game-card__info">

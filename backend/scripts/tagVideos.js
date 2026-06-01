@@ -99,10 +99,10 @@ const main = async () => {
   console.log("─".repeat(90));
   console.log(`Total: ${rows.length} videos`);
 
-  process.exit(0);
 };
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().then(() => process.exit(0)).catch((err) => { console.error(err); process.exit(1); });
+}
+
+module.exports = { tagVideos: main };
