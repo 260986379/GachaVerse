@@ -104,6 +104,61 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* ── Link-accounts notice ───────────────────────────────────────────── */
+.auth-link-notice {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+  text-align: center;
+}
+.auth-link-notice strong {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Google button ──────────────────────────────────────────────────── */
+.auth-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.62rem;
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  color: #1f1f1f;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.auth-google-btn:hover { background: #f0f0f0; }
+.auth-google-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.auth-google-btn__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 0.72rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
 /* ── Form ───────────────────────────────────────────────────────────── */
 .auth-form {
   display: flex;

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { GAMES } from '../data/games'
 import GameCard from '../components/GameCard'
 import { useAuth } from '../context/AuthContext'
+import SuggestEntry from '../components/ui/SuggestEntry'
 import './LibraryPage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
@@ -68,6 +69,7 @@ export default function LibraryPage() {
           <>
             <div className="library-section-divider">
               <span className="library-section-divider__label">Coming Soon</span>
+              <SuggestEntry />
             </div>
             <div className="library-grid library-grid--upcoming">
               {upcoming.map((game) => (

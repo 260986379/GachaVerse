@@ -1,7 +1,8 @@
 const router = require('express').Router();
-const { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners, getPlayer, getLatestVideoDates } = require('../controllers/gameController');
+const { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getGameBanners, getPlayer, getTrendingGames, getLatestVideoDates } = require('../controllers/gameController');
 
 router.get('/', getAllGames);
+router.get('/trending',           getTrendingGames);
 router.get('/latest-video-dates', getLatestVideoDates);
 router.get('/:id', getGameById);
 router.get('/:id/characters', getCharactersByGameId);

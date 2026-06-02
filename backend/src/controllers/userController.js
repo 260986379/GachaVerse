@@ -1,4 +1,5 @@
 const { query } = require('../config/db');
+const { createUserNotification } = require('./userNotificationController');
 
 const PROTECTED_ROLES = ['Owner', 'Dev', 'VIP'];
 
@@ -176,6 +177,7 @@ const followUser = async (req, res, next) => {
     );
 
     const counts = await _getCounts(followingId);
+    createUserNotification(followerId, followingId, 'follow').catch(() => {});
     res.json({ following: true, ...counts });
   } catch (err) {
     next(err);

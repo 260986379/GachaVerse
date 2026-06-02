@@ -8,6 +8,7 @@ import OfficialArtTab from '../components/game/OfficialArtTab'
 import CastTab from '../components/game/CastTab'
 import CommunityTab from '../components/game/CommunityTab'
 import NikkeCharactersTab from '../components/game/NikkeCharactersTab'
+import SuggestEntry from '../components/ui/SuggestEntry'
 import './GamePage.css'
 
 const TABS = ['News Feed', 'Community', 'Official Videos', 'Characters', 'Official Artworks', 'Official Platforms']
@@ -216,29 +217,20 @@ export default function GamePage() {
           ))}
         </aside>
         <div className="game-body__main">
-          <div style={{ display: activeTab === 'News Feed' ? 'block' : 'none' }}>
-            <NewsFeedTab gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} isVisible={activeTab === 'News Feed'} />
-          </div>
-          {activeTab !== 'News Feed' && (
-            <TabPanel tab={activeTab} gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} initialCharId={initialCharId} initialVideoId={initialVideoId} />
-          )}
+          {activeTab === 'News Feed'
+            ? <NewsFeedTab gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} />
+            : <TabPanel tab={activeTab} gameId={game.id} youtubeId={game.youtubeId} youtubeTitle={game.youtubeTitle} initialCharId={initialCharId} initialVideoId={initialVideoId} />
+          }
         </div>
-        <aside className="game-events-panel">
-          <h3 className="game-events-panel__title">Important Events</h3>
-          {game.events?.length ? (
-            game.events.map((ev, i) => (
-              <div key={i} className="game-event-card">
-                <span className={`game-event-card__type game-event-card__type--${ev.type.toLowerCase().replace(/[\s/]+/g, '-')}`}>
-                  {ev.type}
-                </span>
-                <p className="game-event-card__name">{ev.name}</p>
-                <span className="game-event-card__ends">Ends {ev.ends}</span>
-              </div>
-            ))
-          ) : (
-            <p className="game-events-panel__empty">No active events.</p>
-          )}
-        </aside>
+        {(activeTab === 'Characters' || activeTab === 'Official Videos') && (
+          <aside className="game-events-panel">
+            <SuggestEntry
+              label="Missing an entry?"
+              allowedTypes={['character', 'artwork']}
+              gameName={game.name}
+            />
+          </aside>
+        )}
       </div>
     </div>
   )

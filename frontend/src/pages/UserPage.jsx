@@ -8,7 +8,7 @@ const API = import.meta.env.VITE_API_URL || '/api'
 
 export default function UserPage() {
   const { username } = useParams()
-  const { user: me, authFetch, isLoggedIn } = useAuth()
+  const { user: me, authFetch, isLoggedIn, refreshUser } = useAuth()
 
   const [profile,      setProfile]      = useState(null)
   const [followStatus, setFollowStatus] = useState({ following: false, followers_count: 0, following_count: 0 })
@@ -75,6 +75,7 @@ export default function UserPage() {
       if (res.ok) {
         const data = await res.json()
         setFollowStatus(data)
+        refreshUser()
         // Re-fetch followers list
         const f = await fetch(`${API}/users/${profile.id}/followers`).then(r => r.json())
         setFollowers(f)

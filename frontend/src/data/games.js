@@ -70,6 +70,12 @@ export const GAMES = [
     description:
       "An open-world action RPG set in the magical world of Teyvat. Explore vast landscapes across 7 elemental nations.",
     events: [],
+    officialPlatforms: [
+      { name: 'Official Website', url: 'https://genshin.hoyoverse.com/en/home',              type: 'website' },
+      { name: 'Twitter / X',      url: 'https://x.com/GenshinImpact',                         type: 'twitter' },
+      { name: 'Reddit',           url: 'https://www.reddit.com/r/Genshin_Impact/',             type: 'reddit'  },
+      { name: 'Discord',          url: 'https://discord.com/invite/genshinimpact',             type: 'discord' },
+    ],
   },
   {
     id: "honkai-star-rail",
@@ -91,6 +97,12 @@ export const GAMES = [
     description:
       "Board a space station and embark on an intergalactic adventure across the stars in this turn-based RPG.",
     events: [],
+    officialPlatforms: [
+      { name: 'Official Website', url: 'https://hsr.hoyoverse.com/en-us/',                    type: 'website' },
+      { name: 'Twitter / X',      url: 'https://x.com/honkaistarrail',                        type: 'twitter' },
+      { name: 'Reddit',           url: 'https://www.reddit.com/r/HonkaiStarRail/',             type: 'reddit'  },
+      { name: 'Discord',          url: 'https://discord.com/invite/honkaistarrail',            type: 'discord' },
+    ],
   },
   {
     id: "blue-archive",
@@ -145,9 +157,16 @@ export const GAMES = [
     color1: "#0d9488",
     color2: "#0c1445",
     youtubeId: "DrkE-mw2Nxg",
+    posterImage: "https://img.youtube.com/vi/rtMnPOV3DO8/maxresdefault.jpg",
     description:
       "An open-world action RPG with fast-paced combat in a post-apocalyptic world filled with mysterious Tacet Discords.",
     events: [],
+    officialPlatforms: [
+      { name: 'Official Website', url: 'https://wutheringwaves.kurogames.com/en/',             type: 'website' },
+      { name: 'Twitter / X',      url: 'https://x.com/Wuthering_Waves',                       type: 'twitter' },
+      { name: 'Reddit',           url: 'https://www.reddit.com/r/WutheringWaves/',             type: 'reddit'  },
+      { name: 'Discord',          url: 'https://discord.com/invite/wutheringwaves',            type: 'discord' },
+    ],
   },
   {
     id: "reverse-1999",
@@ -189,4 +208,3 @@ export const GAMES = [
   },
 ];
 
-export const FEATURED_GAMES = GAMES.slice(0, 4);

@@ -9,6 +9,10 @@ import {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  GoogleAuthProvider,
+  signInWithPopup,
+  linkWithCredential,
+  sendPasswordResetEmail,
 } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -33,4 +37,8 @@ export {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  GoogleAuthProvider,
+  signInWithPopup,
+  linkWithCredential,
+  sendPasswordResetEmail,
 }

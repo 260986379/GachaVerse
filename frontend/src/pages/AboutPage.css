@@ -1,0 +1,157 @@
+.about-page {
+  min-height: 100vh;
+  padding-top: 64px;
+  padding-bottom: 5rem;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────── */
+.about-hero {
+  padding: 4rem 2rem 3rem;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(99, 60, 180, 0.12) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.about-hero__inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.about-hero__title {
+  margin: 0 0 0.6rem;
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.about-hero__sub {
+  margin: 0;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Two-column body ──────────────────────────────────────────── */
+.about-body {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 2rem 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+/* ── Sidebar nav ──────────────────────────────────────────────── */
+.about-nav {
+  flex-shrink: 0;
+  width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  position: sticky;
+  top: 84px;
+}
+
+.about-nav__item {
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.about-nav__item:hover {
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.about-nav__item--active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+}
+
+/* ── Main content ─────────────────────────────────────────────── */
+.about-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* ── Sections ─────────────────────────────────────────────────── */
+.about-section__title {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.01em;
+}
+
+.about-section__body {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.75;
+}
+
+.about-section__body:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Features / Rules / FAQ list ──────────────────────────────── */
+.about-features-list {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.about-features-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.about-features-list__term {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.about-features-list__desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.7;
+}
+
+/* ── Back button ──────────────────────────────────────────────── */
+.about-back {
+  padding-top: 0.5rem;
+}
+
+.about-back__btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.82rem;
+  font-family: inherit;
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.about-back__btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.25);
+}

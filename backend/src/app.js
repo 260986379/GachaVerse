@@ -16,6 +16,7 @@ const artworkRoutes       = require('./routes/artworkRoutes');
 const notificationRoutes  = require('./routes/notificationRoutes');
 const reviewRoutes        = require('./routes/reviewRoutes');
 const reportRoutes        = require('./routes/reportRoutes');
+const suggestionRoutes    = require('./routes/suggestionRoutes');
 
 const app = express();
 
@@ -151,6 +152,7 @@ app.use('/api/artworks',      artworkRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews',       reviewRoutes);
 app.use('/api/reports',       reportRoutes);
+app.use('/api/suggestions',   suggestionRoutes);
 
 app.use(errorHandler);
 

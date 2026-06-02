@@ -10,6 +10,7 @@ import CommunityPage    from './pages/CommunityPage'
 import SettingsPage     from './pages/SettingsPage'
 import UserProfilePage  from './pages/UserProfilePage'
 import ModPage          from './pages/ModPage'
+import AboutPage        from './pages/AboutPage'
 import './App.css'
 
 function Footer() {
@@ -19,6 +20,9 @@ function Footer() {
 
   return (
     <footer className="site-footer">
+      <button className="site-footer__about-btn" onClick={() => navigate('/about')}>
+        About
+      </button>
       <p className="site-footer__text">
         MyGachaList is an independent fan database and community platform. All games, characters,
         trademarks, and intellectual property featured on this site belong to their respective
@@ -47,6 +51,7 @@ export default function App() {
         <Route path="/settings"     element={<SettingsPage />} />
         <Route path="/u/:username"  element={<UserProfilePage />} />
         <Route path="/mod"          element={<ModPage />} />
+        <Route path="/about"        element={<AboutPage />} />
       </Routes>
       <Footer />
     </AuthProvider>

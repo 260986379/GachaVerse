@@ -1,3 +1,33 @@
+.navbar__auth-error {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  background: rgba(180, 40, 40, 0.92);
+  backdrop-filter: blur(8px);
+  font-size: 0.82rem;
+  color: #fff;
+  text-align: center;
+}
+
+.navbar__auth-error-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.navbar__auth-error-close:hover { color: #fff; }
+
 .navbar {
   position: fixed;
   top: 0;

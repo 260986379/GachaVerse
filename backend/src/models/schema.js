@@ -381,6 +381,29 @@ const CREATE_REPORTS = `
   CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status, created_at DESC);
 `;
 
+const ALTER_USER_NOTIFICATIONS_ADD_FOLLOW = `
+  ALTER TABLE user_notifications DROP CONSTRAINT IF EXISTS user_notifications_type_check;
+  ALTER TABLE user_notifications ADD CONSTRAINT user_notifications_type_check
+    CHECK (type IN ('profile_note', 'board_comment', 'follow'));
+`;
+
+const CREATE_SUGGESTIONS = `
+  CREATE TABLE IF NOT EXISTS suggestions (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    submitter_id   UUID REFERENCES users(id) ON DELETE SET NULL,
+    type           VARCHAR(20) NOT NULL CHECK (type IN ('game', 'character', 'artwork')),
+    entry_name     VARCHAR(255) NOT NULL,
+    game_name      VARCHAR(255),
+    reference_link TEXT,
+    status         VARCHAR(20) NOT NULL DEFAULT 'pending'
+                     CHECK (status IN ('pending', 'reviewed', 'dismissed')),
+    created_at     TIMESTAMP DEFAULT NOW(),
+    reviewed_by    UUID REFERENCES users(id) ON DELETE SET NULL,
+    reviewed_at    TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_suggestions_status ON suggestions(status, created_at DESC);
+`;
+
 const ALL_TABLES = [
   CREATE_USERS,
   ALTER_USERS_ADD_FIREBASE_UID,
@@ -425,6 +448,8 @@ const ALL_TABLES = [
   ALTER_FAV_CHARACTERS_ADD_SORT_ORDER,
   ALTER_FAV_ARTWORKS_ADD_SORT_ORDER,
   CREATE_REPORTS,
+  ALTER_USER_NOTIFICATIONS_ADD_FOLLOW,
+  CREATE_SUGGESTIONS,
 ];
 
 module.exports = { ALL_TABLES };

@@ -28,7 +28,7 @@ export default function Navbar() {
   const menuRef                     = useRef(null)
 
   const navigate = useNavigate()
-  const { user, logout, loadingAuth } = useAuth()
+  const { user, logout, loadingAuth, pendingLink, clearPendingLink } = useAuth()
   const { items, socialItems, loading, unreadCount, lastSeen, markAllRead, followingAnyGame } = useNotifications()
 
   // Close dropdown on outside click
@@ -48,6 +48,13 @@ export default function Navbar() {
 
   return (
     <>
+      {pendingLink && !authOpen && (
+        <div className="navbar__auth-error">
+          <span>Your Google account uses <strong>{pendingLink.email}</strong>, which is already registered with a password. Enter your password below to link both sign-in methods.</span>
+          <button className="navbar__auth-error-close" onClick={() => { setAuthOpen(true) }}>Sign in & Link →</button>
+          <button className="navbar__auth-error-close" onClick={clearPendingLink}>✕</button>
+        </div>
+      )}
       <nav className="navbar">
         <Link to="/" className="navbar__brand">MyGachaList</Link>
 

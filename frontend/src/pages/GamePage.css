@@ -416,6 +416,34 @@
   gap: 1.5rem;
 }
 
+.media-load-more {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0 1rem;
+}
+
+.media-load-more__btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.82rem;
+  font-family: inherit;
+  padding: 0.5rem 2rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.media-load-more__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.media-load-more__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* Search + sort toolbar */
 .media-toolbar {
   display: flex;

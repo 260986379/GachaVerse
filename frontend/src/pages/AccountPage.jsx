@@ -1243,10 +1243,8 @@ export default function AccountPage() {
     navigate(`/game/${slug}`, { state: { openTab: 'Characters', openCharId: char.id } })
   }
 
-  // Don't render until Firebase has resolved auth state — prevents user.role crash on refresh
-  if (loadingAuth) return null
-
   // ── Derived lists & drag-reorder hooks ────────────────────────────────
+  // Must be called before any early return to satisfy Rules of Hooks.
   const favRegular = favVideos.filter(v => v.category !== 'Music')
   const favBGM     = favVideos.filter(v => v.category === 'Music')
 
@@ -1269,6 +1267,23 @@ export default function AccountPage() {
     favArtworks,
     (next) => setFavArtworks(next),
     (next) => saveFavArtworks(next),
+  )
+
+  if (loadingAuth) return (
+    <div className="profile-page">
+      <div className="profile-inner">
+        <div className="profile-banner profile-banner--skeleton" />
+        <div className="profile-layout">
+          <aside className="profile-sidebar">
+            <div className="profile-skeleton__card" />
+          </aside>
+          <main className="profile-main">
+            <div className="profile-skeleton__section" />
+            <div className="profile-skeleton__section profile-skeleton__section--short" />
+          </main>
+        </div>
+      </div>
+    </div>
   )
 
   return (

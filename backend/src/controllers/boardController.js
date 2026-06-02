@@ -134,21 +134,33 @@ const addComment = async (req, res, next) => {
   }
 };
 
-/** DELETE /api/boards/:id/comments/:commentId — own comment OR board owner */
+/** DELETE /api/boards/:id/comments/:commentId — own comment OR board owner OR mod */
 const deleteComment = async (req, res, next) => {
   try {
     const { id: boardId, commentId } = req.params;
     const userId = req.user.id;
+    const isMod  = ['Owner', 'Dev'].includes(req.user.role);
+
+    // Mods can delete any comment without a DB check
+    if (isMod) {
+      const { rowCount } = await query(
+        'DELETE FROM board_comments WHERE id = $1 AND board_id = $2',
+        [commentId, boardId]
+      );
+      if (rowCount === 0) return res.status(404).json({ message: 'Comment not found.' });
+      return res.json({ message: 'Comment deleted.' });
+    }
 
     // Allow if: commenter == user  OR  board owner == user
     const { rowCount } = await query(
       `DELETE FROM board_comments
        WHERE id = $1
+         AND board_id = $2
          AND (
-           user_id = $2
-           OR $2 IN (SELECT user_id FROM boards WHERE id = $3)
+           user_id = $3
+           OR $3 IN (SELECT user_id FROM boards WHERE id = $2)
          )`,
-      [commentId, userId, boardId]
+      [commentId, boardId, userId]
     );
     if (rowCount === 0) return res.status(404).json({ message: 'Comment not found or not authorised.' });
     res.json({ message: 'Comment deleted.' });

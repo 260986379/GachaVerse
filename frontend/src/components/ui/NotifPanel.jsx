@@ -22,6 +22,7 @@ const GAME_SHORT = {
 const SOCIAL_LABEL = {
   profile_note:  'left a note on your profile',
   board_comment: 'commented on your board',
+  follow:        'started following you',
 }
 
 function timeAgo(iso) {
@@ -58,7 +59,11 @@ export default function NotifPanel({ items, socialItems = [], loading, unreadCou
 
   const handleSocialItem = (notif) => {
     markAllRead()
-    navigate('/account')
+    if (notif.type === 'follow') {
+      navigate(`/user/${notif.actor_username}`)
+    } else {
+      navigate('/account')
+    }
     onClose()
   }
 

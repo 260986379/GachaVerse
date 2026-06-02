@@ -1,27 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GAMES, FEATURED_GAMES } from '../data/games'
+import { GAMES } from '../data/games'
 import GameCard from '../components/GameCard'
 
 import { loadYTApi } from '../utils/ytApi'
 import { getRoleStyle } from '../utils/roles'
-import { useAuth } from '../context/AuthContext'
 import './ExplorePage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
-function SpotlightHero() {
+function SpotlightHero({ games }) {
   const [index, setIndex] = useState(0)
   const navigate = useNavigate()
   const playerRef = useRef(null)
   const embedWrapRef = useRef(null)
   const firstRender = useRef(true)
-  const game = FEATURED_GAMES[index]
+  const game = games[index]
 
   // Mount the IFrame API player once inside the embed wrap
   useEffect(() => {
     const wrap = embedWrapRef.current
-    if (!wrap || !FEATURED_GAMES[0].youtubeId) return
+    if (!wrap || !games[0]?.youtubeId) return
 
     const container = document.createElement('div')
     wrap.appendChild(container)
@@ -31,36 +30,38 @@ function SpotlightHero() {
       playerRef.current = new window.YT.Player(container, {
         width: '100%',
         height: '100%',
-        videoId: FEATURED_GAMES[0].youtubeId,
+        videoId: games[0].youtubeId,
         playerVars: { autoplay: 1, mute: 1, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
         events: {
-          onReady: (e) => e.target.playVideo(),
+          onReady: (e) => { e.target.playVideo(); e.target.unMute(); e.target.setVolume(10) },
           onStateChange: (e) => {
             if (e.data === window.YT.PlayerState.ENDED) {
-              setIndex(i => (i + 1) % FEATURED_GAMES.length)
+              setIndex(i => (i + 1) % games.length)
             }
           },
         },
       })
     })
 
-    return () => { playerRef.current?.destroy(); playerRef.current = null }
+    return () => { playerRef.current?.destroy(); playerRef.current = null; container.remove() }
   }, [])
 
   // Load the new video when index changes (skip on first render)
   useEffect(() => {
     if (firstRender.current) { firstRender.current = false; return }
-    const g = FEATURED_GAMES[index]
-    if (playerRef.current && g.youtubeId) {
+    const g = games[index]
+    if (playerRef.current && g?.youtubeId) {
       playerRef.current.loadVideoById(g.youtubeId)
     }
   }, [index])
 
-  const go = (dir) => setIndex(i => (i + dir + FEATURED_GAMES.length) % FEATURED_GAMES.length)
+  const go = (dir) => setIndex(i => (i + dir + games.length) % games.length)
 
-  const thumbUrl = game.youtubeId
+  const thumbUrl = game?.youtubeId
     ? `https://img.youtube.com/vi/${game.youtubeId}/maxresdefault.jpg`
     : null
+
+  if (!game) return null
 
   return (
     <div className="spotlight" style={{ '--c1': game.color1, '--c2': game.color2 }}>
@@ -83,7 +84,7 @@ function SpotlightHero() {
           <p className="spotlight__dev">{game.developer} · {game.genre}</p>
           <p className="spotlight__desc">{game.description}</p>
           <div className="spotlight__actions">
-            <button className="spotlight__btn spotlight__btn--primary" onClick={() => navigate(`/game/${game.id}`)}>
+            <button className="spotlight__btn spotlight__btn--primary" onClick={() => navigate(`/game/${game.id}`, { state: { openTab: 'Official Videos' } })}>
               View Game
             </button>
           </div>
@@ -96,7 +97,7 @@ function SpotlightHero() {
       <button className="spotlight__arrow spotlight__arrow--right" onClick={() => go(1)}>›</button>
 
       <div className="spotlight__dots">
-        {FEATURED_GAMES.map((_, i) => (
+        {games.map((_, i) => (
           <button
             key={i}
             className={`spotlight__dot${i === index ? ' spotlight__dot--active' : ''}`}
@@ -120,7 +121,7 @@ function BrowseAllCard() {
   )
 }
 
-function TrendingRow() {
+function TrendingRow({ games }) {
   const rowRef = useRef(null)
   const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
 
@@ -134,7 +135,7 @@ function TrendingRow() {
         </div>
       </div>
       <div className="trending-row" ref={rowRef}>
-        {GAMES.filter((g) => g.id === 'nikke' || g.id === 'zenless-zone-zero').map((game) => (
+        {games.map((game) => (
           <GameCard key={game.id} game={game} size="md" />
         ))}
       </div>
@@ -213,16 +214,13 @@ function CommunitySection() {
   const rowRef = useRef(null)
   const scroll = (dir) => rowRef.current?.scrollBy({ left: dir * 600, behavior: 'smooth' })
   const [users, setUsers] = useState(null)
-  const { isLoggedIn, loadingAuth, authFetch } = useAuth()
 
   useEffect(() => {
-    if (loadingAuth) return
-    const fetchFn = isLoggedIn ? authFetch : fetch
-    fetchFn(`${API}/users/community`)
+    fetch(`${API}/users/community`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
       .then(data => setUsers(Array.isArray(data) ? data : []))
       .catch(() => setUsers([]))
-  }, [loadingAuth, isLoggedIn])
+  }, [])
 
   if (!users || users.length === 0) return null
 
@@ -244,11 +242,34 @@ function CommunitySection() {
 }
 
 export default function ExplorePage() {
+  const [trendingGames, setTrendingGames] = useState([])
+
+  useEffect(() => {
+    fetch(`${API}/games/trending`)
+      .then(r => r.json())
+      .then(data => {
+        if (!Array.isArray(data)) return
+        const resolved = data
+          .map(({ slug, videoId, videoTitle }) => {
+            const game = GAMES.find(g => g.id === slug)
+            if (!game) return null
+            return {
+              ...game,
+              youtubeId:    videoId    ?? game.youtubeId,
+              youtubeTitle: videoTitle ?? game.youtubeTitle,
+            }
+          })
+          .filter(Boolean)
+        setTrendingGames(resolved)
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <div className="explore-page">
-      <SpotlightHero />
+      {trendingGames.length > 0 && <SpotlightHero games={trendingGames} />}
       <div className="explore-content">
-        <TrendingRow />
+        {trendingGames.length > 0 && <TrendingRow games={trendingGames} />}
         <GamesListSection />
         <CommunitySection />
       </div>

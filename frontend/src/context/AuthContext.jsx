@@ -6,6 +6,10 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
+  linkWithCredential,
+  sendPasswordResetEmail,
 } from '../firebase'
 import { setCurrentUser, setAuthFetch } from '../utils/bookmarks'
 
@@ -34,6 +38,8 @@ export function AuthProvider({ children }) {
   const [firebaseUser, setFirebaseUser] = useState(undefined) // undefined = still loading
   const [user, setUser]                 = useState(null)
   const [loadingAuth, setLoadingAuth]   = useState(true)
+  const [authError,   setAuthError]     = useState(null)
+  const [pendingLink, setPendingLink]   = useState(null) // { email, credential }
 
   // Track Firebase auth state and sync with backend
   useEffect(() => {
@@ -115,9 +121,9 @@ export function AuthProvider({ children }) {
   const signUpWithEmail = async (email, password, username) => {
     const credential = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(credential.user, { displayName: username })
-    const { user: dbUser } = await syncWithBackend(credential.user, username)
+    const { user: dbUser, isNew } = await syncWithBackend(credential.user, username)
     setUser(dbUser)
-    return dbUser
+    return { user: dbUser, isNew }
   }
 
   const signInWithEmail = async (email, password) => {
@@ -126,6 +132,45 @@ export function AuthProvider({ children }) {
     setUser(dbUser)
     return dbUser
   }
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider()
+    provider.setCustomParameters({ prompt: 'select_account' })
+    try {
+      const credential = await signInWithPopup(auth, provider)
+      const { user: dbUser, isNew } = await syncWithBackend(credential.user)
+      setUser(dbUser)
+      return { user: dbUser, isNew }
+    } catch (e) {
+      if (e.code === 'auth/account-exists-with-different-credential') {
+        setPendingLink({
+          email:      e.customData?.email || '',
+          credential: GoogleAuthProvider.credentialFromError(e),
+        })
+      }
+      throw e
+    }
+  }
+
+  const linkGoogleAccount = async (email, password) => {
+    const credential = await signInWithEmailAndPassword(auth, email, password)
+    if (pendingLink?.credential) {
+      try {
+        await linkWithCredential(credential.user, pendingLink.credential)
+      } catch (linkErr) {
+        // Linking failed (e.g. credential expired) but the user is authenticated —
+        // just proceed without linking rather than blocking login entirely.
+        console.warn('[Auth] Google link failed:', linkErr.code)
+      }
+    }
+    const { user: dbUser } = await syncWithBackend(credential.user)
+    setCurrentUser(dbUser.id)
+    setUser(dbUser)
+    setPendingLink(null)
+    return dbUser
+  }
+
+  const resetPassword = (email) => sendPasswordResetEmail(auth, email)
 
   const logout = async () => {
     await signOut(auth)
@@ -152,9 +197,16 @@ export function AuthProvider({ children }) {
       authFetch,
       signUpWithEmail,
       signInWithEmail,
+      signInWithGoogle,
       logout,
       refreshUser,
       setUser,
+      authError,
+      clearAuthError: () => setAuthError(null),
+      pendingLink,
+      linkGoogleAccount,
+      clearPendingLink: () => setPendingLink(null),
+      resetPassword,
     }}>
       {children}
     </AuthContext.Provider>

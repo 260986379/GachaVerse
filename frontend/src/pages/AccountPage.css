@@ -1172,6 +1172,39 @@
   line-height: 1.4;
 }
 
+/* ── Auth-loading skeleton ───────────────────────────────────── */
+@keyframes profile-shimmer {
+  0%   { background-position: -800px 0 }
+  100% { background-position:  800px 0 }
+}
+
+.profile-banner--skeleton {
+  background: #12101e;
+}
+
+.profile-skeleton__card,
+.profile-skeleton__section {
+  background: linear-gradient(90deg, #1a1828 25%, #242038 50%, #1a1828 75%);
+  background-size: 1600px 100%;
+  animation: profile-shimmer 1.8s infinite linear;
+  border-radius: 10px;
+}
+
+.profile-skeleton__card {
+  height: 360px;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.profile-skeleton__section {
+  height: 180px;
+  margin-bottom: 1rem;
+}
+
+.profile-skeleton__section--short {
+  height: 120px;
+}
+
 /* ── Loading state ───────────────────────────────────────────── */
 .ga-loading {
   margin: 0;

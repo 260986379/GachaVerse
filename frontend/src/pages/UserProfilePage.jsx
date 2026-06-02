@@ -434,7 +434,7 @@ function PublicGameAccountView({ game, profileUsername, onBack }) {
 export default function UserProfilePage() {
   const { username } = useParams()
   const navigate     = useNavigate()
-  const { user: me, isLoggedIn, loadingAuth, authFetch } = useAuth()
+  const { user: me, isLoggedIn, loadingAuth, authFetch, refreshUser } = useAuth()
 
   const [profile,      setProfile]      = useState(null)
   const [loading,      setLoading]      = useState(true)
@@ -564,6 +564,7 @@ export default function UserProfilePage() {
     const data = await res.json()
     setFollowing(data.following)
     setFollowCounts({ followers_count: data.followers_count, following_count: data.following_count })
+    refreshUser()
   }
 
   /* ── Guard states ── */

@@ -151,15 +151,13 @@ export default function MediaTab({ gameId, initialVideoId = null }) {
     setExpandedSection(null)
     fetch(`/api/games/${gameId}/media`)
       .then((r) => { if (!r.ok) throw new Error('Failed to load media'); return r.json() })
-      .then((data) => {
-        setItems(data)
+      .then((fetched) => {
+        setItems(fetched)
         setLoading(false)
-        // If navigated here from a notification, auto-open that video's player
         if (initialVideoId) {
-          const target = data.find(v => v.external_id === initialVideoId)
+          const target = fetched.find(v => v.external_id === initialVideoId)
           if (target) {
             setActive(target.id)
-            // Expand the section that contains this video so it's visible
             setExpandedSection(target.category)
           }
         }
