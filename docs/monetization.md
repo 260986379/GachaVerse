@@ -203,13 +203,13 @@ This only becomes viable once the dataset is large, maintained, and unique enoug
 
 ## Breakeven vs Running Costs
 
-From `running-costs.md`, the optimized setup costs:
+From `running-costs.md`, the current setup costs:
 
 | Traffic | Monthly costs | Realistic revenue | Profitable? |
 |---|---|---|---|
-| Low | $12–38 | $65–592 | Yes, even at the low end |
-| Medium | $52–121 | $1,550–5,037 | Comfortably profitable |
-| High | $172–462 | $7,750–24,330 | Strongly profitable |
+| Low | $8–28 | $65–592 | Yes, even at the low end |
+| Medium | $47–109 | $1,550–5,037 | Comfortably profitable |
+| High | $160–431 | $7,750–24,330 | Strongly profitable |
 
 The platform covers its costs even at low traffic with a handful of VIP subscribers and donations.
 
