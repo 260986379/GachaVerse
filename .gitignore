@@ -16,6 +16,9 @@ backend/.env
 frontend/dist/
 frontend/build/
 
+# Firebase local cache
+.firebase/
+
 # Claude Code local memory
 .claude/
 

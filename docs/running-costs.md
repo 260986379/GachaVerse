@@ -32,9 +32,7 @@
 
 ### Google Cloud Run
 
-**Currently:** `ingestionScheduler.js` runs `setInterval` loops inside the Express process for YouTube ingestion (every 1h) and banner sync (every 6h). This forces `min-instances=1` and CPU-always-allocated — the container bills 24/7 regardless of actual user traffic.
-
-**Optimized:** Scheduler is extracted to Cloud Scheduler + Cloud Tasks (see below). Cloud Run reverts to the default request-based CPU model and scales to zero when idle. It only serves API requests — static frontend files are no longer routed through it.
+`ingestionScheduler.js` is a no-op in production — YouTube ingestion is triggered externally by Cloud Scheduler + Cloud Tasks (see below). Cloud Run runs on the default request-based CPU model and scales to zero when idle, only billing during active API requests.
 
 - vCPU: $0.000024/second (first 180k free/month)
 - Memory: $0.0000025/GiB-second (first 360k free/month)
@@ -46,7 +44,7 @@ At low traffic the instance sits at zero most of the time. At high traffic, inst
 
 ### PostgreSQL Database
 
-**Currently / Optimized:** No change to the database itself — it stays on Cloud SQL (or an external provider) connected via `DATABASE_URL`. The optimized setup does not affect the DB tier needed.
+No change to the database itself — it stays on Cloud SQL (or an external provider) connected via `DATABASE_URL`.
 
 | Tier | RAM | Use case | Monthly |
 |---|---|---|---|
@@ -62,7 +60,7 @@ Cheaper alternatives: **Neon** free tier (0.5 GB, $0 → $19/month Pro) or **Sup
 
 ### YouTube Data API v3 *(free)*
 
-**Currently / Optimized:** The API calls themselves are unchanged — same `playlistItems` + `videos?part=statistics` pattern, same hourly cadence, same 5 game channels. The only difference is *what triggers* the ingestion (see Cloud Scheduler below). API cost stays at $0.
+API calls are unchanged — same `playlistItems` + `videos?part=statistics` pattern, same hourly cadence, same 5 game channels. The only difference is what triggers the ingestion (Cloud Scheduler — see below). API cost stays at $0.
 
 Ingestion uses `playlistItems` (1 unit/page) + `videos?part=statistics` (1 unit per 50 IDs). Free quota: **10,000 units/day**.
 
@@ -78,15 +76,13 @@ Currently using ~2.4% of the daily quota. Free unless many more games are added.
 
 ### Twitter/X API v2
 
-**Currently:** `twitterIngestionService.js` is wired up and would call the Recent Search endpoint for ZZZ and NIKKE if a valid `TWITTER_BEARER_TOKEN` is set. The minimum usable tier is Basic at $100/month.
-
-**Optimized:** Bearer token left as a placeholder. The ingestion code remains in the codebase but never executes. Cost: $0.
+`twitterIngestionService.js` is wired up but never executes — bearer token is left as a placeholder. The minimum usable tier is Basic at $100/month. Cost: $0.
 
 ---
 
 ### Firebase Authentication *(free)*
 
-**Currently / Optimized:** No change. Already using Firebase Auth for Email/Password and Google OAuth. Both are free at all realistic MAU levels.
+Using Firebase Auth for Email/Password and Google OAuth. Both are free at all realistic MAU levels.
 
 | MAU | Cost |
 |---|---|
@@ -99,46 +95,41 @@ No realistic cost unless SMS phone auth is added ($0.006/verification).
 
 ### Google Cloud Build
 
-**Currently / Optimized:** No change. `cloudbuild.yaml` uses `E2_HIGHCPU_8` (8-vCPU machine), which multiplies build-minute consumption by 8×. Free tier covers ~450 real build-minutes/month; beyond that $0.034/build-minute. Typical dev cadence: **$0–5/month**.
+`cloudbuild.yaml` uses `E2_HIGHCPU_8` (8-vCPU machine), which multiplies build-minute consumption by 8×. Free tier covers ~450 real build-minutes/month; beyond that $0.034/build-minute. Each build now includes the frontend Vite build + Firebase Hosting deploy in addition to the Docker image build. Typical dev cadence: **$0–5/month**.
 
 ---
 
 ### Google Artifact Registry
 
-**Currently / Optimized:** No change. Docker image (~200–400 MB) stored at $0.10/GB/month. Egress within the same region is free. **< $1/month**.
+Docker image (~200–400 MB, backend only — frontend is no longer bundled in the container) stored at $0.10/GB/month. Egress within the same region is free. **< $1/month**.
 
 ---
 
 ### Network Egress (Cloud Run)
 
-**Currently:** Cloud Run serves everything — API responses and all frontend static assets (HTML, JS bundles, CSS, game data JSON). Every page load bills egress.
-
-**Optimized:** Cloud Run only serves API responses. Static assets are offloaded to Firebase Hosting. Egress volume drops significantly at all traffic levels.
+Cloud Run serves only API responses. All static frontend assets (HTML, JS bundles, CSS, game data) are served from Firebase Hosting. Egress from Cloud Run is limited to JSON API responses only.
 
 Pricing: first 1 GB/month free, then $0.08/GB (US regions to internet).
 
 ---
 
-### Cloud Scheduler + Cloud Tasks *(new in optimized setup)*
+### Cloud Scheduler + Cloud Tasks
 
-**Currently:** Does not exist — background jobs run as `setInterval` loops inside the Express process.
+One Cloud Scheduler job replaces the in-process `setInterval` timer:
+- YouTube ingestion: fires hourly → calls `POST /internal/schedule/youtube` on Cloud Run → enqueues 5 Cloud Tasks (one per game channel) → each task calls `POST /internal/tasks/ingest/youtube`
 
-**Optimized:** Two Cloud Scheduler jobs replace the in-process timers:
-- YouTube ingestion: fires hourly, enqueues 5 Cloud Tasks (one per game channel)
-- Banner sync: fires every 6 hours, enqueues 1 Cloud Task
+Cloud Run exposes internal handler endpoints that each Task calls. This decouples the scheduler lifetime from the web server entirely and allows Cloud Run to scale to zero.
 
-Cloud Run exposes internal handler endpoints that each Task calls. This decouples the scheduler lifetime from the web server entirely.
-
-- Cloud Scheduler: first 3 jobs/month free → **$0**
-- Cloud Tasks: ~3,600 tasks/month → ~$0.0015 → **< $1**
+- Cloud Scheduler: 1 job → **$0** (first 3 jobs free)
+- Cloud Tasks: ~3,600 tasks/month (5 games × 720 fires) → ~$0.0015 → **< $1**
 
 ---
 
-### Firebase Hosting *(new in optimized setup)*
+### Firebase Hosting
 
-**Currently:** Does not exist — the Dockerfile copies the Vite build output into the container (`COPY --from=frontend-build /frontend/dist ./frontend/dist`) and Express serves it as static files in production via `app.use(express.static(distPath))`.
+The frontend build is deployed separately to Firebase Hosting via `firebase deploy --only hosting`, which serves assets from a global CDN. The Express static file middleware and the frontend build stage in the Dockerfile have been removed, shrinking the container image and eliminating all static-asset request handling from Cloud Run.
 
-**Optimized:** The frontend build is deployed separately to Firebase Hosting, which serves assets from a global CDN. The Express static file middleware and the `COPY --from=frontend-build` step in the Dockerfile can be removed, shrinking the container image and eliminating all static-asset request handling from Cloud Run.
+All `/api/**` requests from the frontend are rewritten by Firebase Hosting to the Cloud Run service — the backend URL is never exposed directly to users.
 
 First 10 GB/month transfer free, then $0.15/GB.
 
@@ -152,4 +143,4 @@ First 10 GB/month transfer free, then $0.15/GB.
 
 ### Google Cloud Logging *(free)*
 
-**Currently / Optimized:** No change. First 50 GiB/month ingested free. Unlikely to exceed this at any realistic traffic level. **$0–5/month**.
+First 50 GiB/month ingested free. Unlikely to exceed this at any realistic traffic level. **$0–5/month**.

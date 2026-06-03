@@ -25,6 +25,8 @@ function SpotlightHero({ games }) {
     const container = document.createElement('div')
     wrap.appendChild(container)
 
+    let unmuteListener = null
+
     loadYTApi(() => {
       if (!wrap.isConnected) return
       playerRef.current = new window.YT.Player(container, {
@@ -33,7 +35,13 @@ function SpotlightHero({ games }) {
         videoId: games[0].youtubeId,
         playerVars: { autoplay: 1, mute: 1, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
         events: {
-          onReady: (e) => { e.target.playVideo(); e.target.unMute(); e.target.setVolume(10) },
+          onReady: (e) => {
+            e.target.playVideo()
+            // Browsers block unmuting on first page load without a user gesture.
+            // Defer unmute until the first click anywhere on the page.
+            unmuteListener = () => { e.target.unMute(); e.target.setVolume(10) }
+            document.addEventListener('click', unmuteListener, { once: true })
+          },
           onStateChange: (e) => {
             if (e.data === window.YT.PlayerState.ENDED) {
               setIndex(i => (i + 1) % games.length)
@@ -43,7 +51,12 @@ function SpotlightHero({ games }) {
       })
     })
 
-    return () => { playerRef.current?.destroy(); playerRef.current = null; container.remove() }
+    return () => {
+      if (unmuteListener) document.removeEventListener('click', unmuteListener)
+      playerRef.current?.destroy()
+      playerRef.current = null
+      container.remove()
+    }
   }, [])
 
   // Load the new video when index changes (skip on first render)
