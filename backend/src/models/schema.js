@@ -160,24 +160,6 @@ const ALTER_MEDIA_CONTENT_ADD_TAGS = `
   ALTER TABLE media_content ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
 `;
 
-const CREATE_GAME_BANNERS = `
-  CREATE TABLE IF NOT EXISTS game_banners (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    game_id UUID NOT NULL REFERENCES games(id) ON DELETE CASCADE,
-    name VARCHAR(500) NOT NULL,
-    banner_type VARCHAR(50) DEFAULT 'Character',
-    starts_at TIMESTAMP,
-    ends_at TIMESTAMP NOT NULL,
-    is_manual BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE (game_id, name, ends_at)
-  );
-`;
-
-const ALTER_GAME_BANNERS_ADD_IMAGE_URL = `
-  ALTER TABLE game_banners ADD COLUMN IF NOT EXISTS image_url VARCHAR(500);
-`;
-
 // ── User social graph ──────────────────────────────────────────────────────
 const ALTER_USERS_ADD_FIREBASE_UID = `
   ALTER TABLE users ADD COLUMN IF NOT EXISTS firebase_uid VARCHAR(255) UNIQUE;
@@ -431,8 +413,6 @@ const ALL_TABLES = [
   ALTER_MEDIA_CONTENT_ADD_TAGS,
   CREATE_INGESTION_LOGS,
   ALTER_INGESTION_LOGS_ADD_MESSAGE,
-  CREATE_GAME_BANNERS,
-  ALTER_GAME_BANNERS_ADD_IMAGE_URL,
   CREATE_USER_FAVORITE_VIDEOS,
   CREATE_BOARD_COMMENTS,
   CREATE_USER_FAVORITE_CHARACTERS,

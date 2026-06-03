@@ -4,7 +4,7 @@ const ZZZ = {
   name: "Zenless Zone Zero",
   slug: "zenless-zone-zero",
   description:
-    "A stylish action RPG set in New Eridu, humanity's last urban sanctuary against the supernatural Hollow invasion.",
+    "A stylish action RPG set in New Eridu, humanity's last urban sanctuary against the supernatural Hollow disaster.",
   developer: "HoYoverse",
   publisher: "HoYoverse",
   release_date: "2024-07-04",
@@ -18,7 +18,7 @@ const NIKKE = {
   name: "NIKKE: Goddess of Victory",
   slug: "nikke",
   description:
-    "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from alien invaders.",
+    "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from mechanical invaders.",
   developer: "Shift Up",
   publisher: "Level Infinite",
   release_date: "2022-11-04",

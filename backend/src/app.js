@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const morgan = require('morgan');
 const corsMiddleware = require('./middleware/cors');
 const errorHandler = require('./middleware/errorHandler');
@@ -17,6 +16,7 @@ const notificationRoutes  = require('./routes/notificationRoutes');
 const reviewRoutes        = require('./routes/reviewRoutes');
 const reportRoutes        = require('./routes/reportRoutes');
 const suggestionRoutes    = require('./routes/suggestionRoutes');
+const internalRoutes      = require('./routes/internalRoutes');
 
 const app = express();
 
@@ -153,14 +153,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews',       reviewRoutes);
 app.use('/api/reports',       reportRoutes);
 app.use('/api/suggestions',   suggestionRoutes);
+app.use('/internal',          internalRoutes);
 
 app.use(errorHandler);
-
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.join(__dirname, '../frontend/dist');
-  app.use(express.static(distPath));
-  app.get('/{*splat}', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
-}
 
 module.exports = app;

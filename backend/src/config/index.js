@@ -21,4 +21,11 @@ module.exports = {
   GENSHIN_YOUTUBE_CHANNEL_ID: process.env.GENSHIN_YOUTUBE_CHANNEL_ID || 'UCiS882YPwZt1NfaM0gR0D9Q',
   WW_YOUTUBE_CHANNEL_ID: process.env.WW_YOUTUBE_CHANNEL_ID || 'UC0Bi5KMcECRVYis5Gb_ZYZQ',
   HSR_YOUTUBE_CHANNEL_ID: process.env.HSR_YOUTUBE_CHANNEL_ID || 'UC2PeMPA8PAOp-bynLoCeMLA',
+
+  // Cloud Scheduler + Cloud Tasks (production ingestion)
+  TASK_SECRET:        process.env.TASK_SECRET        || '',
+  GCP_PROJECT:        process.env.GCP_PROJECT        || '',
+  GCP_LOCATION:       process.env.GCP_LOCATION       || 'us-central1',
+  CLOUD_TASKS_QUEUE:  process.env.CLOUD_TASKS_QUEUE  || 'youtube-ingestion',
+  CLOUD_RUN_URL:      process.env.CLOUD_RUN_URL      || '',
 };

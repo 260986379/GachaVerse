@@ -1,4 +1,5 @@
 steps:
+  # Build and push the backend Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -7,6 +8,20 @@ steps:
       - '-t'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/gachaverse/app:latest'
       - '.'
+
+  # Build the frontend
+  - name: 'node:20-alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - 'cd frontend && npm ci && npm run build'
+
+  # Deploy frontend to Firebase Hosting
+  - name: 'node:20-alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - 'npm install -g firebase-tools && firebase deploy --only hosting --project $PROJECT_ID'
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/gachaverse/app:latest'

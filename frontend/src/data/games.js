@@ -18,7 +18,7 @@ export const GAMES = [
     bannerImage: "/banners/zzz-banner.png",
     bannerPosition: "center center",
     description:
-      "A stylish action RPG set in New Eridu, humanity's last urban sanctuary against the supernatural Hollow invasion.",
+      "A stylish action RPG set in New Eridu, humanity's last urban sanctuary against the supernatural Hollow disaster.",
     events: [],
     officialPlatforms: [
       { name: 'Official Website', url: 'https://zenless.hoyoverse.com/en-us/main', type: 'website' },
@@ -36,14 +36,14 @@ export const GAMES = [
     platform: "iOS, Android, PC",
     released: "Nov 4, 2022",
     status: "Live",
-    rating: "Mature 17+",
+    rating: "Teen",
     modes: "Single-player",
     tags: ["Shooter", "Sci-Fi", "Post-Apocalyptic"],
     color1: "#991b1b",
     color2: "#0f0505",
     youtubeId: "6lRHrO2rfPA",
     description:
-      "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from alien invaders.",
+      "Command a squad of Nikkes — humanoid weapons — to reclaim a post-apocalyptic world from mechanical invaders.",
     events: [],
     officialPlatforms: [
       { name: 'Official Website', url: 'https://nikke-en.com/', type: 'website' },

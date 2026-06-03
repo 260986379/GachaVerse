@@ -321,92 +321,6 @@
   width: 100%;
 }
 
-.news-feed__banners {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-.news-feed__banner-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.news-feed__banner-title {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #777;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.news-feed__banner-empty {
-  font-size: 0.8rem;
-  color: #444;
-  margin: 0;
-}
-
-.banner-card {
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 8px;
-}
-
-.banner-card + .banner-card {
-  margin-top: 0.5rem;
-}
-
-.banner-card__image {
-  width: 100%;
-  aspect-ratio: 16 / 7;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
-}
-
-.banner-card__info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.7rem 0.9rem;
-}
-
-.banner-card__type {
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 0.1rem 0.4rem;
-  border-radius: 3px;
-  align-self: flex-start;
-}
-
-.banner-card__type--character { background: rgba(99, 102, 241, 0.18); color: #a5b4fc; }
-.banner-card__type--limited   { background: rgba(234, 179, 8, 0.15);  color: #fcd34d; }
-.banner-card__type--weapon    { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-.banner-card__type--bangboo   { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
-.banner-card__type--standard  { background: rgba(156, 163, 175, 0.12); color: #d1d5db; }
-
-.banner-card__name {
-  margin: 0;
-  font-size: 0.82rem;
-  color: #e2e8f0;
-  line-height: 1.4;
-  font-weight: 500;
-}
-
-.banner-card__timer {
-  font-size: 0.7rem;
-  color: #6b7280;
-}
-
-
 
 /* ── Media Tab ─────────────────────────────────────────── */
 
@@ -1466,10 +1380,6 @@
   border-radius: 4px;
 }
 
-.game-event-card__type--limited-banner {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-}
 
 .game-event-card__type--story-event {
   background: rgba(96, 165, 250, 0.15);
