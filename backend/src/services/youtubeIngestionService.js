@@ -150,7 +150,6 @@ const ingestVideosForGame = async (gameSlug, channelId, { forceBackfill = false 
          VALUES ($1,$2,$3,'YouTube',$4,$5,$6,$7,$8,TRUE,'published',$9)
          ON CONFLICT (external_id) DO UPDATE
            SET category      = EXCLUDED.category,
-               title         = EXCLUDED.title,
                thumbnail_url = EXCLUDED.thumbnail_url,
                view_count    = EXCLUDED.view_count`,
         [gameId, title, description, videoId, sourceUrl, thumbnailUrl, snippet.publishedAt, category, viewCount]

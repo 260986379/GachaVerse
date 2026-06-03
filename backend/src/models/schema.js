@@ -160,6 +160,10 @@ const ALTER_MEDIA_CONTENT_ADD_TAGS = `
   ALTER TABLE media_content ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
 `;
 
+const ALTER_MEDIA_CONTENT_ADD_HIGHLIGHT_START = `
+  ALTER TABLE media_content ADD COLUMN IF NOT EXISTS highlight_start INTEGER;
+`;
+
 // ── User social graph ──────────────────────────────────────────────────────
 const ALTER_USERS_ADD_FIREBASE_UID = `
   ALTER TABLE users ADD COLUMN IF NOT EXISTS firebase_uid VARCHAR(255) UNIQUE;
