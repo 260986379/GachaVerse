@@ -12,7 +12,7 @@
 
 | Cost source | Low traffic | Medium traffic | High traffic |
 |---|---|---|---|
-| Cloud Run | $5–20 | $25–80 | $60–200 |
+| Cloud Run | $1–10 | $20–70 | $50–180 |
 | PostgreSQL | $7–15 | $25–30 | $100–200 |
 | YouTube API | $0 | $0 | $0 |
 | Firebase Auth | $0 | $0 | $0 |
@@ -21,8 +21,8 @@
 | Cloud Run egress | < $1 | < $1 | $2–10 |
 | Cloud Scheduler | $0 | $0 | $0 |
 | Cloud Tasks | < $1 | < $1 | < $1 |
-| Firebase Hosting | $0 | $0–5 | $5–35 |
-| **Total** | **$12–38** | **$52–121** | **$172–462** |
+| Firebase Hosting | $0 | $0–3 | $3–25 |
+| **Total** | **$8–28** | **$47–109** | **$160–431** |
 
 > Traffic tiers: Low = < 1,000 MAU / < 10k page views/day · Medium = 1,000–10,000 MAU / 50k–200k page views/day · High = 10,000+ MAU / 500k+ page views/day
 
@@ -32,7 +32,7 @@
 
 ### Google Cloud Run
 
-`ingestionScheduler.js` is a no-op in production — YouTube ingestion is triggered externally by Cloud Scheduler + Cloud Tasks (see below). Cloud Run runs on the default request-based CPU model and scales to zero when idle, only billing during active API requests.
+`ingestionScheduler.js` is a no-op in production — YouTube ingestion is triggered externally by Cloud Scheduler + Cloud Tasks (see below). Cloud Run is configured with `--min-instances=0` and `--cpu-throttling`, so it scales to zero when idle and only bills during active API requests.
 
 - vCPU: $0.000024/second (first 180k free/month)
 - Memory: $0.0000025/GiB-second (first 360k free/month)
