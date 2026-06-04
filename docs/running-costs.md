@@ -2,7 +2,7 @@
 
 > Last updated: June 2026
 
-**Stack:** Google Cloud Run · PostgreSQL (Cloud SQL or external) · Firebase Auth · Firebase Hosting · YouTube Data API v3 · Google Cloud Build · Artifact Registry · Cloud Scheduler · Cloud Tasks
+**Stack:** Google Cloud Run · Neon (PostgreSQL) · Firebase Auth · Firebase Hosting · YouTube Data API v3 · Google Cloud Build · Artifact Registry · Cloud Scheduler · Cloud Tasks
 
 **Assumptions:** Twitter ingestion disabled · YouTube scheduler runs via Cloud Scheduler + Cloud Tasks · Frontend served from Firebase Hosting
 
@@ -13,7 +13,7 @@
 | Cost source | Low traffic | Medium traffic | High traffic |
 |---|---|---|---|
 | Cloud Run | $1–10 | $20–70 | $50–180 |
-| PostgreSQL | $7–15 | $25–30 | $100–200 |
+| Neon (PostgreSQL) | $0 | $19–69 | $69–200 |
 | YouTube API | $0 | $0 | $0 |
 | Firebase Auth | $0 | $0 | $0 |
 | Cloud Build | $0–2 | $2–5 | $5–15 |
@@ -22,7 +22,7 @@
 | Cloud Scheduler | $0 | $0 | $0 |
 | Cloud Tasks | < $1 | < $1 | < $1 |
 | Firebase Hosting | $0 | $0–3 | $3–25 |
-| **Total** | **$8–28** | **$47–109** | **$160–431** |
+| **Total** | **$1–13** | **$41–148** | **$129–431** |
 
 > Traffic tiers: Low = < 1,000 MAU / < 10k page views/day · Medium = 1,000–10,000 MAU / 50k–200k page views/day · High = 10,000+ MAU / 500k+ page views/day
 
@@ -42,19 +42,19 @@ At low traffic the instance sits at zero most of the time. At high traffic, inst
 
 ---
 
-### PostgreSQL Database
+### Neon (PostgreSQL)
 
-No change to the database itself — it stays on Cloud SQL (or an external provider) connected via `DATABASE_URL`.
+Serverless PostgreSQL connected via `DATABASE_URL`. Scales to zero between requests — no idle compute cost. Branching is built-in, which makes preview deploys and staging environments cheap.
 
-| Tier | RAM | Use case | Monthly |
+| Plan | Storage | Compute hours included | Monthly |
 |---|---|---|---|
-| db-f1-micro | 614 MB | Low traffic / dev | ~$7 |
-| db-g1-small | 1.7 GB | Medium traffic | ~$26 |
-| db-n1-standard-2 | 7.5 GB | High traffic | ~$100 |
-| + Storage | — | $0.17/GB/month | ~$0–5 |
-| + HA failover | — | Doubles compute cost | +$7–100 |
+| Free | 0.5 GB | 191.9 hrs (~0.25 CU continuous) | $0 |
+| Launch | 10 GB | 300 hrs, then $0.16/CU-hr | $19 |
+| Scale | 50 GB | 750 hrs, then $0.16/CU-hr | $69 |
 
-Cheaper alternatives: **Neon** free tier (0.5 GB, $0 → $19/month Pro) or **Supabase** free tier (500 MB, $0 → $25/month Pro). Either can bring the low-traffic DB cost to $0.
+- **Low traffic:** Free tier is sufficient (< 0.5 GB data, light query load). $0.
+- **Medium traffic:** Launch plan covers most cases; Scale if query volume spikes. $19–69.
+- **High traffic:** Scale plan as baseline; overages accrue at $0.16/CU-hour. $69–200.
 
 ---
 
