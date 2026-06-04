@@ -26,6 +26,7 @@ const TIMESTAMPS = {
   HLv8Dz8t6Hk: 114, // "Turn Heartbeats Into Tempo" - Angels of Delusion EP | Zenless Zone Zero
   "9Lshum4Peqw": 88, // Ye Shunguang EP - "A Thousand First Meetings" | Zenless Zone Zero
   xFnc00wpAPg: 33, // Burnice EP – "Burning Desires" | Zenless Zone Zero
+  "TZvfPRf1-i4": 60, // Tsukishiro Yanagi EP – "Rest Awhile" | Zenless Zone Zero
 
   /// WUWA
   uLMSVstf6zo: 75, // Wuthering Waves EP 1.1
@@ -38,11 +39,16 @@ const TIMESTAMPS = {
   nvXcM1UAK9M: 40, // Wuthering Waves Fleet Snowfluff EP — "Fallen Petals"
   _GXI_zz1IOM: 58, // Fleet Snowfluff's Memories | Practice Time
   U9t9eNGQmrg: 54, // Wuthering Waves EP2.8 — Chisa - "Slashing Bloom"
+  h2mExeCBKVQ: 34, // Wuthering Waves EP3.3 — Denia - "Dasvidaniya"
+  887Hr8i3gGE: 60, // Wuthering Waves EP1.4 | A Million Possibilities
 
   /// HSR
   J9wcfTVUZNE: 90, // EP: Of Snow and Ember | Honkai: Star Rail
   fao9fjeAGEI: 40, // Honkai: Star Rail EP: Allegory of the Cave
   byA4ep5AEkw: 190, // Honkai: Star Rail Concert 2025: "Take the Journey"
+  loWA5o1RdTY: 60, // Honkai: Star Rail EP: Proi Proi
+  "J-cn3BPK2cw": 30, // EP: The Flapper Sinthome (Part 1) | Honkai: Star Rail
+  lGBrJXoRAqk: 99, // "Star Rail LIVE 2024" Concert Full Recording | Honkai: Star Rail
 
   /// NIKKE
   "Z-oRFYVCpms": 55, // GODDESS OF VICTORY: NIKKE | SEA, YOU, AGAIN Theme Song 「SO PLAYFUL」 - Full Ver.
@@ -67,6 +73,8 @@ const TIMESTAMPS = {
   IyifbAqHqBs: 69, // GODDESS OF VICTORY: NIKKE | Summer Seaside BGM
   NSUMoCXrSzY: 60, // GODDESS OF VICTORY: NIKKE | Nikke BGM - Modernia 「White Shirt」 - Full Ver.
   nNU83pAA9Y4: 58, // GODDESS OF VICTORY: NIKKE | NEW YEAR, NEW SWORD Theme Song Full Ver.
+  "5dCDOIz-Mwg": 14, // GODDESS OF VICTORY: NIKKE | OVER THE HORIZON Story Event BGM 「ASTRONAUT AIRLINES」 - Full Ver.
+  "RZsJ2E-ewP4": 73, // GODDESS OF VICTORY: NIKKE | KILL THE LORD Story Event BGM 「KILL THE LORD」 Full Ver.
 };
 // ─────────────────────────────────────────────────────────────────────────────
 

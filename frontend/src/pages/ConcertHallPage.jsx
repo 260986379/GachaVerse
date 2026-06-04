@@ -299,7 +299,7 @@ function GameOverScreen({ score, total, onPlayAgain, onExit }) {
 
 /* ── Game session ────────────────────────────────────────── */
 
-const GUESS_TIME = 20
+const GUESS_TIME = 30
 
 function GameSession({ config, onExit, onPlayAgain }) {
   const [videos,      setVideos]      = useState(null)
@@ -310,7 +310,7 @@ function GameSession({ config, onExit, onPlayAgain }) {
   const [score,       setScore]       = useState(0)
   const [roundResult, setRoundResult] = useState(null)
   const [guessTimer,  setGuessTimer]  = useState(GUESS_TIME)
-  const [revealCount, setRevealCount] = useState(20)
+  const [revealCount, setRevealCount] = useState(GUESS_TIME)
 
   const playerWrapRef  = useRef(null)
   const playerRef      = useRef(null)
@@ -420,7 +420,7 @@ function GameSession({ config, onExit, onPlayAgain }) {
   function endRound(result) {
     setScore(s => s + result.points)
     setRoundResult(result)
-    setRevealCount(20)
+    setRevealCount(GUESS_TIME)
     setPhase('reveal')
   }
 

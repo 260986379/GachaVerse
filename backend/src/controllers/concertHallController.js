@@ -58,7 +58,7 @@ const getVideos = async (req, res, next) => {
         AND mc.title        IS NOT NULL
         AND mc.external_id  != ALL(${excludeIdx})
         ${gameFilter}
-      ORDER BY -LN(RANDOM()) / LN(COALESCE(mc.view_count, 0)::float + 2)
+      ORDER BY RANDOM()
       LIMIT ${limitIdx}
     `, params)
 
