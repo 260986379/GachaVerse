@@ -330,8 +330,8 @@ export default function ExplorePage() {
       {trendingGames.length > 0 && <SpotlightHero games={trendingGames} />}
       <div className="explore-content">
         {trendingGames.length > 0 && <TrendingRow games={trendingGames} />}
-        <MinigamesSection />
         <GamesListSection />
+        <MinigamesSection />
         <CommunitySection />
       </div>
     </div>

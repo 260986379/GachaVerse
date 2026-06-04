@@ -54,7 +54,12 @@ const GAME_ATTRIB_RE = /^(?:honkai[\s:]+star rail|zenless zone zero|wuthering wa
 // Pull the actual track name from a video title using multiple strategies
 function extractTrackName(title) {
   // 1. Quoted / bracketed text — most reliable
-  const quoted = [/"([^"]{2,})"/, /「([^」]{2,})」/, /"([^"]{2,})"/]
+  // For 「」, scan all matches and skip ones that are just a game name attribution
+  const kakkoMatches = [...title.matchAll(/「([^」]{2,})」/g)].map(m => m[1].trim())
+  const trackKakko = kakkoMatches.find(m => !GAME_ATTRIB_RE.test(m))
+  if (trackKakko) return trackKakko
+
+  const quoted = [/"([^"]{2,})"/, /"([^"]{2,})"/, /''([^']{2,})''/]
   for (const p of quoted) {
     const m = title.match(p)
     if (m) return m[1].trim()
@@ -465,7 +470,7 @@ function GameSession({ config, onExit, onPlayAgain }) {
   }
 
   return (
-    <div className="ch-session">
+    <div className={`ch-session${phase === 'reveal' ? ' ch-session--reveal' : ''}`}>
 
       <header className="ch-session__header">
         <RoundIndicator current={roundIndex + 1} total={totalRounds} />

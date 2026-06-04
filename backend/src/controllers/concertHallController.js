@@ -1,5 +1,10 @@
 const { query } = require('../config/db')
 
+// Videos manually excluded from Concert Hall (previews, teasers, non-playable clips)
+const EXCLUDED_IDS = new Set([
+  '1JxIfrgk0mM', // NIKKE 2.5th Anniversary Theme Song Preview
+])
+
 /**
  * GET /api/concert-hall/videos
  * Returns weighted-random Music-category videos for a Concert Hall session.
@@ -33,6 +38,9 @@ const getVideos = async (req, res, next) => {
     params.push(limit)
     const limitIdx = `$${params.length}`
 
+    params.push([...EXCLUDED_IDS])
+    const excludeIdx = `$${params.length}`
+
     const { rows } = await query(`
       SELECT
         mc.id,
@@ -48,6 +56,7 @@ const getVideos = async (req, res, next) => {
         AND mc.category     IN ('Music', 'Opening')
         AND mc.external_id  IS NOT NULL
         AND mc.title        IS NOT NULL
+        AND mc.external_id  != ALL(${excludeIdx})
         ${gameFilter}
       ORDER BY -LN(RANDOM()) / LN(COALESCE(mc.view_count, 0)::float + 2)
       LIMIT ${limitIdx}

@@ -5,6 +5,11 @@
   display: flex;
   flex-direction: column;
   background: #0a0a12;
+  transition: background 0.6s ease;
+}
+
+.ch-session--reveal {
+  background: #0e0818;
 }
 
 /* Header */
@@ -94,23 +99,28 @@
 /* ── Ambient glow ───────────────────────────────────────── */
 
 @keyframes ch-ambient-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ch-ambient-pulse {
+  0%, 100% { opacity: 0.88; }
+  50%       { opacity: 1; }
 }
 
 .ch-ambient {
   position: absolute;
-  top: -48px;
-  left: -48px;
-  right: -48px;
-  bottom: -48px;
+  top: -90px;
+  left: -90px;
+  right: -90px;
+  bottom: -90px;
   background-size: cover;
   background-position: center;
-  filter: blur(55px) brightness(0.5) saturate(2);
-  border-radius: 50%;
+  filter: blur(48px) brightness(0.75) saturate(3.5);
+  border-radius: 18%;
   pointer-events: none;
   z-index: 0;
-  animation: ch-ambient-in 0.7s ease;
+  animation: ch-ambient-in 0.6s ease forwards, ch-ambient-pulse 4s ease-in-out 0.6s infinite;
 }
 
 /* ── Player wrap ────────────────────────────────────────── */
