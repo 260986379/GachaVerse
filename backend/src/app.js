@@ -17,6 +17,7 @@ const reviewRoutes        = require('./routes/reviewRoutes');
 const reportRoutes        = require('./routes/reportRoutes');
 const suggestionRoutes    = require('./routes/suggestionRoutes');
 const internalRoutes      = require('./routes/internalRoutes');
+const concertHallRoutes   = require('./routes/concertHallRoutes');
 
 const app = express();
 
@@ -154,6 +155,7 @@ app.use('/api/reviews',       reviewRoutes);
 app.use('/api/reports',       reportRoutes);
 app.use('/api/suggestions',   suggestionRoutes);
 app.use('/internal',          internalRoutes);
+app.use('/api/concert-hall',  concertHallRoutes);
 
 app.use(errorHandler);
 

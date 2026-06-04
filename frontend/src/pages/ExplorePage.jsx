@@ -156,6 +156,53 @@ function TrendingRow({ games }) {
   )
 }
 
+const MINIGAMES = [
+  {
+    id: 'concert-hall',
+    name: 'Concert Hall',
+    label: 'Music Minigame',
+    icon: '🎵',
+    gradient: 'linear-gradient(135deg, #1a0533 0%, #2d0a5a 40%, #0d1a4a 100%)',
+    path: '/minigame/concert-hall',
+  },
+  {
+    id: 'gachafufu',
+    name: 'Gachafufu',
+    label: 'Gacha Minigame',
+    icon: '🎰',
+    gradient: 'linear-gradient(135deg, #2a0a1e 0%, #5a1a2d 40%, #3a1a00 100%)',
+    path: '/minigame/gachafufu',
+  },
+]
+
+function MinigameCard({ game }) {
+  const navigate = useNavigate()
+  return (
+    <div className="minigame-card" onClick={() => navigate(game.path)}>
+      <div className="minigame-card__bg" style={{ background: game.gradient }} />
+      <div className="minigame-card__overlay" />
+      <span className="minigame-card__icon">{game.icon}</span>
+      <div className="minigame-card__footer">
+        <span className="minigame-card__label">{game.label}</span>
+        <p className="minigame-card__name">{game.name}</p>
+      </div>
+    </div>
+  )
+}
+
+function MinigamesSection() {
+  return (
+    <section className="trending-section">
+      <div className="section-header">
+        <h2 className="section-title">Minigames</h2>
+      </div>
+      <div className="minigames-row">
+        {MINIGAMES.map(g => <MinigameCard key={g.id} game={g} />)}
+      </div>
+    </section>
+  )
+}
+
 const GAMES_LIST_IDS = ['zenless-zone-zero', 'nikke', 'genshin-impact', 'honkai-star-rail', 'wuthering-waves']
 
 function GamesListSection() {
@@ -284,6 +331,7 @@ export default function ExplorePage() {
       <div className="explore-content">
         {trendingGames.length > 0 && <TrendingRow games={trendingGames} />}
         <GamesListSection />
+        <MinigamesSection />
         <CommunitySection />
       </div>
     </div>

@@ -166,6 +166,7 @@ export default function AuthModal({ onClose, defaultTab = 'login' }) {
                 </svg>
                 Continue with Google
               </button>
+              <p className="auth-google-hint">Will open in a pop-up window</p>
 
               <div className="auth-divider"><span>or</span></div>
 
