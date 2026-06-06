@@ -286,3 +286,42 @@
   border-color: rgba(239, 68, 68, 0.35);
   color: #fecaca;
 }
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .settings-header {
+    padding: 1.25rem 1rem 1rem;
+  }
+
+  .settings-body {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.25rem 1rem 0;
+    gap: 1.25rem;
+  }
+
+  /* Vertical sidebar → horizontal tab row */
+  .settings-nav {
+    width: 100%;
+    flex-direction: row;
+    position: static;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    padding: 0.35rem;
+  }
+
+  .settings-nav__item {
+    flex: 1;
+    text-align: center;
+    font-size: 0.84rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  /* Full-width save buttons on mobile */
+  .settings-btn {
+    align-self: stretch;
+    text-align: center;
+  }
+}

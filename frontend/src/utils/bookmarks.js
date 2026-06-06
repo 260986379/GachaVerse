@@ -32,14 +32,9 @@ const VIDEOS_KEY            = 'gv_fav_videos'
 const CHARS_KEY             = 'gv_fav_characters'
 const FAV_ART_KEY           = 'gv_fav_artworks'
 const FOLLOWS_KEY           = 'gv_followed_games'
-const FOLLOWED_USERS_KEY    = 'gv_followed_users'
-const BOARD_COMMENTS_PREFIX = 'gv_board_comments_'
-const GAME_UID_PREFIX       = 'gv_game_uid_'
-const BOARDS_KEY            = 'gv_boards'
 const PROFILE_BANNER_KEY    = 'gv_profile_banner'
 const PROFILE_PFP_KEY       = 'gv_profile_pfp'
 const FAV_LIMIT             = 9
-const BOARDS_LIMIT          = 10
 
 // ── Favorite videos ───────────────────────────────────────────────────────
 export const getFavVideos = () => load(k(VIDEOS_KEY))
@@ -150,60 +145,17 @@ export function toggleFollowGame(game) {
   return !exists
 }
 
-export const saveFollowedGames = (list) => save(k(FOLLOWS_KEY), list)
-
-// ── Followed users (legacy localStorage — superseded by DB follows) ───────
-export const getFollowedUsers = () => load(k(FOLLOWED_USERS_KEY))
-export const isFollowingUser  = (userId) => load(k(FOLLOWED_USERS_KEY)).some((u) => u.id === userId)
-
-export function toggleFollowUser(user) {
-  const list = load(k(FOLLOWED_USERS_KEY))
-  const exists = list.some((u) => u.id === user.id)
-  save(k(FOLLOWED_USERS_KEY), exists ? list.filter((u) => u.id !== user.id) : [...list, user])
-  return !exists
-}
-
-// ── Board comments ────────────────────────────────────────────────────────
-export const getBoardComments = (boardId) => load(k(BOARD_COMMENTS_PREFIX + boardId))
-
-export function addBoardComment(boardId, text) {
-  const list = load(k(BOARD_COMMENTS_PREFIX + boardId))
-  const entry = { id: crypto.randomUUID(), text: text.trim(), author: 'You', createdAt: new Date().toISOString() }
-  save(k(BOARD_COMMENTS_PREFIX + boardId), [...list, entry])
-  return entry
-}
-
-export function deleteBoardComment(boardId, commentId) {
-  const key = k(BOARD_COMMENTS_PREFIX + boardId)
-  save(key, load(key).filter((c) => c.id !== commentId))
+export function saveFollowedGames(list) {
+  save(k(FOLLOWS_KEY), list)
+  window.dispatchEvent(new CustomEvent('gv:followedGamesChanged'))
 }
 
 // ── Profile images ────────────────────────────────────────────────────────
-export const getProfileBanner  = () => localStorage.getItem(k(PROFILE_BANNER_KEY)) || null
-export const setProfileBanner  = (url) => localStorage.setItem(k(PROFILE_BANNER_KEY), url)
+export const getProfileBanner   = () => localStorage.getItem(k(PROFILE_BANNER_KEY)) || null
+export const setProfileBanner   = (url) => localStorage.setItem(k(PROFILE_BANNER_KEY), url)
 export const clearProfileBanner = () => localStorage.removeItem(k(PROFILE_BANNER_KEY))
 
 export const getProfilePfp    = () => localStorage.getItem(k(PROFILE_PFP_KEY)) || null
 export const setProfilePfp    = (url) => localStorage.setItem(k(PROFILE_PFP_KEY), url)
 export const clearProfilePfp  = () => localStorage.removeItem(k(PROFILE_PFP_KEY))
 
-// ── Game UIDs ─────────────────────────────────────────────────────────────
-export const getGameUID    = (gameId) => localStorage.getItem(k(GAME_UID_PREFIX + gameId)) || null
-export const setGameUID    = (gameId, uid) => localStorage.setItem(k(GAME_UID_PREFIX + gameId), uid)
-export const removeGameUID = (gameId) => localStorage.removeItem(k(GAME_UID_PREFIX + gameId))
-
-// ── Boards ────────────────────────────────────────────────────────────────
-export const getBoards       = () => load(k(BOARDS_KEY))
-export const getBoardsByGame = (gameId) => load(k(BOARDS_KEY)).filter((b) => b.gameId === gameId)
-
-export function addBoard(board) {
-  const list = load(k(BOARDS_KEY))
-  if (list.length >= BOARDS_LIMIT) return null
-  const entry = { ...board, id: crypto.randomUUID(), createdAt: new Date().toISOString() }
-  save(k(BOARDS_KEY), [...list, entry])
-  return entry
-}
-
-export function removeBoard(id) {
-  save(k(BOARDS_KEY), load(k(BOARDS_KEY)).filter((b) => b.id !== id))
-}

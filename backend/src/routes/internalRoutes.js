@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { ingestVideosForGame } = require('../services/youtubeIngestionService');
+const { ingestVideosForGame, reclassifyExistingVideos } = require('../services/youtubeIngestionService');
 const { enqueueYouTubeTasks } = require('../services/ingestionScheduler');
 const config = require('../config');
 
@@ -42,6 +42,23 @@ router.post('/tasks/ingest/youtube', requireTaskSecret, async (req, res) => {
     res.json({ ok: true, gameSlug });
   } catch (err) {
     console.error(`[Internal] Ingestion failed for ${gameSlug}:`, err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Force a full channel walk for a single game, re-fetching all pages and
+// re-running classification. Useful after adding new classifier rules.
+router.post('/tasks/ingest/youtube/backfill', requireTaskSecret, async (req, res) => {
+  const { gameSlug } = req.body;
+  const channelId = GAME_CHANNELS[gameSlug];
+  if (!channelId) return res.status(400).json({ error: `Unknown game slug: ${gameSlug}` });
+
+  try {
+    await ingestVideosForGame(gameSlug, channelId, { forceBackfill: true });
+    await reclassifyExistingVideos(gameSlug);
+    res.json({ ok: true, gameSlug });
+  } catch (err) {
+    console.error(`[Internal] Backfill failed for ${gameSlug}:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });

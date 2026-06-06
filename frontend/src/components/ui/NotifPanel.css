@@ -88,6 +88,14 @@
 }
 
 /* ── Notification item ────────────────────────────────────────── */
+.notif-item--social {
+  cursor: default;
+}
+
+.notif-item--social:hover {
+  background: none;
+}
+
 .notif-item--unread {
   background: rgba(255, 255, 255, 0.03);
 }

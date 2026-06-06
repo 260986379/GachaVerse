@@ -59,3 +59,18 @@
   color: rgba(255, 255, 255, 0.6);
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+@media (max-width: 640px) {
+  .site-footer {
+    padding: 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .site-footer__about-btn,
+  .site-footer__mod-btn {
+    position: static;
+    transform: none;
+  }
+}

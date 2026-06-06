@@ -337,6 +337,7 @@ const RULES = {
         /Season\s+\d+\s+Teaser/i,
         /Version\s+[\d.]+\s+Teaser/i,
         /Ver\.\s*[\d.]+\s+Teaser/i,
+        /Gameplay Demo/i,
       ],
     },
     {

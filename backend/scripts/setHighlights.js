@@ -40,7 +40,8 @@ const TIMESTAMPS = {
   _GXI_zz1IOM: 58, // Fleet Snowfluff's Memories | Practice Time
   U9t9eNGQmrg: 54, // Wuthering Waves EP2.8 — Chisa - "Slashing Bloom"
   h2mExeCBKVQ: 34, // Wuthering Waves EP3.3 — Denia - "Dasvidaniya"
-  887Hr8i3gGE: 60, // Wuthering Waves EP1.4 | A Million Possibilities
+  "887Hr8i3gGE": 60, // Wuthering Waves EP1.4 | A Million Possibilities
+  "5_kJclPEjKM": 48, // Wuthering Waves Fleet Snowfluff EP — "Indigo Universe"
 
   /// HSR
   J9wcfTVUZNE: 90, // EP: Of Snow and Ember | Honkai: Star Rail

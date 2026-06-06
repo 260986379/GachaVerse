@@ -358,3 +358,15 @@
   border-radius: 4px;
   padding: 0.15rem 0.45rem;
 }
+
+@media (max-width: 640px) {
+  .search-modal-overlay {
+    padding-top: 8vh;
+  }
+  .search-modal-container {
+    margin: 0 0.75rem;
+  }
+  .search-modal__banner-panel {
+    display: none;
+  }
+}

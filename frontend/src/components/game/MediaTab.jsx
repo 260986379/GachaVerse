@@ -122,6 +122,10 @@ export default function MediaTab({ gameId, initialVideoId = null }) {
 
   const handleCardClick = (item) => {
     if (didDragRef.current) { didDragRef.current = false; return }
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      window.open(`https://www.youtube.com/watch?v=${item.external_id}`, '_blank', 'noopener,noreferrer')
+      return
+    }
     setActive(active === item.id ? null : item.id)
   }
 

@@ -250,3 +250,14 @@
   transition: color 0.15s;
 }
 .auth-link:hover { color: rgba(255, 255, 255, 0.85); }
+
+@media (max-width: 480px) {
+  .auth-overlay {
+    padding-top: 6vh;
+    align-items: flex-start;
+  }
+  .auth-modal {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}

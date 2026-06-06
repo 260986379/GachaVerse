@@ -2005,3 +2005,88 @@
   z-index: 200;
   pointer-events: none;
 }
+
+/* ── Mobile ─────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Hero: switch from absolute bottom-anchor to relative in-flow */
+  .game-hero {
+    height: auto;
+    min-height: unset;
+    padding-top: 3.5rem;
+  }
+  .game-hero__bottom {
+    position: relative;
+    z-index: 2;
+    bottom: unset;
+    left: unset;
+    right: unset;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem 1.5rem;
+  }
+  .game-hero__poster {
+    width: 100px;
+  }
+  .game-hero__title {
+    font-size: 1.5rem;
+  }
+  .game-hero__desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+
+  /* Tabs */
+  .game-tabs-bar {
+    justify-content: flex-start;
+    padding: 0 1rem;
+  }
+
+  /* Body: drop the side panels, tighten padding */
+  .game-body {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem 1rem 3rem;
+    gap: 1.5rem;
+  }
+  .game-info-panel,
+  .game-events-panel {
+    display: none;
+  }
+
+  /* News feed: remove the right padding offset used for the side panel */
+  .news-feed-layout {
+    padding-right: 0;
+  }
+
+  /* Toolbar: stack search and sort vertically */
+  .media-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Media rows: exactly 3 cards visible across the scroll area */
+  .media-row .media-card-wrap {
+    flex: 0 0 calc((100% - 2rem) / 3);
+  }
+
+  /* Show a thin scrollbar and ensure iOS recognises this as a horizontal scroll zone */
+  .media-row {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    touch-action: pan-x;
+  }
+
+  /* Media grid (expanded): 2 columns on mobile */
+  .media-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Cast grid: 3 columns on mobile */
+  .cast-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -418,6 +418,67 @@
   height: 170px;
 }
 
+/* ── Mobile ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Spotlight: drop the side-by-side layout, anchor text to bottom */
+  .spotlight {
+    height: 60vh;
+    min-height: 320px;
+  }
+
+  .spotlight__body {
+    padding: 4rem 1.25rem 1.75rem;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .spotlight__embed-wrap {
+    display: none;
+  }
+
+  .spotlight__content {
+    max-width: 100%;
+  }
+
+  .spotlight__title {
+    font-size: 2rem;
+  }
+
+  .spotlight__desc {
+    font-size: 0.85rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  /* Replace left-to-right fade with a stronger bottom-up fade */
+  .spotlight__gradient-left {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.15) 55%, transparent 100%);
+  }
+
+  .spotlight__arrow--left  { left: 0.5rem; }
+  .spotlight__arrow--right { right: 0.5rem; }
+
+  /* Sections below spotlight */
+  .explore-content {
+    padding: 0 1rem 3rem;
+  }
+
+  /* Game cards: exactly 2 visible at a time in scroll rows */
+  .game-card--md {
+    width: calc((100vw - 3rem) / 2);
+  }
+
+  /* Allow touch-scroll on trending/games rows */
+  .trending-row {
+    touch-action: pan-x;
+  }
+}
+
 /* ── Minigames section ─────────────────────────────────────── */
 
 .minigames-row {

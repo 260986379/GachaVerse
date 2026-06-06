@@ -1148,19 +1148,6 @@
 }
 
 
-/* ── Two-column layout for lower sections ────────────────────── */
-.ga-two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-@media (max-width: 640px) {
-  .ga-two-col {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ── Header bio line ─────────────────────────────────────────── */
 .ga-header__bio {
   position: relative;
@@ -1910,6 +1897,131 @@
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.22);
   color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .profile-inner {
+    padding: 0 0.85rem;
+  }
+
+  /* Shorter banner on mobile */
+  .profile-banner {
+    height: 160px;
+  }
+
+  /* Always show the banner change button on mobile (no hover) */
+  .profile-banner__overlay {
+    background: rgba(0, 0, 0, 0.28);
+    pointer-events: auto;
+  }
+  .profile-banner__change,
+  .profile-banner__reset {
+    opacity: 1;
+  }
+
+  /* Stack sidebar above main */
+  .profile-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-sidebar {
+    width: 100%;
+  }
+
+  .profile-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .profile-sidebar__name {
+    white-space: normal;
+  }
+
+  /* Cap PFP height and anchor image to top so the face isn't cropped */
+  .profile-pfp {
+    aspect-ratio: unset;
+    height: 240px;
+  }
+  .profile-pfp__img {
+    object-position: top center;
+  }
+
+  /* Always show pfp change overlay on mobile */
+  .profile-pfp__overlay {
+    background: rgba(0, 0, 0, 0.38);
+    color: rgba(255, 255, 255, 0.7);
+    pointer-events: auto;
+  }
+
+  /* Board: horizontal scroll with smaller cards */
+  .profile-board-grid {
+    display: flex;
+    grid-template-columns: unset;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
+    touch-action: pan-x;
+  }
+  .profile-board-card,
+  .profile-board-add {
+    flex-shrink: 0;
+    width: 80px;
+  }
+
+  /* Board card overlay always visible on mobile (for delete button) */
+  .profile-board-card__overlay {
+    opacity: 1;
+  }
+
+  /* Character grid → horizontal scroll */
+  .profile-char-grid {
+    display: flex;
+    grid-template-columns: unset;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
+    touch-action: pan-x;
+  }
+  .profile-char-grid .fav-drag-item {
+    flex-shrink: 0;
+    width: 100px;
+  }
+
+  /* Artwork grid → horizontal scroll */
+  .profile-artwork-grid {
+    display: flex;
+    grid-template-columns: unset;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
+    touch-action: pan-x;
+  }
+  .profile-artwork-grid .fav-drag-item {
+    flex-shrink: 0;
+    width: 140px;
+  }
+
+  /* Existing hscroll rows (game showcase, followed games, fav videos/BGM) */
+  .profile-hscroll {
+    touch-action: pan-x;
+  }
+
+  /* Always show the unfav heart on touch devices */
+  .fav-item__unfav {
+    opacity: 1;
+  }
+
+  /* Always show the game card remove button on touch */
+  .ps-game-card--interactive .ps-game-card__remove {
+    opacity: 1;
+  }
 }
 
 /* ── Game Picker Modal ────────────────────────────────────────── */

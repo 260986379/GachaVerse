@@ -21,6 +21,7 @@ function SpotlightHero({ games }) {
   useEffect(() => {
     const wrap = embedWrapRef.current
     if (!wrap || !games[0]?.youtubeId) return
+    if (window.matchMedia('(max-width: 640px)').matches) return
 
     const container = document.createElement('div')
     wrap.appendChild(container)

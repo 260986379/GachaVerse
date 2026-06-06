@@ -8,7 +8,7 @@ const CACHE_TTL_MS  = 5 * 60 * 1000   // 5 minutes
 const LAST_SEEN_KEY = 'gv_notif_last_seen'
 
 export function useNotifications() {
-  const { isLoggedIn, loadingAuth, authFetch } = useAuth()
+  const { isLoggedIn, loadingAuth, authFetch, user } = useAuth()
 
   const [allItems,     setAllItems]     = useState([])
   const [socialItems,  setSocialItems]  = useState([])
@@ -30,6 +30,21 @@ export function useNotifications() {
       window.removeEventListener('storage', sync)
     }
   }, [])
+
+  // ── Sync followed games from DB on login (handles fresh browser / new device) ──
+  useEffect(() => {
+    if (!isLoggedIn || !user?.id) return
+    authFetch(`${API}/users/${user.id}/games`)
+      .then(r => r.ok ? r.json() : [])
+      .then(dbGames => {
+        if (!Array.isArray(dbGames) || dbGames.length === 0) return
+        const dbSlugs    = new Set(dbGames.map(g => g.slug))
+        const localSlugs = new Set(getFollowedGames().map(g => g.id))
+        const merged     = new Set([...dbSlugs, ...localSlugs])
+        setFollowedSlugs(merged)
+      })
+      .catch(() => {})
+  }, [isLoggedIn, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Game video feed (public, cached) ──────────────────────────────
   const fetchItems = useCallback(async (force = false) => {

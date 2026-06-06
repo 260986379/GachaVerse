@@ -90,3 +90,15 @@
 .library-grid--upcoming {
   opacity: 0.5;
 }
+
+@media (max-width: 640px) {
+  .library-header,
+  .library-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .library-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem 0.75rem;
+  }
+}

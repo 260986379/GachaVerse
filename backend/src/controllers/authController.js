@@ -12,11 +12,14 @@ const syncUser = async (req, res, next) => {
     const { uid, email, name, picture } = req.firebaseUser;
     const { username } = req.body; // optional – provided on first sign-up
 
+    const USER_SELECT = `
+      SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at,
+             (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
+             (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
+      FROM users`;
+
     // Try to find by firebase_uid first
-    let result = await query(
-      'SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at FROM users WHERE firebase_uid = $1',
-      [uid]
-    );
+    let result = await query(`${USER_SELECT} WHERE firebase_uid = $1`, [uid]);
 
     if (result.rows.length > 0) {
       // Existing user – return profile
@@ -28,10 +31,7 @@ const syncUser = async (req, res, next) => {
     if (byEmail.rows.length > 0) {
       // Link firebase_uid to the existing row
       await query('UPDATE users SET firebase_uid = $1 WHERE id = $2', [uid, byEmail.rows[0].id]);
-      const updated = await query(
-        'SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at FROM users WHERE id = $1',
-        [byEmail.rows[0].id]
-      );
+      const updated = await query(`${USER_SELECT} WHERE id = $1`, [byEmail.rows[0].id]);
       return res.json({ user: updated.rows[0], isNew: false });
     }
 
@@ -53,20 +53,18 @@ const syncUser = async (req, res, next) => {
     }
 
     try {
-      const insertResult = await query(
+      const inserted = await query(
         `INSERT INTO users (username, email, firebase_uid, avatar_url)
          VALUES ($1, $2, $3, $4)
-         RETURNING id, username, email, avatar_url, banner_url, bio, birthday, role, created_at`,
+         RETURNING id`,
         [finalUsername, email, uid, picture || null]
       );
-      return res.status(201).json({ user: insertResult.rows[0], isNew: true });
+      const newUser = await query(`${USER_SELECT} WHERE id = $1`, [inserted.rows[0].id]);
+      return res.status(201).json({ user: newUser.rows[0], isNew: true });
     } catch (insertErr) {
       if (insertErr.code === '23505') {
         // Race condition — re-fetch the row that was already inserted
-        const existing = await query(
-          'SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at FROM users WHERE firebase_uid = $1',
-          [uid]
-        );
+        const existing = await query(`${USER_SELECT} WHERE firebase_uid = $1`, [uid]);
         if (existing.rows.length > 0) return res.json({ user: existing.rows[0], isNew: false });
       }
       throw insertErr;

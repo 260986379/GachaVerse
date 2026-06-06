@@ -325,3 +325,19 @@ button.navbar__profile-btn:hover {
   background: rgba(239, 68, 68, 0.1);
   color: #fca5a5;
 }
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0.9rem 1rem;
+  }
+  .navbar__brand {
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+  .navbar__search {
+    padding: 0.4rem 0.6rem;
+  }
+  .navbar__search-placeholder {
+    display: none;
+  }
+}

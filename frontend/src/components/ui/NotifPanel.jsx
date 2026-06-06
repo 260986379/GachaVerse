@@ -57,16 +57,6 @@ export default function NotifPanel({ items, socialItems = [], loading, unreadCou
     onClose()
   }
 
-  const handleSocialItem = (notif) => {
-    markAllRead()
-    if (notif.type === 'follow') {
-      navigate(`/user/${notif.actor_username}`)
-    } else {
-      navigate('/account')
-    }
-    onClose()
-  }
-
   const unread = items.filter(isUnread)
   const read   = items.filter(i => !isUnread(i))
   const socialUnread = socialItems.filter(n => !n.read)
@@ -143,10 +133,10 @@ export default function NotifPanel({ items, socialItems = [], loading, unreadCou
               ) : (
                 <>
                   {socialUnread.map(n => (
-                    <SocialNotifItem key={n.id} notif={n} unread onClick={() => handleSocialItem(n)} />
+                    <SocialNotifItem key={n.id} notif={n} unread />
                   ))}
                   {socialRead.map(n => (
-                    <SocialNotifItem key={n.id} notif={n} onClick={() => handleSocialItem(n)} />
+                    <SocialNotifItem key={n.id} notif={n} />
                   ))}
                 </>
               )
@@ -188,12 +178,9 @@ export default function NotifPanel({ items, socialItems = [], loading, unreadCou
   )
 }
 
-function SocialNotifItem({ notif, unread, onClick }) {
+function SocialNotifItem({ notif, unread }) {
   return (
-    <button
-      className={`search-modal__result notif-item notif-item--social${unread ? ' notif-item--unread' : ''}`}
-      onClick={onClick}
-    >
+    <div className={`search-modal__result notif-item notif-item--social${unread ? ' notif-item--unread' : ''}`}>
       <div className="notif-item__thumb notif-item__thumb--avatar">
         {notif.actor_avatar
           ? <img src={notif.actor_avatar} alt={notif.actor_username} loading="lazy" />
@@ -208,8 +195,7 @@ function SocialNotifItem({ notif, unread, onClick }) {
         </span>
         <span className="search-modal__result-meta">{timeAgo(notif.created_at)}</span>
       </div>
-      <span className="search-modal__result-arrow">›</span>
-    </button>
+    </div>
   )
 }
 
