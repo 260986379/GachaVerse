@@ -61,6 +61,23 @@ const deleteBoard = async (req, res, next) => {
   }
 };
 
+/** GET /api/boards/all — public, all boards across every game */
+const getAllBoards = async (req, res, next) => {
+  try {
+    const { rows } = await query(
+      `SELECT b.id, b.game_id, b.game_name, b.image_url, b.caption, b.created_at,
+              u.id AS posted_by_id, u.username AS posted_by, u.avatar_url AS posted_by_avatar
+       FROM boards b
+       JOIN users u ON u.id = b.user_id
+       ORDER BY b.created_at DESC
+       LIMIT 120`
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
 /** GET /api/boards/game/:gameId — public, all boards for a game across all users */
 const getBoardsByGame = async (req, res, next) => {
   try {
@@ -169,4 +186,4 @@ const deleteComment = async (req, res, next) => {
   }
 };
 
-module.exports = { getBoards, addBoard, deleteBoard, getBoardsByGame, getComments, addComment, deleteComment };
+module.exports = { getBoards, addBoard, deleteBoard, getAllBoards, getBoardsByGame, getComments, addComment, deleteComment };

@@ -159,10 +159,19 @@ function TrendingRow({ games }) {
 
 const MINIGAMES = [
   {
+    id: 'gallery',
+    name: 'Gallery',
+    label: 'Boards & Artworks',
+    image: '/art/zzz/holiday/New_Year_2023_Artwork.webp',
+    gradient: 'linear-gradient(135deg, #0a1a2a 0%, #0d2d3a 40%, #1a0a2d 100%)',
+    path: '/gallery',
+  },
+  {
     id: 'concert-hall',
     name: 'Concert Hall',
     label: 'Music Minigame',
     icon: '🎵',
+    image: 'https://img.youtube.com/vi/hKHv-DuMOyo/mqdefault.jpg',
     gradient: 'linear-gradient(135deg, #1a0533 0%, #2d0a5a 40%, #0d1a4a 100%)',
     path: '/minigame/concert-hall',
   },
@@ -171,6 +180,7 @@ const MINIGAMES = [
     name: 'Gachafufu',
     label: 'Gacha Minigame',
     icon: '🎰',
+    image: '/art/zzz/wallpaper/Wallpaper_Collection_004_-_05.webp',
     gradient: 'linear-gradient(135deg, #2a0a1e 0%, #5a1a2d 40%, #3a1a00 100%)',
     path: '/minigame/gachafufu',
   },
@@ -180,9 +190,15 @@ function MinigameCard({ game }) {
   const navigate = useNavigate()
   return (
     <div className="minigame-card" onClick={() => navigate(game.path)}>
-      <div className="minigame-card__bg" style={{ background: game.gradient }} />
+      <div
+        className="minigame-card__bg"
+        style={game.image
+          ? { backgroundImage: `url(${game.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+          : { background: game.gradient }
+        }
+      />
       <div className="minigame-card__overlay" />
-      <span className="minigame-card__icon">{game.icon}</span>
+      {!game.image && <span className="minigame-card__icon">{game.icon}</span>}
       <div className="minigame-card__footer">
         <span className="minigame-card__label">{game.label}</span>
         <p className="minigame-card__name">{game.name}</p>
@@ -195,7 +211,7 @@ function MinigamesSection() {
   return (
     <section className="trending-section">
       <div className="section-header">
-        <h2 className="section-title">Minigames</h2>
+        <h2 className="section-title">Discover</h2>
       </div>
       <div className="minigames-row">
         {MINIGAMES.map(g => <MinigameCard key={g.id} game={g} />)}

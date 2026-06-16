@@ -13,8 +13,11 @@ const FEATURED_CATEGORIES_DEFAULT = ['Main Story', 'Lore', 'Trailer', 'Character
 
 export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle }) {
   const [featuredVideo, setFeaturedVideo] = useState(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
+    setReady(false)
+    setFeaturedVideo(null)
     fetch(`/api/games/${gameId}/media`)
       .then((r) => r.json())
       .then((data) => {
@@ -27,6 +30,7 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle }) {
         if (latest) setFeaturedVideo(latest)
       })
       .catch(() => {})
+      .finally(() => setReady(true))
   }, [gameId])
 
   const displayId    = featuredVideo?.external_id || youtubeId
@@ -34,7 +38,7 @@ export default function NewsFeedTab({ gameId, youtubeId, youtubeTitle }) {
 
   return (
     <div className="news-feed-layout">
-      {displayId && (
+      {ready && displayId && (
         <div className="news-feed__featured">
           <span className="news-feed__featured-label">Featured Video</span>
           {displayTitle && (

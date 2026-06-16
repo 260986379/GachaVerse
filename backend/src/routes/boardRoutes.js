@@ -1,8 +1,9 @@
 const router = require('express').Router();
-const { getBoards, addBoard, deleteBoard, getBoardsByGame,
+const { getBoards, addBoard, deleteBoard, getAllBoards, getBoardsByGame,
         getComments, addComment, deleteComment } = require('../controllers/boardController');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
+router.get('/all',                             getAllBoards);
 router.get('/game/:gameId',                    getBoardsByGame);
 router.get('/user/:userId',                    getBoards);
 router.post('/',                               authenticateToken, addBoard);

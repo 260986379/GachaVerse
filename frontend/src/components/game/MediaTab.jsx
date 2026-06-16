@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 
 const TYPE_ORDER_BY_GAME = {
   'zenless-zone-zero': ['Lore', 'Trailer', 'Character Demo', 'Cinematic', 'Music'],
-  'nikke': ['Lore', 'Main Story', 'Opening', 'Animation', 'Promotional', 'Character Demo', 'Music', 'Costume Showcase', 'Anniversary', 'Collaboration', 'ASMR'],
+  'nikke': ['Lore', 'Main Story', 'Opening', 'Animation', 'Promotional', 'Music', 'Character Demo', 'Costume Showcase', 'Anniversary', 'Collaboration', 'ASMR'],
   'genshin-impact':    ['Main Story', 'Character Demo', 'Trailer', 'Cinematic', 'Animation', 'Music'],
   'wuthering-waves':   ['Main Story', 'Resonator Showcase', 'Cinematic', 'Animation', 'Music', 'Midnight Podcast', 'Collaboration'],
   'honkai-star-rail':  ['Main Story', 'Character Demo', 'Animation', 'Myriad Celestia', 'Music', 'Collaboration'],
@@ -266,7 +266,16 @@ export default function MediaTab({ gameId, initialVideoId = null }) {
               <div className="media-tab__player" ref={playerRef}>
                 <YouTubeEmbed videoId={activeInSection.external_id} title={activeInSection.title} thumbnailUrl={activeInSection.thumbnail_url} />
                 <h3 className="media-tab__player-title">{displayTitle(activeInSection.title, gameId)}</h3>
-                <button className="media-tab__close" onClick={() => setActive(null)}>✕ Close</button>
+                <div className="media-tab__player-actions">
+                  <button
+                    className={`media-tab__player-fav${favIds.has(activeInSection.id) ? ' media-tab__player-fav--on' : ''}`}
+                    onClick={(e) => handleFav(e, activeInSection)}
+                    title={favIds.has(activeInSection.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {favIds.has(activeInSection.id) ? '♥ Favorited' : '♡ Favorite'}
+                  </button>
+                  <button className="media-tab__close" onClick={() => setActive(null)}>✕ Close</button>
+                </div>
               </div>
             )}
             {isExpanded ? (

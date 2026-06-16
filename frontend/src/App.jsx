@@ -13,6 +13,7 @@ import ModPage          from './pages/ModPage'
 import AboutPage        from './pages/AboutPage'
 import ConcertHallPage  from './pages/ConcertHallPage'
 import GachafufuPage    from './pages/GachafufuPage'
+import GalleryPage      from './pages/GalleryPage'
 import './App.css'
 
 function Footer() {
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="/u/:username"  element={<UserProfilePage />} />
         <Route path="/mod"          element={<ModPage />} />
         <Route path="/about"        element={<AboutPage />} />
+        <Route path="/gallery"               element={<GalleryPage />} />
         <Route path="/minigame/concert-hall" element={<ConcertHallPage />} />
         <Route path="/minigame/gachafufu"    element={<GachafufuPage />} />
       </Routes>

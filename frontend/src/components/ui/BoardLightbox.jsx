@@ -133,20 +133,22 @@ export default function BoardLightbox({ board, boardOwner, onClose }) {
                   <span className="lightbox__author-game">{board.game_name}</span>
                 </div>
               </div>
-              {!isOwnBoard && isLoggedIn && (
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <button
-                    className={`lightbox__follow-btn${following ? ' lightbox__follow-btn--on' : ''}`}
-                    onClick={handleFollow}
-                    disabled={followLoading}
-                  >
-                    {following ? '✓ Following' : '+ Follow'}
-                  </button>
-                  <button className="lightbox__report-btn" onClick={() => setReporting(true)} title="Report this board">
-                    Report
-                  </button>
-                </div>
-              )}
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                {!isOwnBoard && isLoggedIn && (
+                  <>
+                    <button
+                      className={`lightbox__follow-btn${following ? ' lightbox__follow-btn--on' : ''}`}
+                      onClick={handleFollow}
+                      disabled={followLoading}
+                    >
+                      {following ? '✓ Following' : '+ Follow'}
+                    </button>
+                    <button className="lightbox__report-btn" onClick={() => setReporting(true)} title="Report this board">
+                      Report
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           )}
 

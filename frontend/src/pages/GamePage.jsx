@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { GAMES } from '../data/games'
 import { isFollowingGame, toggleFollowGame } from '../utils/bookmarks'
 import NewsFeedTab from '../components/game/NewsFeedTab'
@@ -91,10 +91,11 @@ export default function GamePage() {
   const { gameId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
   const game = GAMES.find((g) => g.id === gameId)
 
-  const initialTab     = location.state?.openTab     ?? TABS[0]
-  const initialVideoId = location.state?.openVideoId ?? null
+  const initialTab     = location.state?.openTab     ?? searchParams.get('tab') ?? TABS[0]
+  const initialVideoId = location.state?.openVideoId ?? searchParams.get('video') ?? null
 
   const [activeTab, setActiveTab] = useState(initialTab)
   const [posterFailed, setPosterFailed] = useState(false)

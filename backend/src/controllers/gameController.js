@@ -105,6 +105,23 @@ const getGameArt = async (req, res, next) => {
   }
 };
 
+const getAllArt = async (req, res, next) => {
+  try {
+    const { rows } = await query(
+      `SELECT m.id, m.title, m.source_url, m.thumbnail_url, m.published_at, m.category,
+              g.name AS game_name, g.slug AS game_id
+       FROM media_content m
+       JOIN games g ON g.id = m.game_id
+       WHERE m.status='published' AND m.category = ANY($1)
+       ORDER BY g.name ASC, m.published_at ASC`,
+      [ART_CATEGORIES]
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const UID_RE = /^\d{9,10}$/;
 
 const getPlayer = async (req, res, next) => {
@@ -144,6 +161,10 @@ const buildCategoryConditions = (gameRows) => {
   }).filter(Boolean).join(' OR ');
 };
 
+const TRENDING_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+let trendingCache = null;
+let trendingCachedAt = 0;
+
 /**
  * GET /api/games/trending
  * Returns the top 4 implemented games ranked by recency of their trending
@@ -152,6 +173,10 @@ const buildCategoryConditions = (gameRows) => {
  */
 const getTrendingGames = async (req, res, next) => {
   try {
+    if (trendingCache && Date.now() - trendingCachedAt < TRENDING_CACHE_TTL) {
+      return res.json(trendingCache);
+    }
+
     const trendingSlugs = Object.keys(TRENDING_CATEGORIES);
 
     // Step 1 — rank games by most recent trending-category video
@@ -192,11 +217,13 @@ const getTrendingGames = async (req, res, next) => {
 
     const videoByGameId = Object.fromEntries(videos.map((v) => [v.game_id, v]));
 
-    res.json(ranked.map((r) => ({
+    trendingCache = ranked.map((r) => ({
       slug:       r.slug,
       videoId:    videoByGameId[r.id]?.external_id ?? null,
       videoTitle: videoByGameId[r.id]?.title       ?? null,
-    })));
+    }));
+    trendingCachedAt = Date.now();
+    res.json(trendingCache);
   } catch (err) {
     next(err);
   }
@@ -216,4 +243,4 @@ const getLatestVideoDates = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getPlayer, getTrendingGames, getLatestVideoDates };
+module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getAllArt, getPlayer, getTrendingGames, getLatestVideoDates };

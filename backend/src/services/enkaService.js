@@ -171,6 +171,7 @@ async function fetchZZZPlayer(uid) {
     fetch(`${ENKA_BASE}/api/zzz/uid/${uid}`, { headers: HEADERS }),
   ]);
   if (enkaRes.status === 404) { const e = new Error('UID not found'); e.status = 404; throw e; }
+  if (enkaRes.status === 424) { const e = new Error('Enka API is currently unavailable. Please try again later.'); e.status = 424; throw e; }
   if (!enkaRes.ok) { const e = new Error(`Enka API error: ${enkaRes.status}`); e.status = 502; throw e; }
 
   const raw     = await enkaRes.json();

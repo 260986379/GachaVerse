@@ -479,9 +479,15 @@
 }
 
 
+.media-tab__player-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 1rem 0;
+}
+
 .media-tab__close {
   display: inline-block;
-  margin: 0.75rem 1rem 0;
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #888;
@@ -495,6 +501,28 @@
 .media-tab__close:hover {
   color: #ccc;
   border-color: rgba(255, 255, 255, 0.25);
+}
+
+.media-tab__player-fav {
+  display: inline-block;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #888;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.media-tab__player-fav:hover {
+  color: #e05555;
+  border-color: rgba(224, 85, 85, 0.4);
+}
+
+.media-tab__player-fav--on {
+  color: #e05555;
+  border-color: rgba(224, 85, 85, 0.4);
 }
 
 /* Video type sections */

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
 import { GAMES } from '../data/games'
 import AuthModal from '../components/ui/AuthModal'
 import BoardLightbox from '../components/ui/BoardLightbox'
+import YouTubeEmbed  from '../components/ui/YouTubeEmbed'
 import ImageLightbox from '../components/ui/ImageLightbox'
 import GameCard from '../components/GameCard'
 import './AccountPage.css'
@@ -343,7 +344,11 @@ function PublicGameAccountView({ game, profileUsername, onBack }) {
 
   useEffect(() => {
     fetch(`/api/games/${game.id}/player/${game.uid}`)
-      .then(r => r.json())
+      .then(async r => {
+        const data = await r.json()
+        if (!r.ok) throw new Error(data.message || 'Failed to load profile')
+        return data
+      })
       .then(data => { setPlayerData(data); setLoading(false) })
       .catch(err => { setError(err.message); setLoading(false) })
   }, [game.id, game.uid])
@@ -434,6 +439,7 @@ function PublicGameAccountView({ game, profileUsername, onBack }) {
 export default function UserProfilePage() {
   const { username } = useParams()
   const navigate     = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user: me, isLoggedIn, loadingAuth, authFetch, refreshUser } = useAuth()
 
   const [profile,      setProfile]      = useState(null)
@@ -452,7 +458,9 @@ export default function UserProfilePage() {
   const [favVideos,     setFavVideos]     = useState([])
   const [favChars,      setFavChars]      = useState([])
   const [favArtworks,   setFavArtworks]   = useState([])
-  const [activeArtwork, setActiveArtwork] = useState(null)
+  const [activeArtwork,   setActiveArtwork]   = useState(null)
+  const [activeVideoId,   setActiveVideoId]   = useState(null)
+  const [activeVideoTitle, setActiveVideoTitle] = useState('')
   const [myNote,        setMyNote]        = useState(undefined) // undefined = not fetched yet
   const [noteOpen,      setNoteOpen]      = useState(false)
   const [roleAssigning, setRoleAssigning] = useState(false)
@@ -516,7 +524,14 @@ export default function UserProfilePage() {
         .then(data => setter(Array.isArray(data) ? data : []))
         .catch(() => setter([]))
 
-    get(`${API}/boards/user/${profile.id}`,              setBoards)
+    get(`${API}/boards/user/${profile.id}`, (data) => {
+      setBoards(data)
+      const boardId = new URLSearchParams(window.location.search).get('board')
+      if (boardId) {
+        const target = data.find(b => b.id === boardId)
+        if (target) setActiveBoard(target)
+      }
+    })
     get(`${API}/users/${profile.id}/game-accounts`,      setGameAccounts)
     get(`${API}/users/${profile.id}/games`,              setFollowedGames)
     get(`${API}/users/${profile.id}/favorites/videos`,   setFavVideos)
@@ -633,13 +648,15 @@ export default function UserProfilePage() {
                 </div>
               )}
 
-              {/* Follow button */}
-              <button
-                className={`up-follow-btn${following ? ' up-follow-btn--following' : ''}`}
-                onClick={handleFollow}
-              >
-                {following ? 'Following' : 'Follow'}
-              </button>
+              {/* Follow + Share */}
+              <div className="up-profile-actions">
+                <button
+                  className={`up-follow-btn${following ? ' up-follow-btn--following' : ''}`}
+                  onClick={handleFollow}
+                >
+                  {following ? 'Following' : 'Follow'}
+                </button>
+              </div>
 
               {/* Social stats */}
               <div className="profile-sidebar__social">
@@ -743,7 +760,7 @@ export default function UserProfilePage() {
                     <div
                       key={b.id}
                       className="profile-board-card"
-                      onClick={() => setActiveBoard(b)}
+                      onClick={() => { setActiveBoard(b); setSearchParams({ board: b.id }) }}
                     >
                       <img src={b.image_url} alt={b.caption || b.game_name} loading="lazy" />
                       <div className="profile-board-card__overlay">
@@ -762,45 +779,42 @@ export default function UserProfilePage() {
               const linkedGames = gameAccounts
                 .map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid } : null })
                 .filter(Boolean)
+              if (linkedGames.length === 0) return null
               return (
                 <section className="profile-section">
                   <div className="profile-section__header">
                     <h2 className="profile-section__title">Game Account Showcase</h2>
                   </div>
-                  {linkedGames.length > 0 ? (
-                    <div className="profile-hscroll">
-                      {linkedGames.map(g => {
-                        const thumb = g.bannerImage
-                          || (g.youtubeId ? `https://img.youtube.com/vi/${g.youtubeId}/mqdefault.jpg` : null)
-                          || g.posterImage || null
-                        return (
-                        <button
-                          key={g.id}
-                          className="ps-game-card ps-game-card--interactive"
-                          style={{ '--g1': g.color1, '--g2': g.color2 }}
-                          onClick={() => setSelectedAccount(g)}
-                        >
-                          <div className="ps-game-card__cover">
-                            {thumb && <img src={thumb} alt={g.name} loading="lazy" />}
+                  <div className="profile-hscroll">
+                    {linkedGames.map(g => {
+                      const thumb = g.bannerImage
+                        || (g.youtubeId ? `https://img.youtube.com/vi/${g.youtubeId}/mqdefault.jpg` : null)
+                        || g.posterImage || null
+                      return (
+                      <button
+                        key={g.id}
+                        className="ps-game-card ps-game-card--interactive"
+                        style={{ '--g1': g.color1, '--g2': g.color2 }}
+                        onClick={() => setSelectedAccount(g)}
+                      >
+                        <div className="ps-game-card__cover">
+                          {thumb && <img src={thumb} alt={g.name} loading="lazy" />}
+                        </div>
+                        <div className="ps-game-card__body">
+                          <p className="ps-game-card__name">{g.name}</p>
+                          <div className="ps-game-card__stats">
+                            {getCardStats(g.id, g.uid, linkedPlayerData[g.id]).map(({ label, value }) => (
+                              <span key={label} className="ps-game-card__stat">
+                                <span>{label}</span><span>{value}</span>
+                              </span>
+                            ))}
                           </div>
-                          <div className="ps-game-card__body">
-                            <p className="ps-game-card__name">{g.name}</p>
-                            <div className="ps-game-card__stats">
-                              {getCardStats(g.id, g.uid, linkedPlayerData[g.id]).map(({ label, value }) => (
-                                <span key={label} className="ps-game-card__stat">
-                                  <span>{label}</span><span>{value}</span>
-                                </span>
-                              ))}
-                            </div>
-                            <span className="ps-game-card__cta">View Account →</span>
-                          </div>
-                        </button>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <p className="profile-empty">No game accounts linked yet.</p>
-                  )}
+                          <span className="ps-game-card__cta">View Account →</span>
+                        </div>
+                      </button>
+                      )
+                    })}
+                  </div>
                 </section>
               )
             })()}
@@ -835,26 +849,38 @@ export default function UserProfilePage() {
                       {regular.length > 0 && <span className="profile-section__count">{regular.length}</span>}
                     </div>
                     {regular.length > 0 ? (
-                      <div className="profile-hscroll">
-                        {regular.map(v => (
-                          <a
-                            key={v.id}
-                            className="ps-video-card"
-                            href={`https://www.youtube.com/watch?v=${v.external_id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <div className="ps-video-card__thumb">
-                              {v.thumbnail_url
-                                ? <img src={v.thumbnail_url} alt={v.title} loading="lazy" />
-                                : <div className="ps-video-card__thumb-fallback" />
-                              }
-                              <div className="ps-video-card__play">▶</div>
-                            </div>
-                            <p className="ps-video-card__title">{v.title}</p>
-                          </a>
-                        ))}
-                      </div>
+                      <>
+                        <div className="profile-hscroll">
+                          {regular.map(v => (
+                            <button
+                              key={v.id}
+                              className={`ps-video-card${activeVideoId === v.external_id && regular.some(r => r.external_id === activeVideoId) ? ' ps-video-card--active' : ''}`}
+                              onClick={() => {
+                                if (activeVideoId === v.external_id) { setActiveVideoId(null); setActiveVideoTitle('') }
+                                else { setActiveVideoId(v.external_id); setActiveVideoTitle(v.title) }
+                              }}
+                            >
+                              <div className="ps-video-card__thumb">
+                                {v.thumbnail_url
+                                  ? <img src={v.thumbnail_url} alt={v.title} loading="lazy" />
+                                  : <div className="ps-video-card__thumb-fallback" />
+                                }
+                                <div className="ps-video-card__play">▶</div>
+                              </div>
+                              <p className="ps-video-card__title">{v.title}</p>
+                            </button>
+                          ))}
+                        </div>
+                        {regular.some(v => v.external_id === activeVideoId) && (
+                          <div className="profile-video-player">
+                            <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
+                            {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
+                            <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
+                              ✕ Close
+                            </button>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <p className="profile-empty">No favorited videos yet.</p>
                     )}
@@ -866,26 +892,38 @@ export default function UserProfilePage() {
                       {bgm.length > 0 && <span className="profile-section__count">{bgm.length}</span>}
                     </div>
                     {bgm.length > 0 ? (
-                      <div className="profile-hscroll">
-                        {bgm.map(v => (
-                          <a
-                            key={v.id}
-                            className="ps-video-card"
-                            href={`https://www.youtube.com/watch?v=${v.external_id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <div className="ps-video-card__thumb">
-                              {v.thumbnail_url
-                                ? <img src={v.thumbnail_url} alt={v.title} loading="lazy" />
-                                : <div className="ps-video-card__thumb-fallback" />
-                              }
-                              <div className="ps-video-card__play">▶</div>
-                            </div>
-                            <p className="ps-video-card__title">{v.title}</p>
-                          </a>
-                        ))}
-                      </div>
+                      <>
+                        <div className="profile-hscroll">
+                          {bgm.map(v => (
+                            <button
+                              key={v.id}
+                              className={`ps-video-card${activeVideoId === v.external_id && bgm.some(b => b.external_id === activeVideoId) ? ' ps-video-card--active' : ''}`}
+                              onClick={() => {
+                                if (activeVideoId === v.external_id) { setActiveVideoId(null); setActiveVideoTitle('') }
+                                else { setActiveVideoId(v.external_id); setActiveVideoTitle(v.title) }
+                              }}
+                            >
+                              <div className="ps-video-card__thumb">
+                                {v.thumbnail_url
+                                  ? <img src={v.thumbnail_url} alt={v.title} loading="lazy" />
+                                  : <div className="ps-video-card__thumb-fallback" />
+                                }
+                                <div className="ps-video-card__play">▶</div>
+                              </div>
+                              <p className="ps-video-card__title">{v.title}</p>
+                            </button>
+                          ))}
+                        </div>
+                        {bgm.some(v => v.external_id === activeVideoId) && (
+                          <div className="profile-video-player">
+                            <YouTubeEmbed videoId={activeVideoId} title={activeVideoTitle} />
+                            {activeVideoTitle && <p className="profile-video-player__title">{activeVideoTitle}</p>}
+                            <button className="profile-video-player__close" onClick={() => setActiveVideoId(null)}>
+                              ✕ Close
+                            </button>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <p className="profile-empty">No favorited BGM yet.</p>
                     )}
@@ -962,7 +1000,7 @@ export default function UserProfilePage() {
         <BoardLightbox
           board={activeBoard}
           boardOwner={profile ? { id: profile.id, username: profile.username, avatar_url: profile.avatar_url, role: profile.role } : null}
-          onClose={() => setActiveBoard(null)}
+          onClose={() => { setActiveBoard(null); setSearchParams({}) }}
         />
       )}
       {noteOpen && (

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -7,7 +7,8 @@ import {
   onAuthStateChanged,
   updateProfile,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   linkWithCredential,
   sendPasswordResetEmail,
 } from '../firebase'
@@ -40,12 +41,19 @@ export function AuthProvider({ children }) {
   const [loadingAuth, setLoadingAuth]   = useState(true)
   const [authError,   setAuthError]     = useState(null)
   const [pendingLink, setPendingLink]   = useState(null) // { email, credential }
+  const skipSyncRef = useRef(false) // true while signUpWithEmail is in flight
 
   // Track Firebase auth state and sync with backend
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser)
       if (fbUser) {
+        if (skipSyncRef.current) {
+          // signUpWithEmail owns the initial DB sync — skip to avoid creating
+          // the user row before the chosen username is available
+          setLoadingAuth(false)
+          return
+        }
         try {
           const { user: dbUser } = await syncWithBackend(fbUser)
           setCurrentUser(dbUser.id)   // scope all localStorage to this user
@@ -119,11 +127,16 @@ export function AuthProvider({ children }) {
   // ── Sign-in methods ──────────────────────────────────────────────────────
 
   const signUpWithEmail = async (email, password, username) => {
-    const credential = await createUserWithEmailAndPassword(auth, email, password)
-    await updateProfile(credential.user, { displayName: username })
-    const { user: dbUser, isNew } = await syncWithBackend(credential.user, username)
-    setUser(dbUser)
-    return { user: dbUser, isNew }
+    skipSyncRef.current = true
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password)
+      await updateProfile(credential.user, { displayName: username })
+      const { user: dbUser, isNew } = await syncWithBackend(credential.user, username)
+      setUser(dbUser)
+      return { user: dbUser, isNew }
+    } finally {
+      skipSyncRef.current = false
+    }
   }
 
   const signInWithEmail = async (email, password) => {
@@ -133,23 +146,24 @@ export function AuthProvider({ children }) {
     return dbUser
   }
 
-  const signInWithGoogle = async () => {
+  // On page load after a Google redirect, consume the result so Firebase finalises auth state.
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((_result) => { /* success handled by onAuthStateChanged */ })
+      .catch((e) => {
+        if (e.code === 'auth/account-exists-with-different-credential') {
+          setPendingLink({
+            email:      e.customData?.email || '',
+            credential: GoogleAuthProvider.credentialFromError(e),
+          })
+        }
+      })
+  }, [])
+
+  const signInWithGoogle = () => {
     const provider = new GoogleAuthProvider()
     provider.setCustomParameters({ prompt: 'select_account' })
-    try {
-      const credential = await signInWithPopup(auth, provider)
-      const { user: dbUser, isNew } = await syncWithBackend(credential.user)
-      setUser(dbUser)
-      return { user: dbUser, isNew }
-    } catch (e) {
-      if (e.code === 'auth/account-exists-with-different-credential') {
-        setPendingLink({
-          email:      e.customData?.email || '',
-          credential: GoogleAuthProvider.credentialFromError(e),
-        })
-      }
-      throw e
-    }
+    signInWithRedirect(auth, provider)
   }
 
   const linkGoogleAccount = async (email, password) => {

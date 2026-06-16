@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { GAMES } from '../data/games'
 import { loadYTApi } from '../utils/ytApi'
 import './ConcertHallPage.css'
@@ -282,13 +283,53 @@ function RevealBar({ video, result, countdown, score, onNext }) {
 
 /* ── Game over screen ────────────────────────────────────── */
 
-function GameOverScreen({ score, total, onPlayAgain, onExit }) {
+function GameOverScreen({ score, total, playedRounds, onPlayAgain, onExit }) {
+  const navigate = useNavigate()
+
   return (
     <div className="ch-gameover">
       <span className="ch-gameover__icon">🎵</span>
       <h2 className="ch-gameover__title">Game Over</h2>
       <p className="ch-gameover__score">{score} pts</p>
       <p className="ch-gameover__sub">across {total} rounds</p>
+
+      {playedRounds.length > 0 && (
+        <div className="ch-gameover__tracklist">
+          {playedRounds.map(({ video, result }, i) => (
+            <div
+              key={i}
+              className={`ch-gameover__track${result.points > 0 ? ' ch-gameover__track--scored' : ''}`}
+            >
+              <div
+                className="ch-gameover__track-bg"
+                style={{ backgroundImage: `url(https://img.youtube.com/vi/${video.external_id}/mqdefault.jpg)` }}
+              />
+              <div className="ch-gameover__track-overlay" />
+              <span className="ch-gameover__track-num">{i + 1}</span>
+              <div className="ch-gameover__track-info">
+                <span className="ch-gameover__track-name">
+                  {result.trackName || video.title}
+                </span>
+                <span className="ch-gameover__track-game">{video.game_name}</span>
+              </div>
+              <span className="ch-gameover__track-pts">
+                {result.points > 0 ? `+${result.points}` : '—'}
+              </span>
+              <button
+                className="ch-gameover__track-arrow"
+                onClick={() => {
+                  const url = new URL(`/game/${video.game_slug}`, window.location.origin)
+                  url.searchParams.set('tab', 'Official Videos')
+                  url.searchParams.set('video', video.external_id)
+                  window.open(url.toString(), '_blank', 'noopener,noreferrer')
+                }}
+                title="View in Official Videos"
+              >›</button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="ch-gameover__actions">
         <button className="ch-btn ch-btn--primary" onClick={onPlayAgain}>Play Again</button>
         <button className="ch-btn ch-btn--ghost" onClick={onExit}>Exit</button>
@@ -302,15 +343,16 @@ function GameOverScreen({ score, total, onPlayAgain, onExit }) {
 const GUESS_TIME = 30
 
 function GameSession({ config, onExit, onPlayAgain }) {
-  const [videos,      setVideos]      = useState(null)
-  const [fetchError,  setFetchError]  = useState(null)
-  const [roundIndex,  setRoundIndex]  = useState(0)
-  const [phase,       setPhase]       = useState('round')
-  const [guess,       setGuess]       = useState('')
-  const [score,       setScore]       = useState(0)
-  const [roundResult, setRoundResult] = useState(null)
-  const [guessTimer,  setGuessTimer]  = useState(GUESS_TIME)
-  const [revealCount, setRevealCount] = useState(GUESS_TIME)
+  const [videos,       setVideos]       = useState(null)
+  const [fetchError,   setFetchError]   = useState(null)
+  const [roundIndex,   setRoundIndex]   = useState(0)
+  const [phase,        setPhase]        = useState('round')
+  const [guess,        setGuess]        = useState('')
+  const [score,        setScore]        = useState(0)
+  const [roundResult,  setRoundResult]  = useState(null)
+  const [guessTimer,   setGuessTimer]   = useState(GUESS_TIME)
+  const [revealCount,  setRevealCount]  = useState(GUESS_TIME)
+  const [playedRounds, setPlayedRounds] = useState([])
 
   const playerWrapRef  = useRef(null)
   const playerRef      = useRef(null)
@@ -421,6 +463,7 @@ function GameSession({ config, onExit, onPlayAgain }) {
     setScore(s => s + result.points)
     setRoundResult(result)
     setRevealCount(GUESS_TIME)
+    setPlayedRounds(prev => [...prev, { video: videos[roundIndex], result }])
     setPhase('reveal')
   }
 
@@ -464,7 +507,7 @@ function GameSession({ config, onExit, onPlayAgain }) {
   if (phase === 'gameover') {
     return (
       <div className="ch-session">
-        <GameOverScreen score={score} total={totalRounds} onPlayAgain={onPlayAgain} onExit={onExit} />
+        <GameOverScreen score={score} total={totalRounds} playedRounds={playedRounds} onPlayAgain={onPlayAgain} onExit={onExit} />
       </div>
     )
   }

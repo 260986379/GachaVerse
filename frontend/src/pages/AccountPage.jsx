@@ -10,6 +10,7 @@ import {
 } from '../utils/bookmarks'
 import YouTubeEmbed from '../components/ui/YouTubeEmbed'
 import BoardLightbox from '../components/ui/BoardLightbox'
+import SharePopover  from '../components/ui/SharePopover'
 import ImageLightbox from '../components/ui/ImageLightbox'
 import AuthModal    from '../components/ui/AuthModal'
 import ReportModal  from '../components/ui/ReportModal'
@@ -1434,6 +1435,12 @@ export default function AccountPage() {
                 <button className="up-note-btn" onClick={() => setNotesOpen(true)}>
                   ✉ View Notes{notes.length > 0 ? ` · ${notes.length}` : ''}
                 </button>
+                <SharePopover
+                  url={`${window.location.origin}/u/${user.username}`}
+                  tweetText={`Check out ${user.username}'s profile on GachaVerse!`}
+                  label="Share Profile"
+                  className="up-share-btn"
+                />
               </>
             )}
 

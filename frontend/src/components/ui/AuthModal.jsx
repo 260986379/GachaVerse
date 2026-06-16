@@ -24,23 +24,9 @@ export default function AuthModal({ onClose, defaultTab = 'login' }) {
 
   const switchTab = (t) => { setTab(t); setError('') }
 
-  const handleGoogle = async () => {
+  const handleGoogle = () => {
     setError('')
-    setLoading(true)
-    try {
-      const { isNew } = await signInWithGoogle()
-      onClose()
-      if (isNew) navigate('/settings')
-    } catch (e) {
-      console.error('[Google Sign-In]', e?.code, e?.message)
-      // account-exists: pendingLink is now set in context — modal switches to link mode automatically
-      if (e?.code === 'auth/account-exists-with-different-credential') return
-      if (e?.code !== 'auth/cancelled-popup-request') {
-        setError(friendlyError(e))
-      }
-    } finally {
-      setLoading(false)
-    }
+    signInWithGoogle() // navigates the tab to Google — no return value
   }
 
   const handleSubmit = async (e) => {
@@ -99,8 +85,8 @@ export default function AuthModal({ onClose, defaultTab = 'login' }) {
   }
 
   return (
-    <div className="auth-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="auth-overlay">
+      <div className="auth-modal">
 
         {/* ── Header ── */}
         <div className="auth-modal__header">
