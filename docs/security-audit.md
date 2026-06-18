@@ -22,6 +22,24 @@ Every `/api/admin/*` route has **zero authentication**. Anyone who knows your AP
 
 ---
 
+## 🔴 Critical — `GET /api/posts` Returns the Entire Table
+
+**File: `backend/src/controllers/postController.js:42`**
+
+When called with no filters, `getAllPosts` runs `SELECT ... FROM posts ORDER BY created_at DESC` with **no LIMIT at all**. As the platform grows this becomes a full table scan returned to the caller. Anyone can hit it in a loop.
+
+**Fix:** Add `LIMIT`/pagination the same way `getPostComments` already does on the same file.
+
+---
+
+## 🟠 High — No Rate Limiting Anywhere
+
+There is **no rate limiting on any endpoint** in the entire backend (`express-rate-limit` is not installed or used). Every public endpoint is fully open to bot traffic — data scraping, Enka lookup spam, suggestion flooding, etc.
+
+**Fix:** Install `express-rate-limit` and apply a global default (e.g. 100 req/min per IP) with tighter limits on sensitive routes like the Enka player lookup.
+
+---
+
 ## 🟠 High — No Rate Limiting on the Enka Player Lookup
 
 **File: `backend/src/routes/gameRoutes.js:13` → `backend/src/controllers/gameController.js:127`**
@@ -32,6 +50,16 @@ Every `/api/admin/*` route has **zero authentication**. Anyone who knows your AP
 - Generate sustained DB + network load with zero friction
 
 **Fix:** Add `express-rate-limit` on this specific route. Also cache successful responses using the `ttl` field Enka returns in its response — the TTL tells you exactly how long to cache before re-fetching is safe.
+
+---
+
+## 🟠 High — `POST /api/suggestions` is a Free Anonymous Spam Endpoint
+
+**File: `backend/src/routes/suggestionRoutes.js:5` → `backend/src/controllers/suggestionController.js:5`**
+
+Suggestions can be submitted by completely unauthenticated users with no rate limiting. A bot could flood the suggestions table indefinitely. The `reference_link` field is also stored as any arbitrary string — not validated as a URL.
+
+**Fix:** Either require auth, or add IP-based rate limiting. Validate `reference_link` with `Joi.string().uri()`.
 
 ---
 
@@ -47,21 +75,21 @@ Every `/api/admin/*` route has **zero authentication**. Anyone who knows your AP
 
 ## 🟡 Medium — No Input Length Limits on User Content
 
-**Files: `backend/src/controllers/boardController.js:33` (caption), `boardController.js:125` (comment text)**
+**Files: `backend/src/controllers/boardController.js:33` (caption), `boardController.js:125` (comment text), `userController.js:80` (bio)**
 
-Board captions and comment text are stored with no maximum length. The Express body limit is 10mb (`app.js:25`), so a user can send megabytes of text per request.
+Board captions, comment text, and user bios are stored with no maximum length. The Express body limit is 10mb (`app.js:25`), so a user can send megabytes of text per request.
 
-**Fix:** Truncate or reject inputs over a reasonable limit (e.g. `caption` ≤ 500 chars, comment `text` ≤ 2000 chars) either via slice before insert or Joi validation middleware.
+**Fix:** Reject inputs over a reasonable limit (e.g. `caption` ≤ 500 chars, comment `text` ≤ 2000 chars, `bio` ≤ 500 chars) via Joi validation or a length check before insert.
 
 ---
 
-## 🟡 Medium — `image_url` Not Validated
+## 🟡 Medium — URL Fields Not Validated
 
-**File: `backend/src/controllers/boardController.js:34`**
+**Files: `backend/src/controllers/boardController.js:34` (`image_url`), `userController.js:82–83` (`avatar_url`, `banner_url`)**
 
-`image_url` is only checked for existence — not validated as a URL or restricted to trusted domains. Users can store arbitrary URLs in the DB. If anything ever fetches that URL server-side, this becomes an SSRF vector.
+These fields are only checked for existence — not validated as URLs or restricted to trusted domains. Users can store arbitrary values in the DB. If anything ever fetches these URLs server-side, it becomes an SSRF vector.
 
-**Fix:** Validate it's a well-formed `https://` URL and optionally restrict to a known CDN domain allowlist.
+**Fix:** Validate with `Joi.string().uri()` and optionally restrict to a known CDN domain allowlist.
 
 ---
 
@@ -69,18 +97,23 @@ Board captions and comment text are stored with no maximum length. The Express b
 
 - `/internal` ingestion routes are properly guarded with `requireTaskSecret`.
 - Auth middleware correctly verifies Firebase ID tokens server-side — no JWT forgery risk.
-- Board delete uses `WHERE id=$1 AND user_id=$2` — users can't delete other people's boards.
-- Comment delete properly checks ownership or board ownership.
+- `assignRole` checks the actor's role server-side — users cannot self-promote.
+- Board/post/comment deletes all use `AND user_id=$N` — users can't delete other people's content.
+- Comment delete properly allows board owners to remove comments on their own boards.
 - `BOARD_LIMIT = 10` prevents board spam per user.
 - All DB queries use parameterized `$1` placeholders — no SQL injection risk.
 - UID format is validated with a regex before hitting the Enka API.
+- Post text is validated with Joi `max(5000)` in `postController`.
+- `followUser` prevents self-follows.
 
 ---
 
 ## Suggested Fix Order
 
 1. **Add auth to all `/api/admin/*` routes** — highest urgency, biggest cost risk (YouTube quota)
-2. **Rate limit + cache `/api/games/:id/player/:uid`** — prevents Enka IP ban
-3. **Add `LIMIT` + pagination to `getGameMedia`** — prevents large payload abuse
-4. **Add length caps to caption / comment text** — prevents oversized DB writes
-5. **Validate `image_url` format** — low risk now, good hygiene
+2. **Install `express-rate-limit` globally** — blanket protection for all endpoints
+3. **Add tighter rate limit + response cache to `/api/games/:id/player/:uid`** — prevents Enka IP ban
+4. **Add `LIMIT` + pagination to `getAllPosts` and `getGameMedia`** — prevents full table scans
+5. **Rate limit or require auth on `POST /api/suggestions`** — prevents anonymous spam
+6. **Add length caps to caption / comment text / bio** — prevents oversized DB writes
+7. **Validate URL fields** (`image_url`, `avatar_url`, `banner_url`, `reference_link`) — good hygiene
