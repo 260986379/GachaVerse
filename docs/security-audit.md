@@ -93,9 +93,53 @@ These fields are only checked for existence — not validated as URLs or restric
 
 ---
 
+## 🟡 Medium — Firebase API Key Hardcoded in Git
+
+**File: `frontend/src/firebase.js:20`**
+
+The Firebase API key is committed directly in source code. For client-side Firebase Auth this is somewhat expected (Google documents it as a "public identifier"), but it means anyone with repo access can:
+
+- Use your Firebase project to create unlimited accounts (burning Firebase Auth quotas)
+- Enumerate registered email addresses via the API
+
+**Fix:** Move it to a `VITE_` prefixed env variable so future rotation doesn't require a git commit. More importantly, check **Firebase Console → Authentication → Settings → Authorized Domains** to ensure only your actual domain is listed.
+
+---
+
+## 🟡 Medium — `getReviews` and `getUserReviews` Have No LIMIT
+
+**File: `backend/src/controllers/reviewController.js:14` and `:141`**
+
+Both return all reviews for a game/user with no pagination or LIMIT clause. Same pattern as the posts issue — low risk now but grows over time.
+
+**Fix:** Add LIMIT + pagination, consistent with `getPostComments`.
+
+---
+
+## 🟡 Medium — Review `body` Has No Length Limit
+
+**File: `backend/src/controllers/reviewController.js:53`**
+
+`body` is stored as-is with no max length check — same issue as bio/comment text.
+
+**Fix:** Add a max length (e.g. ≤ 5000 chars) via a check before insert or Joi validation.
+
+---
+
+## 🟢 Low — `JWT_SECRET` Has a Weak Hardcoded Default
+
+**File: `backend/src/config/index.js:7`**
+
+Defaults to `'change_this_secret_in_production'`. Auth currently uses Firebase token verification so this secret appears unused — but if any code ever starts relying on it without the env var set, it's a silent failure.
+
+**Fix:** Remove the fallback entirely so the app fails loudly on startup if unset: `JWT_SECRET: process.env.JWT_SECRET`.
+
+---
+
 ## ✅ What's Already Good
 
 - `/internal` ingestion routes are properly guarded with `requireTaskSecret`.
+- `TASK_SECRET` defaulting to `''` is safe — `requireTaskSecret` explicitly returns 503 if empty.
 - Auth middleware correctly verifies Firebase ID tokens server-side — no JWT forgery risk.
 - `assignRole` checks the actor's role server-side — users cannot self-promote.
 - Board/post/comment deletes all use `AND user_id=$N` — users can't delete other people's content.
@@ -104,7 +148,10 @@ These fields are only checked for existence — not validated as URLs or restric
 - All DB queries use parameterized `$1` placeholders — no SQL injection risk.
 - UID format is validated with a regex before hitting the Enka API.
 - Post text is validated with Joi `max(5000)` in `postController`.
+- Comment routes use Joi validation schemas.
 - `followUser` prevents self-follows.
+- Review sort order uses hardcoded server-side strings, not user input — no SQL injection.
+- Concert Hall `count` param is user-controlled but capped at 20 server-side.
 
 ---
 
@@ -113,7 +160,9 @@ These fields are only checked for existence — not validated as URLs or restric
 1. **Add auth to all `/api/admin/*` routes** — highest urgency, biggest cost risk (YouTube quota)
 2. **Install `express-rate-limit` globally** — blanket protection for all endpoints
 3. **Add tighter rate limit + response cache to `/api/games/:id/player/:uid`** — prevents Enka IP ban
-4. **Add `LIMIT` + pagination to `getAllPosts` and `getGameMedia`** — prevents full table scans
+4. **Add `LIMIT` + pagination to `getAllPosts`, `getGameMedia`, `getReviews`, `getUserReviews`** — prevents full table scans
 5. **Rate limit or require auth on `POST /api/suggestions`** — prevents anonymous spam
-6. **Add length caps to caption / comment text / bio** — prevents oversized DB writes
-7. **Validate URL fields** (`image_url`, `avatar_url`, `banner_url`, `reference_link`) — good hygiene
+6. **Add length caps to caption / comment text / bio / review body** — prevents oversized DB writes
+7. **Move Firebase config to env variables** — enables key rotation without git commits
+8. **Validate URL fields** (`image_url`, `avatar_url`, `banner_url`, `reference_link`) — good hygiene
+9. **Remove `JWT_SECRET` fallback default** — fail loudly if env var is missing
