@@ -70,17 +70,33 @@ const getGameNews = async (req, res, next) => {
   }
 };
 
+// Media lists are public, identical for every caller, and only change when the
+// hourly ingestion runs. Letting Firebase Hosting's CDN serve repeats keeps the
+// bulk of this traffic off Cloud Run and Postgres entirely.
+const MEDIA_CACHE_SECONDS = 300;
+
+// Safety ceiling, not pagination. MediaTab searches and CastTab matches
+// characters against the whole list client-side, so slicing it into pages would
+// silently break both. 2000 is well clear of the largest game today (~520 rows)
+// and exists only to stop unbounded growth; if a game approaches it, move the
+// search and character matching server-side rather than raising this.
+const MEDIA_MAX_ROWS = 2000;
+
 const getGameMedia = async (req, res, next) => {
   try {
     const game = await resolveGame(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
+    // `description` is deliberately not selected: it was 66% of the response
+    // payload and no client reads it.
     const { rows } = await query(
-      `SELECT id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category, is_automated, view_count, tags
+      `SELECT id, title, external_platform, external_id, source_url, thumbnail_url, published_at, category, is_automated, view_count, tags
        FROM media_content
        WHERE game_id=$1 AND status='published'
-       ORDER BY published_at DESC`,
-      [game.id]
+       ORDER BY published_at DESC
+       LIMIT $2`,
+      [game.id, MEDIA_MAX_ROWS]
     );
+    res.set('Cache-Control', `public, max-age=${MEDIA_CACHE_SECONDS}`);
     res.json(rows);
   } catch (err) {
     next(err);

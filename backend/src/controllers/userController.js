@@ -1,3 +1,6 @@
+const Joi = require('joi');
+const { USERNAME_MAX, BIO_MAX } = require('../utils/limits');
+const { imageSource } = require('../utils/imageSource');
 const { query } = require('../config/db');
 const { createUserNotification } = require('./userNotificationController');
 
@@ -46,6 +49,22 @@ const getUserByUsername = async (req, res, next) => {
     next(err);
   }
 };
+
+/**
+ * Every field is optional: updateMe uses `'field' in req.body` so an absent key
+ * leaves the column unchanged while an explicit null clears it. Validation must
+ * preserve that distinction, so nothing here is required.
+ *
+ * avatar_url and banner_url are validated by imageSource (http(s) URL or
+ * data:image/* only). bio is free text and capped tightly.
+ */
+const updateMeSchema = Joi.object({
+  username:   Joi.string().trim().min(1).max(USERNAME_MAX).allow(null).optional(),
+  bio:        Joi.string().trim().max(BIO_MAX).allow('', null).optional(),
+  birthday:   Joi.date().iso().allow('', null).optional(),
+  avatar_url: imageSource.allow('', null).optional(),
+  banner_url: imageSource.allow('', null).optional(),
+});
 
 /** PATCH /api/users/me — update bio, username, birthday, avatar_url, banner_url */
 const updateMe = async (req, res, next) => {
@@ -464,5 +483,4 @@ module.exports = {
   getUserGameAccounts,
   upsertGameAccount,
   removeGameAccount,
-  assignRole,
-};
+  assignRole, updateMeSchema };

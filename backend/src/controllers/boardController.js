@@ -1,5 +1,26 @@
 const { query } = require('../config/db');
 const { createUserNotification } = require('./userNotificationController');
+const Joi = require('joi');
+const { CAPTION_MAX, COMMENT_MAX, GAME_LABEL_MAX } = require('../utils/limits');
+const { imageSource } = require('../utils/imageSource');
+
+/**
+ * image_url is validated by imageSource (http(s) URL or data:image/* only);
+ * caption is free text and is capped tightly.
+ */
+const addBoardSchema = Joi.object({
+  game_id:   Joi.string().trim().max(GAME_LABEL_MAX).allow('', null).optional(),
+  game_name: Joi.string().trim().max(GAME_LABEL_MAX).allow('', null).optional(),
+  image_url: imageSource.required()
+    .messages({ 'any.required': 'image_url is required.', 'string.empty': 'image_url is required.' }),
+  caption:   Joi.string().trim().max(CAPTION_MAX).allow('', null).optional(),
+});
+
+const addBoardCommentSchema = Joi.object({
+  text: Joi.string().trim().min(1).max(COMMENT_MAX).required()
+    .messages({ 'string.empty': 'text is required.', 'any.required': 'text is required.' }),
+});
+
 
 const BOARD_LIMIT = 10;
 
@@ -186,4 +207,4 @@ const deleteComment = async (req, res, next) => {
   }
 };
 
-module.exports = { getBoards, addBoard, deleteBoard, getAllBoards, getBoardsByGame, getComments, addComment, deleteComment };
+module.exports = { getBoards, addBoard, deleteBoard, getAllBoards, getBoardsByGame, getComments, addComment, deleteComment, addBoardSchema, addBoardCommentSchema };

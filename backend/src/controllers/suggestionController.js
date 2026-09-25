@@ -1,5 +1,35 @@
 const { query } = require('../config/db');
 const { requireMod } = require('./reportController');
+const Joi = require('joi');
+
+const SUGGESTION_TYPES = ['game', 'character', 'artwork'];
+
+/**
+ * Anyone (logged in or not) can submit a suggestion, so every field is
+ * untrusted input that lands straight in the database. Caps keep a single
+ * submission from carrying megabytes of text — express.json allows 10mb — and
+ * reference_link is checked as a real http(s) URL rather than stored as an
+ * arbitrary string, which also rules out javascript: and data: values.
+ */
+const submitSuggestionSchema = Joi.object({
+  type: Joi.string().valid(...SUGGESTION_TYPES).required()
+    .messages({ 'any.only': 'type must be game, character, or artwork.' }),
+
+  entry_name: Joi.string().trim().min(1).max(120).required()
+    .messages({ 'string.empty': 'entry_name is required.' }),
+
+  // Required only for character and artwork suggestions.
+  game_name: Joi.when('type', {
+    is: Joi.valid('character', 'artwork'),
+    then: Joi.string().trim().min(1).max(120).required()
+      .messages({ 'any.required': 'game_name is required for character and artwork suggestions.' }),
+    otherwise: Joi.string().trim().max(120).allow('', null).optional(),
+  }),
+
+  reference_link: Joi.string().trim().uri({ scheme: ['http', 'https'] }).max(500).allow('', null).optional()
+    .messages({ 'string.uri': 'reference_link must be a valid http(s) URL.' }),
+});
+
 
 /** POST /api/suggestions — any visitor, auth optional */
 const submitSuggestion = async (req, res, next) => {
@@ -93,4 +123,4 @@ const resolveSuggestion = async (req, res, next) => {
   }
 };
 
-module.exports = { submitSuggestion, getSuggestions, resolveSuggestion, requireMod };
+module.exports = { submitSuggestion, getSuggestions, resolveSuggestion, requireMod, submitSuggestionSchema };

@@ -1,11 +1,12 @@
 const router = require('express').Router();
+const { validate } = require('../middleware/validation');
 const {
   getUserProfile,
   getUserByUsername,
   searchUsers,
   getCommunityUsers,
   getDirectoryUsers,
-  updateMe,
+  updateMe, updateMeSchema,
   getUserGames,
   addUserGame,
   removeUserGame,
@@ -33,7 +34,7 @@ router.get('/search',                optionalAuth, searchUsers);
 // Profile
 router.get('/by-username/:username', optionalAuth, getUserByUsername);
 router.get('/:id',                   optionalAuth, getUserProfile);
-router.patch('/me',                  authenticateToken, updateMe);
+router.patch('/me',                  authenticateToken, validate(updateMeSchema), updateMe);
 
 // Games
 router.get('/:id/games',                           getUserGames);

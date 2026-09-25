@@ -5,6 +5,10 @@ import ReportModal from '../ui/ReportModal'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
+// Kept in step with REVIEW_BODY_MAX in backend/src/utils/limits.js so the form
+// cannot accept text the server will reject.
+const REVIEW_BODY_MAX = 500
+
 function ratingColor(r) {
   if (r >= 8) return '#4ade80'
   if (r >= 5) return '#facc15'
@@ -25,22 +29,36 @@ export default function GameReviewsSection({ gameId }) {
   const [submitting, setSubmitting] = useState(false)
   const [hovered, setHovered]   = useState(0)
   const [formOpen, setFormOpen] = useState(false)
+  const [serverMyReview, setServerMyReview] = useState(null)
+  const [hasMore, setHasMore]   = useState(false)
+  const [page, setPage]         = useState(1)
+  const [loadingMore, setLoadingMore] = useState(false)
 
-  const myReview = reviews.find((r) => r.user_id === user?.id)
+  // The server returns the caller's own review explicitly, so editing still
+  // works when it is not on the current page. Fall back to a local scan.
+  const myReview = serverMyReview ?? reviews.find((r) => r.user_id === user?.id)
 
-  const fetchReviews = useCallback(() => {
-    setLoading(true)
-    const req = isLoggedIn
-      ? authFetch(`${API}/reviews/${gameId}?sort=${sort}`)
-      : fetch(`${API}/reviews/${gameId}?sort=${sort}`)
+  const fetchReviews = useCallback((pageNum = 1, append = false) => {
+    if (append) setLoadingMore(true); else setLoading(true)
+    const url = `${API}/reviews/${gameId}?sort=${sort}&page=${pageNum}`
+    const req = isLoggedIn ? authFetch(url) : fetch(url)
     req
       .then((r) => r.json())
-      .then((data) => setReviews(Array.isArray(data) ? data : []))
-      .catch(() => setReviews([]))
-      .finally(() => setLoading(false))
+      .then((data) => {
+        // Paginated shape is { items, hasMore, myReview }; tolerate a bare array
+        // so a stale cached bundle against a new backend still renders.
+        const list = Array.isArray(data) ? data : (data?.items ?? [])
+        setReviews((prev) => (append ? [...prev, ...list] : list))
+        setHasMore(Array.isArray(data) ? false : Boolean(data?.hasMore))
+        setServerMyReview(Array.isArray(data) ? null : (data?.myReview ?? null))
+        setPage(pageNum)
+      })
+      .catch(() => { if (!append) { setReviews([]); setHasMore(false); setServerMyReview(null) } })
+      .finally(() => { setLoading(false); setLoadingMore(false) })
   }, [gameId, sort, isLoggedIn, authFetch])
 
-  useEffect(() => { fetchReviews() }, [fetchReviews])
+  // Re-fetch from page 1 whenever the game or sort changes.
+  useEffect(() => { fetchReviews(1, false) }, [fetchReviews])
 
   // Pre-fill form if user already has a review
   useEffect(() => {
@@ -159,7 +177,7 @@ export default function GameReviewsSection({ gameId }) {
             placeholder="Write your review… (optional)"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            maxLength={1000}
+            maxLength={REVIEW_BODY_MAX}
             rows={3}
           />
           <div className="review-form__actions">
@@ -238,6 +256,16 @@ export default function GameReviewsSection({ gameId }) {
             </div>
           )
         })}
+        {!loading && hasMore && (
+          <button
+            type="button"
+            className="reviews-section__more"
+            onClick={() => fetchReviews(page + 1, true)}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading…' : 'Load more reviews'}
+          </button>
+        )}
       </div>
     </div>
 

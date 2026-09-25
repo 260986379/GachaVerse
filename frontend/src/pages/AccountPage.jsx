@@ -226,21 +226,40 @@ function MyReviewsModal({ userId, authFetch, onClose, onStatsChange }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  const [totals, setTotals] = useState({ total: 0, totalUpvotes: 0 })
+
   useEffect(() => {
     fetch(`${API}/reviews/user/${userId}`)
       .then(r => r.json())
-      .then(data => setReviews(Array.isArray(data) ? data : []))
+      .then(data => {
+        // Paginated shape is { items, hasMore, total, totalUpvotes }; tolerate a
+        // bare array so a stale cached bundle still renders.
+        const list = Array.isArray(data) ? data : (data?.items ?? [])
+        setReviews(list)
+        setTotals(Array.isArray(data)
+          ? { total: list.length, totalUpvotes: list.reduce((s, r) => s + (r.upvote_count || 0), 0) }
+          : { total: data?.total ?? list.length, totalUpvotes: data?.totalUpvotes ?? 0 })
+      })
       .catch(() => setReviews([]))
   }, [userId])
 
-  const totalUpvotes = reviews?.reduce((sum, r) => sum + (r.upvote_count || 0), 0) ?? 0
+  // Server-computed, so this stays correct when the list is only one page.
+  const totalUpvotes = totals.totalUpvotes
 
   const handleDelete = async (reviewId) => {
     const res = await authFetch(`${API}/reviews/review/${reviewId}`, { method: 'DELETE' })
     if (res.ok) {
+      const removed = reviews.find(r => r.id === reviewId)
       const next = reviews.filter(r => r.id !== reviewId)
       setReviews(next)
-      onStatsChange({ review_count: next.length, total_upvotes: next.reduce((s, r) => s + (r.upvote_count || 0), 0) })
+      // Adjust the server totals rather than re-summing the page, which would
+      // report only the rows currently loaded.
+      const nextTotals = {
+        total: Math.max(0, totals.total - 1),
+        totalUpvotes: Math.max(0, totals.totalUpvotes - (removed?.upvote_count || 0)),
+      }
+      setTotals(nextTotals)
+      onStatsChange({ review_count: nextTotals.total, total_upvotes: nextTotals.totalUpvotes })
     }
   }
 
