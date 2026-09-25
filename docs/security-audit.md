@@ -31,27 +31,125 @@ Every `/api/admin/*` route has **zero authentication**. Anyone who knows your AP
 
 ---
 
-## 🔴 Critical — `GET /api/posts` Returns the Entire Table
+## ✅ Fixed (2026-09-25) — `GET /api/posts` Returns the Entire Table
 
-**File: `backend/src/controllers/postController.js:42`**
+**File: `backend/src/controllers/postController.js:30`**
+
+**Resolution:** `getAllPosts` is now paginated using the same convention as `getPostComments` and `getGameNews` — `?limit` (default 30, capped at 100) and `?page`, fetching `limit + 1` rows to compute `hasMore`. The four hand-written filter branches were replaced by a built `WHERE` clause so `LIMIT`/`OFFSET` always occupy the last two placeholders. `limit` is clamped on **both** ends: `Math.min(Math.max(n, 1), 100)`, because `parseInt('-5') || 30` yields `-5` (truthy), which would emit `LIMIT -4` and 500.
+
+**Response shape changed** from a bare array to `{ items, hasMore }`, matching the other paginated endpoints. Safe to do because nothing in the frontend consumes `/api/posts` yet.
+
+---
+
+<details>
+<summary>Original finding</summary>
 
 When called with no filters, `getAllPosts` runs `SELECT ... FROM posts ORDER BY created_at DESC` with **no LIMIT at all**. As the platform grows this becomes a full table scan returned to the caller. Anyone can hit it in a loop.
 
 **Fix:** Add `LIMIT`/pagination the same way `getPostComments` already does on the same file.
 
+</details>
+
 ---
 
-## 🟠 High — No Rate Limiting Anywhere
+## ✅ Fixed (2026-09-25) — No Rate Limiting Anywhere
+
+**Files: `backend/src/middleware/rateLimit.js` (new), `backend/src/utils/clientIp.js` (new), `backend/src/app.js:32`**
+
+**Resolution:** `express-rate-limit` v8 mounted on `/api` — **100 requests per minute per client IP** by default, tunable without a redeploy via `RATE_LIMIT_MAX` and `RATE_LIMIT_WINDOW_MS`. Blocked requests return **429** with `Retry-After`, `RateLimit` (draft-7) headers and a JSON `{ message, retryAfter }` body the existing frontend error paths already render.
+
+Deliberately **not** covered:
+- `/internal/*` — reached by Cloud Scheduler and Cloud Tasks from rotating Google IPs, already guarded by `TASK_SECRET`, and bursts five requests on the hour.
+- `/api/admin/*` — already guarded by `TASK_SECRET` and run by hand; a seed or backfill should not be throttled.
+
+### Client IP resolution — the part that makes this work
+
+`firebase.json` rewrites `/api/**` to Cloud Run, so production traffic is **user → Firebase Hosting (Google edge) → Cloud Run**. Cloud Run request logs confirm the proxied peer is a Google address (e.g. `66.102.8.167`), *not* the visitor. Keying on `req.ip` would therefore have put **every visitor in one bucket** — a 100/min cap for the entire site.
+
+`utils/clientIp.js` reads the **first** `X-Forwarded-For` entry, which Google's edge sets to the originating client. `playerLookupGuard.js` now shares this helper, correcting the Enka limiter, which had the same latent flaw.
+
+**Known trade-off:** Cloud Run ingress is `all`, so the service is reachable directly, bypassing Firebase. A caller on that path can forge the first `X-Forwarded-For` entry and select their own bucket. Reading the last entry instead would be forgery-proof but wrong for all real traffic, so it is not a fix. **Restricting Cloud Run ingress is NOT a viable mitigation — tested and ruled out 2026-09-25.** Setting `--ingress internal-and-cloud-load-balancing` made the Firebase Hosting path return 404 alongside the direct path: Firebase’s Cloud Run rewrite does not go through a customer Google Cloud load balancer, so it is blocked too. Reverted to `all` immediately; both paths verified healthy afterwards. The remaining option is verifying the request genuinely arrived via Google’s edge before trusting the forwarded client address — which requires first observing the real `X-Forwarded-For` shape in production via `GET /internal/whoami`. `CLIENT_IP_SOURCE` (`first` | `last` | `socket`) allows switching strategy without a code change.
+
+`GET /internal/whoami` (secret-guarded) reports the resolved IP, strategy and full hop chain, so the above can be confirmed against the live service on both access paths.
+
+### ⏭️ Open follow-up — harden client IP trust (picks up where 2026-09-25 left off)
+
+**Status:** rate limiting is live and correct for all real users. One bypass remains, documented here so it is not lost.
+
+**The gap.** Client IP is taken from the *first* `X-Forwarded-For` entry. That is correct for traffic through Firebase Hosting (the only path real users take). A caller hitting the Cloud Run URL **directly** can forge that entry and hand themselves a fresh rate-limit bucket. Impact is limited to evading rate limits — no data access, no auth bypass — and it is still strictly better than the previous state of no rate limiting at all.
+
+**Ruled out:** restricting Cloud Run ingress (tested 2026-09-25, see above — it blocks Firebase too).
+
+**Also ruled out:** keying on the TCP peer (`req.socket.remoteAddress`). On Cloud Run the container sits behind Cloud Run's own proxy, so the socket peer is an internal address for *every* request and cannot distinguish the direct path from the proxied one.
+
+#### Step 1 — measure before coding (do not skip)
+
+The right hop to verify is unknown until the real header is observed in production. An earlier assumption that the *last* hop was the client turned out to be wrong and would have made the Enka limiter global; do not guess again.
+
+After any deploy, run both:
+
+```powershell
+$S = gcloud secrets versions access latest --secret=TASK_SECRET
+
+# via Firebase Hosting — the real user path
+curl.exe -s -H "Authorization: Bearer $S" "https://gachaverse-497204.web.app/internal/whoami"
+
+# direct to Cloud Run — the bypass path
+curl.exe -s -H "Authorization: Bearer $S" "https://gachaverse-backend-50606435860.us-central1.run.app/internal/whoami"
+```
+
+Each returns `resolvedClientIp`, `strategy`, `forwardedForHops`, `socketRemote`, `host`. Diffing the two shows which hops Google's edge controls and which the caller can forge.
+
+**Known wrinkle:** `firebase.json` only rewrites `/api/**`, so the first call may hit the SPA fallback and return `index.html` instead of reaching the backend. That result is itself informative — it would mean `/internal` is unreachable through Firebase, narrowing the exposed surface. If so, move the diagnostic to `/api/admin/whoami` (already secret-guarded by the `/api/admin` mount) and repeat.
+
+#### Step 2 — implement
+
+Verify the request genuinely arrived via Google's edge before trusting the forwarded address: check the appropriate hop against Google's published ranges (`https://www.gstatic.com/ipranges/goog.json`), cached with a long TTL.
+
+- Hop is Google-owned → came through Firebase → trust the client entry.
+- Otherwise → direct hit → treat as untrusted and fall back to the most restrictive key.
+
+**Fail closed:** if the range list cannot be fetched, fall back to the restrictive interpretation, never the permissive one.
+
+Slots into `backend/src/utils/clientIp.js` behind the interface both limiters already use, so neither call site changes. `CLIENT_IP_SOURCE` (`first` | `last` | `socket`) remains as a no-redeploy override.
+
+#### Also still open on rate limiting
+
+- Store is in-memory and per-instance: effective ceiling is 100/min × running instances (`maxScale=10`). A shared store is needed for an exact global limit.
+- No tighter per-route limits on auth endpoints (login/register brute force).
+
+---
+
+<details>
+<summary>Original finding</summary>
 
 There is **no rate limiting on any endpoint** in the entire backend (`express-rate-limit` is not installed or used). Every public endpoint is fully open to bot traffic — data scraping, Enka lookup spam, suggestion flooding, etc.
 
 **Fix:** Install `express-rate-limit` and apply a global default (e.g. 100 req/min per IP) with tighter limits on sensitive routes like the Enka player lookup.
 
+</details>
+
 ---
 
-## 🟠 High — No Rate Limiting on the Enka Player Lookup
+## ✅ Fixed (2026-09-25) — No Rate Limiting on the Enka Player Lookup
 
-**File: `backend/src/routes/gameRoutes.js:13` → `backend/src/controllers/gameController.js:127`**
+**File: `backend/src/services/playerLookupGuard.js` (new) → `backend/src/controllers/gameController.js:128`**
+
+**Resolution:** two layers, both in `playerLookupGuard.js`:
+
+1. **Per-UID response cache**, keyed `game:uid`, honouring the `ttl` Enka returns (`enkaService.js:185,207`). `ttl` is clamped to 10s–600s; HSR returns no `ttl` so it falls back to 60s. Repeat views never leave the process.
+2. **Per-client-IP limiter: one *outbound Enka call* per 120s.** Consulted only on a cache miss, so cache hits are free and unlimited. This matters because `AccountPage.jsx:614` auto-fires a lookup on every visit to a linked game — counting cache hits would 429 normal navigation.
+
+A blocked request returns **429** with a `Retry-After` header and a JSON `{ message, retryAfter }` body, which the existing frontend error path (`data.message`) already renders.
+
+**Client IP is resolved from the *last* `X-Forwarded-For` entry**, not via app-wide `trust proxy`. Cloud Run appends the real peer address, so the last entry is infrastructure-supplied; reading the first entry (what `trust proxy: true` does) would let anyone reset their budget with a forged header.
+
+**Not fixed by this change:** the limiter is in-memory and per-instance, so the effective ceiling is 1-per-120s × instance count. Acceptable at `min-instances=0` and current traffic; a shared store would be needed at scale. The separate "No Rate Limiting Anywhere" finding below is still open.
+
+---
+
+<details>
+<summary>Original finding</summary>
 
 `GET /api/games/:id/player/:uid` is public and uncached. Every request fires a live fetch to `enka.network`. A user (or bot) can hammer this in a loop with different UIDs and:
 
@@ -59,6 +157,8 @@ There is **no rate limiting on any endpoint** in the entire backend (`express-ra
 - Generate sustained DB + network load with zero friction
 
 **Fix:** Add `express-rate-limit` on this specific route. Also cache successful responses using the `ttl` field Enka returns in its response — the TTL tells you exactly how long to cache before re-fetching is safe.
+
+</details>
 
 ---
 
@@ -166,10 +266,14 @@ Defaults to `'change_this_secret_in_production'`. Auth currently uses Firebase t
 
 ## Suggested Fix Order
 
+> **Carried over:** client-IP trust hardening is still open — see "Open follow-up" under the rate limiting finding above.
+> Measure with `/internal/whoami` on both access paths *before* writing code; an earlier assumption about which
+> `X-Forwarded-For` hop is the client was wrong and would have made the Enka limiter global.
+
 1. ~~**Add auth to all `/api/admin/*` routes**~~ — ✅ done 2026-09-20
-2. **Install `express-rate-limit` globally** — blanket protection for all endpoints
-3. **Add tighter rate limit + response cache to `/api/games/:id/player/:uid`** — prevents Enka IP ban
-4. **Add `LIMIT` + pagination to `getAllPosts`, `getGameMedia`, `getReviews`, `getUserReviews`** — prevents full table scans
+2. ~~**Install `express-rate-limit` globally**~~ — ✅ done 2026-09-25 (100/min per IP on /api; /internal and /api/admin exempt)
+3. ~~**Add tighter rate limit + response cache to `/api/games/:id/player/:uid`**~~ — ✅ done 2026-09-25 (1 Enka call per IP per 120s + per-UID TTL cache)
+4. **Add `LIMIT` + pagination to ~~`getAllPosts`~~, `getGameMedia`, `getReviews`, `getUserReviews`** — prevents full table scans (`getAllPosts` ✅ done 2026-09-25; the other three remain)
 5. **Rate limit or require auth on `POST /api/suggestions`** — prevents anonymous spam
 6. **Add length caps to caption / comment text / bio / review body** — prevents oversized DB writes
 7. **Move Firebase config to env variables** — enables key rotation without git commits

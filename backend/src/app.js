@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const corsMiddleware = require('./middleware/cors');
 const errorHandler = require('./middleware/errorHandler');
 const requireTaskSecret = require('./middleware/requireTaskSecret');
+const { apiLimiter } = require('./middleware/rateLimit');
 
 const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
@@ -25,6 +26,10 @@ const app = express();
 app.use(corsMiddleware);
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
+
+// Global per-IP rate limit for the public API. Mounted before any /api route.
+// /internal is intentionally not covered - see middleware/rateLimit.js.
+app.use('/api', apiLimiter);
 
 app.get('/api/hello', (req, res) => res.json({ message: 'Hello from GachaVerse Backend!' }));
 

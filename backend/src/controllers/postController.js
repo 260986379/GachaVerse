@@ -27,23 +27,30 @@ const createPost = async (req, res, next) => {
   }
 };
 
+/** GET /api/posts — newest first, paginated. Optional game_id / user_id filters. */
 const getAllPosts = async (req, res, next) => {
   try {
     const { game_id, user_id } = req.query;
-    const BASE = `SELECT p.*, u.username, u.avatar_url FROM posts p JOIN users u ON p.user_id=u.id`;
+    const limit  = Math.min(Math.max(parseInt(req.query.limit) || 30, 1), 100);
+    const offset = (Math.max(parseInt(req.query.page)  || 1, 1) - 1) * limit;
 
-    let rows;
-    if (game_id && user_id) {
-      ({ rows } = await query(`${BASE} WHERE p.game_id=$1 AND p.user_id=$2 ORDER BY p.created_at DESC`, [game_id, user_id]));
-    } else if (game_id) {
-      ({ rows } = await query(`${BASE} WHERE p.game_id=$1 ORDER BY p.created_at DESC`, [game_id]));
-    } else if (user_id) {
-      ({ rows } = await query(`${BASE} WHERE p.user_id=$1 ORDER BY p.created_at DESC`, [user_id]));
-    } else {
-      ({ rows } = await query(`${BASE} ORDER BY p.created_at DESC`));
-    }
+    // Filters are appended first so LIMIT/OFFSET always land on the last two placeholders.
+    const where  = [];
+    const params = [];
+    if (game_id) { params.push(game_id); where.push(`p.game_id=$${params.length}`); }
+    if (user_id) { params.push(user_id); where.push(`p.user_id=$${params.length}`); }
 
-    res.json(rows);
+    const { rows } = await query(
+      `SELECT p.*, u.username, u.avatar_url
+       FROM posts p JOIN users u ON p.user_id=u.id
+       ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
+       ORDER BY p.created_at DESC
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      [...params, limit + 1, offset]
+    );
+
+    const hasMore = rows.length > limit;
+    res.json({ items: hasMore ? rows.slice(0, limit) : rows, hasMore });
   } catch (err) {
     next(err);
   }

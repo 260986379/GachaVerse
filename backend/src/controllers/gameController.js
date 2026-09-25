@@ -1,5 +1,6 @@
 const { query } = require('../config/db');
 const { fetchZZZPlayer, fetchGenshinPlayer, fetchHSRPlayer } = require('../services/enkaService');
+const playerGuard = require('../services/playerLookupGuard');
 
 const PLAYER_FETCHERS = {
   'zenless-zone-zero': fetchZZZPlayer,
@@ -132,7 +133,23 @@ const getPlayer = async (req, res, next) => {
     }
     const fetcher = PLAYER_FETCHERS[gameId];
     if (!fetcher) return res.status(404).json({ message: 'No player API available for this game.' });
+
+    // Served from cache costs Enka nothing, so it never spends the caller's budget.
+    const cached = playerGuard.getCached(gameId, uid);
+    if (cached) return res.json(cached);
+
+    // Cache miss — this request will hit Enka, so it must pay for it.
+    const gate = playerGuard.consume(playerGuard.clientIp(req));
+    if (!gate.allowed) {
+      res.set('Retry-After', String(gate.retryAfterSec));
+      return res.status(429).json({
+        message: `Too many player lookups. Try again in ${gate.retryAfterSec}s.`,
+        retryAfter: gate.retryAfterSec,
+      });
+    }
+
     const data = await fetcher(uid);
+    playerGuard.setCached(gameId, uid, data);
     res.json(data);
   } catch (err) {
     if (err.status) return res.status(err.status).json({ message: err.message });

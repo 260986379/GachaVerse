@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { ingestVideosForGame, reclassifyExistingVideos } = require('../services/youtubeIngestionService');
 const { enqueueYouTubeTasks } = require('../services/ingestionScheduler');
 const requireTaskSecret = require('../middleware/requireTaskSecret');
+const { clientIp, parseForwardedFor, CLIENT_IP_SOURCE } = require('../utils/clientIp');
 const config = require('../config');
 
 const GAME_CHANNELS = {
@@ -55,6 +56,20 @@ router.post('/tasks/ingest/youtube/backfill', requireTaskSecret, async (req, res
     console.error(`[Internal] Backfill failed for ${gameSlug}:`, err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+// Diagnostic: reports how this request’s client IP was resolved. Rate limiting
+// keys on this value, and the answer differs between the Firebase Hosting path
+// and direct Cloud Run access — this endpoint is how you confirm which entry of
+// X-Forwarded-For is the real user. Secret-guarded; safe to leave deployed.
+router.get('/whoami', requireTaskSecret, (req, res) => {
+  res.json({
+    resolvedClientIp: clientIp(req),
+    strategy:         CLIENT_IP_SOURCE,
+    forwardedForHops: parseForwardedFor(req),
+    socketRemote:     req.socket?.remoteAddress || null,
+    host:             req.headers.host || null,
+  });
 });
 
 module.exports = router;
