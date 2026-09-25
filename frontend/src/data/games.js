@@ -15,6 +15,7 @@ export const GAMES = [
     color2: "#0f0520",
     youtubeId: "L5DEAV17cYY",
     youtubeTitle: "Season 3 Teaser - \"Before the Wind Rises\" | Zenless Zone Zero",
+    posterImage: "https://img.youtube.com/vi/ew9nVnCl8AY/maxresdefault.jpg",
     bannerImage: "/banners/zzz-banner.png",
     bannerPosition: "center center",
     description:

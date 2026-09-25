@@ -426,7 +426,7 @@ export default function CastTab({ gameId, initialCharId }) {
                   >
                     <div className="cast-card__portrait">
                       {char.icon_url
-                        ? <img src={char.icon_url} alt={char.name} />
+                        ? <img src={char.icon_url} alt={char.name} loading="lazy" />
                         : <div className="cast-card__fallback">{(char.display_name || char.name)[0]}</div>
                       }
                       <span

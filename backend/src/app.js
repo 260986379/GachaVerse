@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const corsMiddleware = require('./middleware/cors');
 const errorHandler = require('./middleware/errorHandler');
+const requireTaskSecret = require('./middleware/requireTaskSecret');
 
 const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
@@ -26,6 +27,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
 
 app.get('/api/hello', (req, res) => res.json({ message: 'Hello from GachaVerse Backend!' }));
+
+// Admin routes are manual, machine-only maintenance jobs (seeds, migrations,
+// YouTube backfills). Everything under /api/admin requires the shared task
+// secret — this mount guards current and future admin routes alike.
+app.use('/api/admin', requireTaskSecret);
 
 app.post('/api/admin/seed-characters', async (req, res) => {
   res.json({ message: 'All character seeds started in background' });

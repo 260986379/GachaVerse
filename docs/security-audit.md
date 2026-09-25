@@ -4,9 +4,16 @@
 
 ---
 
-## 🔴 Critical — Unauthenticated Admin Routes
+## ✅ Fixed (2026-09-20) — Unauthenticated Admin Routes
 
 **File: `backend/src/app.js`, lines 30–142**
+
+**Resolution:** `requireTaskSecret` was extracted from `internalRoutes.js` into `backend/src/middleware/requireTaskSecret.js` (now with a timing-safe comparison) and mounted as `app.use('/api/admin', requireTaskSecret)` ahead of every admin route, so current and future admin routes are guarded by default. Callers must send `Authorization: Bearer <TASK_SECRET>`; if `TASK_SECRET` is unset the routes fail closed with 503.
+
+---
+
+<details>
+<summary>Original finding</summary>
 
 Every `/api/admin/*` route has **zero authentication**. Anyone who knows your API URL can hit these:
 
@@ -19,6 +26,8 @@ Every `/api/admin/*` route has **zero authentication**. Anyone who knows your AP
 | `POST /api/admin/seed-lore` / `seed-images` | Same — unguarded background jobs. |
 
 **Fix:** Add the same `requireTaskSecret` guard already used on `/internal` routes (see `backend/src/routes/internalRoutes.js:14`), or wrap all admin routes in an IP allowlist / `authenticateToken` + role check.
+
+</details>
 
 ---
 
@@ -157,7 +166,7 @@ Defaults to `'change_this_secret_in_production'`. Auth currently uses Firebase t
 
 ## Suggested Fix Order
 
-1. **Add auth to all `/api/admin/*` routes** — highest urgency, biggest cost risk (YouTube quota)
+1. ~~**Add auth to all `/api/admin/*` routes**~~ — ✅ done 2026-09-20
 2. **Install `express-rate-limit` globally** — blanket protection for all endpoints
 3. **Add tighter rate limit + response cache to `/api/games/:id/player/:uid`** — prevents Enka IP ban
 4. **Add `LIMIT` + pagination to `getAllPosts`, `getGameMedia`, `getReviews`, `getUserReviews`** — prevents full table scans

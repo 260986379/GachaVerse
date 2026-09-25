@@ -27,6 +27,7 @@ const TIMESTAMPS = {
   "9Lshum4Peqw": 88, // Ye Shunguang EP - "A Thousand First Meetings" | Zenless Zone Zero
   xFnc00wpAPg: 33, // Burnice EP – "Burning Desires" | Zenless Zone Zero
   "TZvfPRf1-i4": 60, // Tsukishiro Yanagi EP – "Rest Awhile" | Zenless Zone Zero
+  "HuW-WYjg-fA": 120, // Aria EP - "Angel Loading...^_−☆" | Zenless Zone Zero
 
   /// WUWA
   uLMSVstf6zo: 75, // Wuthering Waves EP 1.1
@@ -42,6 +43,9 @@ const TIMESTAMPS = {
   h2mExeCBKVQ: 34, // Wuthering Waves EP3.3 — Denia - "Dasvidaniya"
   "887Hr8i3gGE": 60, // Wuthering Waves EP1.4 | A Million Possibilities
   "5_kJclPEjKM": 48, // Wuthering Waves Fleet Snowfluff EP — "Indigo Universe"
+  "b-CpMW3kSjw": 76, // Wuthering Waves EP 2.0 | Roccia Theme Song - One
+  "887Hr8i3gGE": 48, // Wuthering Waves EP1.4 | A Million Possibilities
+  A8bokOYnYxw: 79, // Wuthering Waves EP2.1 — Brant - "THE KING OF WAYWARD SOULS (SELF PROCLAIMED) (BUT DESTINED)"
 
   /// HSR
   J9wcfTVUZNE: 90, // EP: Of Snow and Ember | Honkai: Star Rail

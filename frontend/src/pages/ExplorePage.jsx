@@ -211,7 +211,13 @@ function MinigamesSection() {
   return (
     <section className="trending-section">
       <div className="section-header">
-        <h2 className="section-title">Discover</h2>
+        <h2 className="section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6, verticalAlign: 'middle', marginRight: '0.4rem', marginBottom: '0.15rem' }}>
+            <circle cx="12" cy="12" r="10" />
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+          </svg>
+          Discover
+        </h2>
       </div>
       <div className="minigames-row">
         {MINIGAMES.map(g => <MinigameCard key={g.id} game={g} />)}

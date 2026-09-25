@@ -10,7 +10,8 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   linkWithCredential,
   sendPasswordResetEmail,
 } from 'firebase/auth'
@@ -38,7 +39,8 @@ export {
   reauthenticateWithCredential,
   EmailAuthProvider,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   linkWithCredential,
   sendPasswordResetEmail,
 }

@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { ingestVideosForGame, reclassifyExistingVideos } = require('../services/youtubeIngestionService');
 const { enqueueYouTubeTasks } = require('../services/ingestionScheduler');
+const requireTaskSecret = require('../middleware/requireTaskSecret');
 const config = require('../config');
 
 const GAME_CHANNELS = {
@@ -9,13 +10,6 @@ const GAME_CHANNELS = {
   'genshin-impact':    config.GENSHIN_YOUTUBE_CHANNEL_ID,
   'wuthering-waves':   config.WW_YOUTUBE_CHANNEL_ID,
   'honkai-star-rail':  config.HSR_YOUTUBE_CHANNEL_ID,
-};
-
-const requireTaskSecret = (req, res, next) => {
-  if (!config.TASK_SECRET) return res.status(503).json({ error: 'TASK_SECRET not configured' });
-  const auth = req.headers['authorization'] || '';
-  if (auth !== `Bearer ${config.TASK_SECRET}`) return res.status(401).json({ error: 'Unauthorized' });
-  next();
 };
 
 // Cloud Scheduler calls this every hour.
