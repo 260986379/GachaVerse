@@ -72,46 +72,46 @@ Deliberately **not** covered:
 
 `GET /internal/whoami` (secret-guarded) reports the resolved IP, strategy and full hop chain, so the above can be confirmed against the live service on both access paths.
 
-### ⏭️ Open follow-up — harden client IP trust (picks up where 2026-09-25 left off)
+### ✅ Client-IP trust hardening — done 2026-09-25 (was "Open follow-up")
 
-**Status:** rate limiting is live and correct for all real users. One bypass remains, documented here so it is not lost.
+**Files: `backend/src/utils/googleRanges.js` (new), `backend/src/utils/clientIp.js`, `server.js`, `internalRoutes.js`**
 
-**The gap.** Client IP is taken from the *first* `X-Forwarded-For` entry. That is correct for traffic through Firebase Hosting (the only path real users take). A caller hitting the Cloud Run URL **directly** can forge that entry and hand themselves a fresh rate-limit bucket. Impact is limited to evading rate limits — no data access, no auth bypass — and it is still strictly better than the previous state of no rate limiting at all.
+**Measured in production first, as the earlier note insisted.** `/internal/whoami` is not reachable through Firebase (`firebase.json` rewrites only `/api/**`), so the shape was established two other ways:
 
-**Ruled out:** restricting Cloud Run ingress (tested 2026-09-25, see above — it blocks Firebase too).
+| Probe | Result |
+|---|---|
+| Direct to Cloud Run, no forgery | hops `["184.148.216.20"]` — the real peer |
+| Direct to Cloud Run, forged header | hops `["10.5.5.9","184.148.216.20"]` — **real peer appended last** |
+| Direct vs Firebase, same client | **one shared rate-limit bucket** → both resolve to the same real IP |
+| Forged header via Firebase | bucket unchanged → **Firebase discards caller-supplied XFF** |
 
-**Also ruled out:** keying on the TCP peer (`req.socket.remoteAddress`). On Cloud Run the container sits behind Cloud Run's own proxy, so the socket peer is an internal address for *every* request and cannot distinguish the direct path from the proxied one.
+Two facts fall out: Cloud Run always **appends** the address it actually received the connection from, so the **last hop is never client-controlled**; and the first hop is trustworthy *only* when the request came through Google's edge.
 
-#### Step 1 — measure before coding (do not skip)
+**The rule now applied:**
 
-The right hop to verify is unknown until the real header is observed in production. An earlier assumption that the *last* hop was the client turned out to be wrong and would have made the Enka limiter global; do not guess again.
+- last hop is a Google address → arrived via Firebase Hosting → use the **first** hop (the end user, unforgeable because Firebase discards what the caller sent)
+- last hop is anything else → direct hit on the Cloud Run URL → use the **last** hop, ignoring every forged entry before it
 
-After any deploy, run both:
+Membership is tested against Google's published ranges (`https://www.gstatic.com/ipranges/goog.json`, ~145 prefixes, IPv4 and IPv6), fetched at startup and refreshed daily. Verified the list covers the edge address actually observed in production, `66.102.8.167`, via `66.102.0.0/20`.
 
-```powershell
-$S = gcloud secrets versions access latest --secret=TASK_SECRET
+**Fallback is deliberately the available choice, not the strict one.** While the ranges are unloaded (startup, or a failing fetch) resolution falls back to the first hop — the previous behaviour. Guessing "direct" instead would collapse every Firebase-proxied user onto one shared edge address and rate-limit the entire site as a single client. Leaving the bypass open for a few seconds is the lesser failure.
 
-# via Firebase Hosting — the real user path
-curl.exe -s -H "Authorization: Bearer $S" "https://gachaverse-497204.web.app/internal/whoami"
+`CLIENT_IP_SOURCE` still overrides without a redeploy: `auto` (default), `first`, `last`, `socket`.
 
-# direct to Cloud Run — the bypass path
-curl.exe -s -H "Authorization: Bearer $S" "https://gachaverse-backend-50606435860.us-central1.run.app/internal/whoami"
-```
+`GET /internal/whoami` now also reports `googleRangesLoaded`, `lastHopIsGoogle` and `arrivedVia`, so the decision can be confirmed against the live service.
 
-Each returns `resolvedClientIp`, `strategy`, `forwardedForHops`, `socketRemote`, `host`. Diffing the two shows which hops Google's edge controls and which the caller can forge.
+**Not closed by this:** rate-limit state is still per-instance in memory, so the effective ceiling remains 100/min × running instances (`maxScale=10`).
 
-**Known wrinkle:** `firebase.json` only rewrites `/api/**`, so the first call may hit the SPA fallback and return `index.html` instead of reaching the backend. That result is itself informative — it would mean `/internal` is unreachable through Firebase, narrowing the exposed surface. If so, move the diagnostic to `/api/admin/whoami` (already secret-guarded by the `/api/admin` mount) and repeat.
+### Cache memory bounds (2026-09-25)
 
-#### Step 2 — implement
+The Enka player cache is bounded by **bytes** (`MAX_CACHE_BYTES`, 16 MB) with an entry ceiling (`MAX_CACHE_ENTRIES`, 1000) as a secondary guard, replacing the original 5000-entry-only limit.
 
-Verify the request genuinely arrived via Google's edge before trusting the forwarded address: check the appropriate hop against Google's published ranges (`https://www.gstatic.com/ipranges/goog.json`), cached with a long TTL.
+**The original limit was set without reference to the container's 512Mi, but measurement showed the risk was overstated:** a realistic 8-agent ZZZ showcase serialises to **~4.0 KB**, so the old ceiling was a ~20 MB worst case — roughly 4% of the container, not the large fraction first assumed. The change is still worthwhile because entry count is a poor proxy for memory when profile size varies; a byte budget bounds the worst case directly instead of relying on an estimate. At current sizes the entry ceiling binds first, at ~3.9 MB.
 
-- Hop is Google-owned → came through Firebase → trust the client entry.
-- Otherwise → direct hit → treat as untrusted and fall back to the most restrictive key.
+Byte accounting is centralised in `dropCached()` so every removal keeps the running total in step — a removal that bypassed it would let the total drift and silently disable the budget. Eviction reclaims expired entries first, then evicts oldest-inserted, and never evicts the entry just written.
 
-**Fail closed:** if the range list cannot be fetched, fall back to the restrictive interpretation, never the permissive one.
+**Also measured, not a concern:** the `enkaService` metadata caches (ZZZ avatars/weapons/locs, Genshin characters/loc, HSR avatars) total ~1.3 MB of JSON, a few MB parsed, held for one hour.
 
-Slots into `backend/src/utils/clientIp.js` behind the interface both limiters already use, so neither call site changes. `CLIENT_IP_SOURCE` (`first` | `last` | `socket`) remains as a no-redeploy override.
 
 #### Also still open on rate limiting
 
@@ -507,9 +507,7 @@ Defaults to `'change_this_secret_in_production'`. Auth currently uses Firebase t
 
 ## Suggested Fix Order
 
-> **Carried over:** client-IP trust hardening is still open — see "Open follow-up" under the rate limiting finding above.
-> Measure with `/internal/whoami` on both access paths *before* writing code; an earlier assumption about which
-> `X-Forwarded-For` hop is the client was wrong and would have made the Enka limiter global.
+> **Carried over:** client-IP trust hardening is ✅ done (2026-09-25) — see the rate limiting finding. Remaining open items: per-instance rate-limit state, Firebase App Check, and moving avatar/banner images out of Postgres.
 
 1. ~~**Add auth to all `/api/admin/*` routes**~~ — ✅ done 2026-09-20
 2. ~~**Install `express-rate-limit` globally**~~ — ✅ done 2026-09-25 (100/min per IP on /api; /internal and /api/admin exempt)

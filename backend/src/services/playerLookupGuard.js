@@ -25,27 +25,52 @@ const MIN_TTL_MS     = 10 * 1000;
 const MAX_TTL_MS     = 10 * 60 * 1000;
 
 // Ceilings so a UID-scanning bot cannot grow either map without bound.
-const MAX_CACHE_ENTRIES = 5000;
+//
+// The cache is bounded primarily by BYTES, not entry count. The container runs
+// with 512Mi and serves up to 80 concurrent requests, and a cached profile is a
+// whole showcase (agents/characters, each with weapon, stats and image URLs) —
+// its size varies enough that an entry count is a poor proxy for memory. A
+// byte budget bounds the worst case directly. MAX_CACHE_ENTRIES remains as a
+// secondary guard against many tiny entries.
+const MAX_CACHE_BYTES = 16 * 1024 * 1024; // ~3% of the 512Mi container
+const MAX_CACHE_ENTRIES = 1000;
 const MAX_CLIENT_ENTRIES = 10000;
 
-const cache   = new Map(); // "game:uid" -> { data, expiresAt }
+const cache   = new Map(); // "game:uid" -> { data, expiresAt, bytes }
 const clients = new Map(); // ip -> timestamp of last allowed Enka call
+let cacheBytes = 0;        // running total of the cache's approximate footprint
 
 // Client IP resolution is shared with the global limiter; see utils/clientIp.
 const { clientIp } = require('../utils/clientIp');
 
-const prune = (map, now) => {
-  for (const [k, v] of map) {
-    const dead = typeof v === 'number' ? now - v >= WINDOW_MS : v.expiresAt <= now;
-    if (dead) map.delete(k);
-  }
+// Drops one cache entry and keeps the byte total in step. Every removal from
+// `cache` must go through here, or the total drifts and the budget stops working.
+const dropCached = (key) => {
+  const hit = cache.get(key);
+  if (!hit) return;
+  cacheBytes -= hit.bytes;
+  cache.delete(key);
+};
+
+const pruneCache = (now) => {
+  for (const [k, v] of cache) if (v.expiresAt <= now) dropCached(k);
+};
+
+const pruneClients = (now) => {
+  for (const [k, ts] of clients) if (now - ts >= WINDOW_MS) clients.delete(k);
+};
+
+// Approximate resident cost of a cached profile. JSON length is a proxy, not a
+// true heap measurement — good enough to bound the worst case, and cheap.
+const approxBytes = (data) => {
+  try { return JSON.stringify(data).length; } catch { return 0; }
 };
 
 /** Cached profile for this game+uid, or null. */
 const getCached = (gameId, uid, now = Date.now()) => {
   const hit = cache.get(`${gameId}:${uid}`);
   if (!hit) return null;
-  if (hit.expiresAt <= now) { cache.delete(`${gameId}:${uid}`); return null; }
+  if (hit.expiresAt <= now) { dropCached(`${gameId}:${uid}`); return null; }
   return hit.data;
 };
 
@@ -56,12 +81,25 @@ const setCached = (gameId, uid, data, now = Date.now()) => {
     ? Math.min(Math.max(fromEnka * 1000, MIN_TTL_MS), MAX_TTL_MS)
     : DEFAULT_TTL_MS;
 
-  if (cache.size >= MAX_CACHE_ENTRIES) {
-    prune(cache, now);
-    // Still full of live entries — drop the oldest inserted (Map keeps order).
-    if (cache.size >= MAX_CACHE_ENTRIES) cache.delete(cache.keys().next().value);
+  const key = `${gameId}:${uid}`;
+  const bytes = approxBytes(data);
+
+  // Replacing an existing entry: remove the old cost first.
+  dropCached(key);
+  cache.set(key, { data, expiresAt: now + ttlMs, bytes });
+  cacheBytes += bytes;
+
+  // Expired entries are free to reclaim, so try those before evicting live ones.
+  if (cacheBytes > MAX_CACHE_BYTES || cache.size > MAX_CACHE_ENTRIES) pruneCache(now);
+
+  // Still over budget — evict oldest-inserted first (Map preserves order), never
+  // the entry just written.
+  while ((cacheBytes > MAX_CACHE_BYTES || cache.size > MAX_CACHE_ENTRIES) && cache.size > 1) {
+    const oldest = cache.keys().next().value;
+    if (oldest === key) break;
+    dropCached(oldest);
   }
-  cache.set(`${gameId}:${uid}`, { data, expiresAt: now + ttlMs });
+
   return ttlMs;
 };
 
@@ -75,12 +113,14 @@ const consume = (ip, now = Date.now()) => {
   if (last !== undefined && now - last < WINDOW_MS) {
     return { allowed: false, retryAfterSec: Math.ceil((WINDOW_MS - (now - last)) / 1000) };
   }
-  if (clients.size >= MAX_CLIENT_ENTRIES) prune(clients, now);
+  if (clients.size >= MAX_CLIENT_ENTRIES) pruneClients(now);
   clients.set(ip, now);
   return { allowed: true };
 };
 
 // Test-only.
-const _reset = () => { cache.clear(); clients.clear(); };
+const _reset = () => { cache.clear(); clients.clear(); cacheBytes = 0; };
 
-module.exports = { clientIp, getCached, setCached, consume, _reset, WINDOW_MS, DEFAULT_TTL_MS };
+const _stats = () => ({ entries: cache.size, bytes: cacheBytes, clients: clients.size });
+
+module.exports = { clientIp, getCached, setCached, consume, _reset, _stats, WINDOW_MS, DEFAULT_TTL_MS, MAX_CACHE_BYTES, MAX_CACHE_ENTRIES };

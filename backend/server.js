@@ -4,6 +4,7 @@ const { testConnection, query } = require('./src/config/db');
 const { ALL_TABLES } = require('./src/models/schema');
 const { ensureInitialGameAndIngestionLogs } = require('./src/services/gameDataService');
 const { startIngestionJobs } = require('./src/services/ingestionScheduler');
+const googleRanges = require('./src/utils/googleRanges');
 
 const initDb = async () => {
   for (const sql of ALL_TABLES) {
@@ -25,6 +26,10 @@ const start = async () => {
   } catch (err) {
     console.error('DB init error:', err.message);
   }
+
+  // Warm Google’s published IP ranges so client-IP resolution is accurate from
+  // the first request. Non-blocking: utils/clientIp falls back until it lands.
+  googleRanges.refresh();
 
   startIngestionJobs();
 

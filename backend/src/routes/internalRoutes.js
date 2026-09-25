@@ -3,6 +3,7 @@ const { ingestVideosForGame, reclassifyExistingVideos } = require('../services/y
 const { enqueueYouTubeTasks } = require('../services/ingestionScheduler');
 const requireTaskSecret = require('../middleware/requireTaskSecret');
 const { clientIp, parseForwardedFor, CLIENT_IP_SOURCE } = require('../utils/clientIp');
+const { isGoogleIp, isLoaded } = require('../utils/googleRanges');
 const config = require('../config');
 
 const GAME_CHANNELS = {
@@ -69,6 +70,21 @@ router.get('/whoami', requireTaskSecret, (req, res) => {
     forwardedForHops: parseForwardedFor(req),
     socketRemote:     req.socket?.remoteAddress || null,
     host:             req.headers.host || null,
+    // How the strategy decided: the last hop is the address Cloud Run actually
+    // received the connection from, so a Google address there means the request
+    // came through Firebase Hosting rather than straight to the Cloud Run URL.
+    googleRangesLoaded: isLoaded(),
+    lastHopIsGoogle:    (() => {
+      const hops = parseForwardedFor(req);
+      return hops.length ? isGoogleIp(hops[hops.length - 1]) : null;
+    })(),
+    arrivedVia: (() => {
+      const hops = parseForwardedFor(req);
+      if (!hops.length) return 'no-xff';
+      const g = isGoogleIp(hops[hops.length - 1]);
+      if (g === null) return 'unknown-ranges-not-loaded';
+      return g ? 'google-edge (firebase hosting)' : 'direct-to-cloud-run';
+    })(),
   });
 });
 
