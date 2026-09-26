@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { auth } from '../firebase'
@@ -135,6 +135,9 @@ export default function SettingsPage() {
       else setPasswordMsg('Failed to update password.')
     } finally { setPasswordSaving(false) }
   }
+
+  // ── Delete account ─────────────────────────────────────────────────────
+  const [showDelete, setShowDelete] = useState(false)
 
   // ── Logout ─────────────────────────────────────────────────────────────
   const handleLogout = async () => {
@@ -324,17 +327,166 @@ export default function SettingsPage() {
               </section>
 
               {/* Logout */}
-              <section className="settings-section settings-section--danger">
+              <section className="settings-section">
                 <h2 className="settings-section__title">Log Out</h2>
                 <p className="settings-section__desc">You'll need to sign in again to access your account.</p>
                 <button className="settings-btn settings-btn--danger" onClick={handleLogout}>
                   Log Out
                 </button>
               </section>
+
+              {/* Delete account */}
+              <section className="settings-section settings-section--danger">
+                <h2 className="settings-section__title">Delete Account</h2>
+                <p className="settings-section__desc">
+                  Permanently delete your account and everything on it. This cannot be undone.
+                </p>
+                {user.role === 'Owner' ? (
+                  <p className="settings-msg settings-msg--err">
+                    The Owner account cannot be deleted. Transfer the Owner role to another account first.
+                  </p>
+                ) : (
+                  <button className="settings-btn settings-btn--danger" onClick={() => setShowDelete(true)}>
+                    Delete Account…
+                  </button>
+                )}
+              </section>
             </>
           )}
 
         </div>
+      </div>
+
+      {showDelete && (
+        <DeleteAccountModal
+          user={user}
+          hasPassword={hasPassword}
+          authFetch={authFetch}
+          logout={logout}
+          onClose={() => setShowDelete(false)}
+          onDeleted={() => { navigate('/'); window.scrollTo(0, 0) }}
+        />
+      )}
+    </div>
+  )
+}
+
+const DELETED_ITEMS = [
+  'Your profile: username, bio, birthday, avatar and banner',
+  'Your boards, and every comment on them',
+  'Your comments, reviews, upvotes and profile notes',
+  'Your follows, followers, favourites and linked game accounts',
+  'Your sign-in, including Google and email/password',
+]
+
+function DeleteAccountModal({ user, hasPassword, authFetch, logout, onClose, onDeleted }) {
+  const [typed,    setTyped]    = useState('')
+  const [password, setPassword] = useState('')
+  const [error,    setError]    = useState('')
+  const [deleting, setDeleting] = useState(false)
+
+  const canDelete = typed === user.username && (!hasPassword || password) && !deleting
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && !deleting) onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [deleting, onClose])
+
+  const handleDelete = async (e) => {
+    e.preventDefault()
+    if (!canDelete) return
+    setError('')
+    setDeleting(true)
+    try {
+      // Password accounts prove it's really them before anything is removed.
+      if (hasPassword) {
+        const cred = EmailAuthProvider.credential(auth.currentUser.email, password)
+        await reauthenticateWithCredential(auth.currentUser, cred)
+      }
+      const res = await authFetch(`${API}/users/me`, {
+        method: 'DELETE',
+        body: JSON.stringify({ confirm: typed }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.message || 'Failed to delete account. Nothing was removed.')
+        setDeleting(false)
+        return
+      }
+      // Clear this account's locally cached data (keys are scoped as "<name>__<userId>").
+      try {
+        Object.keys(localStorage)
+          .filter((key) => key.endsWith(`__${user.id}`))
+          .forEach((key) => localStorage.removeItem(key))
+      } catch {}
+      try { await logout() } catch {}
+      onDeleted()
+    } catch (err) {
+      const code = err?.code || ''
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') setError('Password is incorrect.')
+      else if (code === 'auth/too-many-requests') setError('Too many attempts. Try again later.')
+      else setError('Something went wrong. Nothing was removed.')
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <div className="settings-modal-overlay" onClick={() => { if (!deleting) onClose() }}>
+      <div
+        className="settings-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-account-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="delete-account-title" className="settings-section__title">Delete your account?</h2>
+        <p className="settings-section__desc">
+          This permanently deletes <strong>{user.username}</strong>. It cannot be undone, and
+          nothing can be recovered afterwards. The following will be removed:
+        </p>
+        <ul className="settings-modal__list">
+          {DELETED_ITEMS.map((item) => <li key={item}>{item}</li>)}
+        </ul>
+        <p className="settings-section__desc">
+          Reports and suggestions you submitted stay with the moderators but are no longer linked to you.
+        </p>
+
+        <form className="settings-form" onSubmit={handleDelete}>
+          <label className="settings-modal__label" htmlFor="delete-confirm">
+            To confirm, type your username <strong>{user.username}</strong>
+          </label>
+          <input
+            id="delete-confirm"
+            className="settings-input"
+            type="text"
+            value={typed}
+            onChange={(e) => { setTyped(e.target.value); setError('') }}
+            autoComplete="off"
+            autoFocus
+            disabled={deleting}
+          />
+          {hasPassword && (
+            <input
+              className="settings-input"
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setError('') }}
+              placeholder="Current password"
+              autoComplete="current-password"
+              disabled={deleting}
+            />
+          )}
+          {error && <p className="settings-msg settings-msg--err">{error}</p>}
+          <div className="settings-modal__actions">
+            <button type="button" className="settings-btn settings-btn--ghost" onClick={onClose} disabled={deleting}>
+              Cancel
+            </button>
+            <button type="submit" className="settings-btn settings-btn--danger-solid" disabled={!canDelete}>
+              {deleting ? 'Deleting…' : 'Permanently delete account'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

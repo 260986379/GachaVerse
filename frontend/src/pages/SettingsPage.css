@@ -287,6 +287,65 @@
   color: #fecaca;
 }
 
+.settings-btn--danger-solid {
+  color: #fff;
+  background: #b91c1c;
+  border-color: #dc2626;
+}
+.settings-btn--danger-solid:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #ef4444;
+  color: #fff;
+}
+
+/* ── Delete-account modal ─────────────────────────────────────── */
+.settings-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.settings-modal {
+  background: #13131f;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 10px;
+  width: min(460px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.settings-modal strong { color: rgba(255, 255, 255, 0.85); }
+
+.settings-modal__list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.7;
+}
+
+.settings-modal__label {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.settings-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.settings-modal__actions .settings-btn { align-self: auto; }
+
 /* ── Mobile ───────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .settings-header {
