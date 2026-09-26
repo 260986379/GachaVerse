@@ -26,7 +26,8 @@ They exist because most of this code is security-relevant and fails *quietly* wh
 | `storage-files` | Storage deletes hit only our bucket, 404 is fine, failures are logged not thrown, no broad-prefix deletes |
 | `input-length-caps` | caption 500, comment 2000, bio 500 |
 | `review-body-cap` | review body 500; rating 1–10 |
-| `posts-pagination`, `reviews-pagination`, `game-media` | LIMIT applied, response shape, clamping |
+| `posts-pagination`, `reviews-pagination`, `game-media` | LIMIT applied, response shape, clamping; `/media` and `/art` capped at 2000 rows |
+| `posts-comments` | comments listed oldest-first and paginated; only authors edit; authors or Owner/Dev delete; others get 404 |
 | `suggestions` | 10/hour per user-or-IP, field validation |
 | `account-deletion` | `DELETE /api/users/me` needs the exact username; Owner blocked; Firebase failure rolls back the DB |
 | `board-delete` | owner or Owner/Dev can delete a board; anyone else (incl. VIP) gets 404 |

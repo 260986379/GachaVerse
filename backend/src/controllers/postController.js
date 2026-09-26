@@ -72,7 +72,7 @@ const getPostById = async (req, res, next) => {
 /** GET /api/posts/:id/comments — chronological, paginated */
 const getPostComments = async (req, res, next) => {
   try {
-    const limit  = Math.min(parseInt(req.query.limit) || 50, 200);
+    const limit  = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 200);
     const offset = (Math.max(parseInt(req.query.page)  || 1, 1) - 1) * limit;
     const { rows } = await query(
       `SELECT c.id, c.text_content, c.parent_comment_id, c.created_at, c.updated_at, c.user_id,

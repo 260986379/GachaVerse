@@ -45,7 +45,7 @@ const getGameNews = async (req, res, next) => {
   try {
     const game = await resolveGame(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
-    const limit  = Math.min(parseInt(req.query.limit) || 30, 100);
+    const limit  = Math.min(Math.max(parseInt(req.query.limit) || 30, 1), 100);
     const offset = (Math.max(parseInt(req.query.page)  || 1, 1) - 1) * limit;
     const { rows } = await query(
       `SELECT id, title, external_platform, external_id, source_url, published_at, is_automated
@@ -101,12 +101,19 @@ const getGameArt = async (req, res, next) => {
   try {
     const game = await resolveGame(req.params.id);
     if (!game) return res.status(404).json({ message: 'Game not found' });
+    // Same safety ceiling as /media (#10): the tab needs the whole gallery, so it
+    // is capped rather than paged. Keeps the NEWEST rows if a game ever exceeds
+    // it, then returns them oldest-first as before.
     const { rows } = await query(
-      `SELECT id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category
-       FROM media_content
-       WHERE game_id=$1 AND status='published' AND category = ANY($2)
+      `SELECT * FROM (
+         SELECT id, title, description, external_platform, external_id, source_url, thumbnail_url, published_at, category
+         FROM media_content
+         WHERE game_id=$1 AND status='published' AND category = ANY($2)
+         ORDER BY published_at DESC
+         LIMIT $3
+       ) newest
        ORDER BY published_at ASC`,
-      [game.id, ART_CATEGORIES]
+      [game.id, ART_CATEGORIES, MEDIA_MAX_ROWS]
     );
     res.json(rows);
   } catch (err) {

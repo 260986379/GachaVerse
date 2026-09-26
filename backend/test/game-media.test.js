@@ -48,6 +48,22 @@ const server = app.listen(0, async () => {
   console.log('\n--- response shape unchanged (bare array) ---');
   check('still a bare array, not {items,hasMore}', Array.isArray(r.body), JSON.stringify(r.body).slice(0,60));
 
+  console.log('\n--- /art: same safety ceiling as /media (#10) ---');
+  const art = await get('/api/games/nikke/art');
+  check('200 OK', art.status === 200, art.status);
+  check('LIMIT present', /LIMIT \$3/.test(lastSql), lastSql);
+  check('bound to 2000', lastParams[2] === 2000, JSON.stringify(lastParams));
+  check('ceiling keeps the NEWEST rows', /ORDER BY published_at DESC LIMIT \$3/.test(lastSql), lastSql);
+  check('...returned oldest-first as before', /\) newest ORDER BY published_at ASC$/.test(lastSql), lastSql);
+  check('art categories still filtered', /category = ANY\(\$2\)/.test(lastSql) && Array.isArray(lastParams[1]));
+  check('still a bare array', Array.isArray(art.body));
+
+  console.log('\n--- /news: limit is clamped to 1..100 ---');
+  await get('/api/games/nikke/news?limit=-5');
+  check('negative limit -> 1 (fetches 2 to detect hasMore)', lastParams[1] === 2, JSON.stringify(lastParams));
+  await get('/api/games/nikke/news?limit=999');
+  check('huge limit -> 100', lastParams[1] === 101, JSON.stringify(lastParams));
+
   console.log('\n--- 404 path ---');
   gameMissing = true;
   const nf = await get('/api/games/nope/media');
