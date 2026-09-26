@@ -381,10 +381,13 @@ const getDirectoryUsers = async (req, res, next) => {
 
 const GAME_ACCOUNT_COLUMNS = 'game_id, uid, linked_at, snapshot, snapshot_fetched_at';
 
-const tooManyLookups = (res, retryAfterSec) => {
+const tooManyLookups = (res, { reason, retryAfterSec }) => {
   res.set('Retry-After', String(retryAfterSec));
   return res.status(429).json({
-    message: `Too many player lookups. Try again in ${retryAfterSec}s.`,
+    message: reason === 'global'
+      ? `Enka needs to cool down — lots of accounts are being looked up right now. Try again in ${retryAfterSec}s.`
+      : `Too many player lookups. Try again in ${retryAfterSec}s.`,
+    reason,
     retryAfter: retryAfterSec,
   });
 };
@@ -423,7 +426,7 @@ const upsertGameAccount = async (req, res, next) => {
         return res.status(400).json({ message: 'Invalid UID format — must be 9–10 digits.' });
       }
       const result = await snapshotService.fetchForStorage(gameId, uid, req);
-      if (!result.data) return tooManyLookups(res, result.retryAfterSec);
+      if (!result.data) return tooManyLookups(res, result);
       snapshot = result.data;
     }
 
@@ -473,7 +476,7 @@ const refreshGameAccount = async (req, res, next) => {
     }
 
     const result = await snapshotService.fetchForStorage(gameId, uid, req);
-    if (!result.data) return tooManyLookups(res, result.retryAfterSec);
+    if (!result.data) return tooManyLookups(res, result);
 
     const { rows: updated } = await query(
       `UPDATE user_game_accounts SET snapshot = $3::jsonb, snapshot_fetched_at = NOW()

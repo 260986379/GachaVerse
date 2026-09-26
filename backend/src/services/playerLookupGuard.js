@@ -1,22 +1,32 @@
 /**
- * Cache + rate limiting for the Enka player lookup.
+ * Cache + rate limiting for outbound Enka calls.
  *
  * Enka is a free third-party API with no contract; hammering it gets our
- * server's IP banned. Two layers protect it:
+ * server's IP banned, and then account linking breaks for everyone. Enka is
+ * only called when an account is linked or its owner presses Refresh (profile
+ * views read the snapshot stored on user_game_accounts). Three layers:
  *
- *   1. A per-UID response cache honouring the `ttl` Enka returns. Repeat views
- *      of a profile never leave our process.
- *   2. A per-client-IP limiter of one *outbound Enka call* per 120s. Cache hits
- *      are free, so normal browsing (the Account page auto-loads a linked UID
- *      on every visit) is unaffected; only genuinely new lookups spend budget.
+ *   1. A per-UID response cache honouring the `ttl` Enka returns, so linking
+ *      and refreshing the same UID in quick succession costs one call.
+ *   2. A per-client-IP limit of one outbound Enka call per 120s, so one
+ *      visitor cannot spend the budget below.
+ *   3. A global ceiling on outbound calls (GLOBAL_MAX per GLOBAL_WINDOW_MS),
+ *      so the total Enka sees from our address stays bounded however many
+ *      clients there are. Checked first; while it is exhausted, nobody's
+ *      per-client budget is spent.
  *
- * Both maps are per-instance and in-memory, matching the metadata caches in
- * enkaService.js. Cloud Run may run several instances, so the effective limit
- * is (1 per 120s) x (instance count) — still a hard ceiling, and this service
- * runs at min-instances=0 with low traffic.
+ * All state is per-instance and in-memory. Cloud Run runs up to 10 instances
+ * (maxScale), so the fleet-wide ceiling is up to 10x the per-instance numbers:
+ * GLOBAL_MAX is sized per instance with that multiplier in mind. Enka does not
+ * publish a tolerated rate, so it is a conservative guess to revise, not a
+ * known limit.
  */
 
 const WINDOW_MS = 120 * 1000; // one Enka call per client per 2 minutes
+
+// Per instance: 6/min here is at most 60/min (1 req/s) across 10 instances.
+const GLOBAL_WINDOW_MS = 60 * 1000;
+const GLOBAL_MAX = Math.max(1, Number(process.env.ENKA_GLOBAL_MAX_PER_MIN) || 6);
 
 // Enka's ttl is a hint, not a guarantee — clamp it so a bad value can't pin an
 // entry forever or make the cache useless.
@@ -38,6 +48,7 @@ const MAX_CLIENT_ENTRIES = 10000;
 
 const cache   = new Map(); // "game:uid" -> { data, expiresAt, bytes }
 const clients = new Map(); // ip -> timestamp of last allowed Enka call
+let outbound  = [];        // timestamps of allowed Enka calls in the global window, oldest first
 let cacheBytes = 0;        // running total of the cache's approximate footprint
 
 // Client IP resolution is shared with the global limiter; see utils/clientIp.
@@ -104,23 +115,34 @@ const setCached = (gameId, uid, data, now = Date.now()) => {
 };
 
 /**
- * Spend this client's budget for one outbound Enka call.
+ * Spend budget for one outbound Enka call: the global ceiling and this client's.
  * Call ONLY on a cache miss, immediately before fetching.
- * Returns { allowed } or { allowed: false, retryAfterSec }.
+ * Returns { allowed: true } or { allowed: false, reason, retryAfterSec }, where
+ * reason is 'global' (Enka needs to cool down) or 'client' (this caller's limit).
  */
 const consume = (ip, now = Date.now()) => {
+  outbound = outbound.filter((ts) => now - ts < GLOBAL_WINDOW_MS);
+  if (outbound.length >= GLOBAL_MAX) {
+    return {
+      allowed: false,
+      reason: 'global',
+      retryAfterSec: Math.max(1, Math.ceil((outbound[0] + GLOBAL_WINDOW_MS - now) / 1000)),
+    };
+  }
+
   const last = clients.get(ip);
   if (last !== undefined && now - last < WINDOW_MS) {
-    return { allowed: false, retryAfterSec: Math.ceil((WINDOW_MS - (now - last)) / 1000) };
+    return { allowed: false, reason: 'client', retryAfterSec: Math.ceil((WINDOW_MS - (now - last)) / 1000) };
   }
   if (clients.size >= MAX_CLIENT_ENTRIES) pruneClients(now);
   clients.set(ip, now);
+  outbound.push(now);
   return { allowed: true };
 };
 
 // Test-only.
-const _reset = () => { cache.clear(); clients.clear(); cacheBytes = 0; };
+const _reset = () => { cache.clear(); clients.clear(); outbound = []; cacheBytes = 0; };
 
 const _stats = () => ({ entries: cache.size, bytes: cacheBytes, clients: clients.size });
 
-module.exports = { clientIp, getCached, setCached, consume, _reset, _stats, WINDOW_MS, DEFAULT_TTL_MS, MAX_CACHE_BYTES, MAX_CACHE_ENTRIES };
+module.exports = { clientIp, getCached, setCached, consume, _reset, _stats, WINDOW_MS, GLOBAL_WINDOW_MS, GLOBAL_MAX, DEFAULT_TTL_MS, MAX_CACHE_BYTES, MAX_CACHE_ENTRIES };

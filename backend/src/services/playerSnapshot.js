@@ -26,8 +26,9 @@ const hasSnapshot = (gameId) => Object.prototype.hasOwnProperty.call(SNAPSHOT_FE
 
 /**
  * Fetch a profile for storing. A cache hit is free; a miss hits Enka and
- * spends the caller's lookup budget, exactly like GET /api/games/:id/player/:uid.
- * Returns { data } or { retryAfterSec } when the budget is spent.
+ * spends lookup budget (see playerLookupGuard).
+ * Returns { data }, or { reason, retryAfterSec } when a limit is hit
+ * (reason 'global': Enka needs to cool down; 'client': this caller's limit).
  * Enka errors (404 UID not found, 424, 502) are thrown with err.status set.
  */
 const fetchForStorage = async (gameId, uid, req) => {
@@ -35,7 +36,7 @@ const fetchForStorage = async (gameId, uid, req) => {
   if (cached) return { data: cached };
 
   const gate = playerGuard.consume(playerGuard.clientIp(req));
-  if (!gate.allowed) return { retryAfterSec: gate.retryAfterSec };
+  if (!gate.allowed) return { reason: gate.reason, retryAfterSec: gate.retryAfterSec };
 
   const data = await SNAPSHOT_FETCHERS[gameId](uid);
   playerGuard.setCached(gameId, uid, data);

@@ -355,7 +355,12 @@
   line-height: 1;
 }
 
-.fav-drag-item:hover .fav-item__unfav {
+.fav-item {
+  position: relative;
+}
+
+.fav-drag-item:hover .fav-item__unfav,
+.fav-item:hover .fav-item__unfav {
   opacity: 1;
 }
 

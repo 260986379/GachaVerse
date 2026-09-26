@@ -21,6 +21,26 @@ check('ipA allowed', g.consume('A', T).allowed === true);
 check('ipB unaffected by ipA', g.consume('B', T).allowed === true);
 check('ipA still blocked', g.consume('A', T + 1000).allowed === false);
 
+console.log('\n--- global ceiling across all clients ---');
+g._reset();
+for (let i = 0; i < g.GLOBAL_MAX; i++) g.consume('client' + i, T + i);
+r = g.consume('fresh-client', T + 1000);
+check(`call ${g.GLOBAL_MAX + 1} from a new client blocked`, r.allowed === false, JSON.stringify(r));
+check('  reason is global', r.reason === 'global', r.reason);
+check('  retryAfter = until oldest call leaves the window', r.retryAfterSec === Math.ceil((g.GLOBAL_WINDOW_MS - 1000) / 1000), r.retryAfterSec);
+check('  blocked client budget NOT spent', g.consume('fresh-client', T + g.GLOBAL_WINDOW_MS).allowed === true);
+g._reset();
+for (let i = 0; i < g.GLOBAL_MAX; i++) g.consume('client' + i, T);
+check('window frees at +GLOBAL_WINDOW_MS', g.consume('late', T + g.GLOBAL_WINDOW_MS).allowed === true);
+g._reset();
+g.consume('ip', T);
+r = g.consume('ip', T + 1);
+check('per-client block reports reason client', r.allowed === false && r.reason === 'client', JSON.stringify(r));
+check('  and does not use a global slot', (() => {
+  for (let i = 0; i < g.GLOBAL_MAX - 1; i++) if (!g.consume('other' + i, T + 2).allowed) return false;
+  return true;
+})());
+
 console.log('\n--- cache TTL honours Enka ttl ---');
 g._reset();
 let ttl = g.setCached('zzz', '1', { ttl: 60 }, T);

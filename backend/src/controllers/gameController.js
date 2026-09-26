@@ -1,6 +1,4 @@
 const { query } = require('../config/db');
-const playerGuard = require('../services/playerLookupGuard');
-const { SNAPSHOT_FETCHERS: PLAYER_FETCHERS, UID_RE } = require('../services/playerSnapshot');
 
 // Resolves a route param that may be a UUID or a slug to a game row.
 const resolveGame = async (idOrSlug) => {
@@ -133,38 +131,6 @@ const getAllArt = async (req, res, next) => {
   }
 };
 
-const getPlayer = async (req, res, next) => {
-  try {
-    const { id: gameId, uid } = req.params;
-    if (!UID_RE.test(uid)) {
-      return res.status(400).json({ message: 'Invalid UID format — must be 9–10 digits.' });
-    }
-    const fetcher = Object.hasOwn(PLAYER_FETCHERS, gameId) ? PLAYER_FETCHERS[gameId] : null;
-    if (!fetcher) return res.status(404).json({ message: 'No player API available for this game.' });
-
-    // Served from cache costs Enka nothing, so it never spends the caller's budget.
-    const cached = playerGuard.getCached(gameId, uid);
-    if (cached) return res.json(cached);
-
-    // Cache miss — this request will hit Enka, so it must pay for it.
-    const gate = playerGuard.consume(playerGuard.clientIp(req));
-    if (!gate.allowed) {
-      res.set('Retry-After', String(gate.retryAfterSec));
-      return res.status(429).json({
-        message: `Too many player lookups. Try again in ${gate.retryAfterSec}s.`,
-        retryAfter: gate.retryAfterSec,
-      });
-    }
-
-    const data = await fetcher(uid);
-    playerGuard.setCached(gameId, uid, data);
-    res.json(data);
-  } catch (err) {
-    if (err.status) return res.status(err.status).json({ message: err.message });
-    next(err);
-  }
-};
-
 // Categories used to determine recency per game for the trending calculation
 // Categories used to both rank trending games and pick the spotlight video.
 const TRENDING_CATEGORIES = {
@@ -268,4 +234,4 @@ const getLatestVideoDates = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getAllArt, getPlayer, getTrendingGames, getLatestVideoDates };
+module.exports = { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getAllArt, getTrendingGames, getLatestVideoDates };

@@ -2,7 +2,15 @@ const ENKA_BASE   = 'https://enka.network';
 const META_ZZZ    = 'https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/zzz';
 const META_GI     = 'https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store';
 const META_HSR    = 'https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store/hsr';
-const HEADERS     = { 'User-Agent': 'GachaVerse/1.0' };
+// Enka asks API users to identify themselves; a URL lets them reach us instead of blocking.
+const HEADERS     = { 'User-Agent': 'MyGachaList/1.0 (+https://mygachalist.com)' };
+
+// fetch() has no timeout of its own, so a hung Enka/GitHub request would hold a
+// link or refresh open indefinitely. Metadata files are several MB, so they get longer.
+const PLAYER_TIMEOUT_MS = 10 * 1000;
+const META_TIMEOUT_MS   = 20 * 1000;
+const timedFetch = (url, timeoutMs) =>
+  fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(timeoutMs) });
 const META_TTL_MS = 60 * 60 * 1000;
 
 // ── ZZZ metadata cache ────────────────────────────────────────────
@@ -12,9 +20,9 @@ let zzzMetaFetchedAt = 0;
 async function fetchZZZMeta() {
   if (zzzMetaCache && Date.now() - zzzMetaFetchedAt < META_TTL_MS) return zzzMetaCache;
   const [avatarsRes, weaponsRes, locsRes] = await Promise.all([
-    fetch(`${META_ZZZ}/avatars.json`, { headers: HEADERS }),
-    fetch(`${META_ZZZ}/weapons.json`, { headers: HEADERS }),
-    fetch(`${META_ZZZ}/locs.json`,    { headers: HEADERS }),
+    timedFetch(`${META_ZZZ}/avatars.json`, META_TIMEOUT_MS),
+    timedFetch(`${META_ZZZ}/weapons.json`, META_TIMEOUT_MS),
+    timedFetch(`${META_ZZZ}/locs.json`, META_TIMEOUT_MS),
   ]);
   if (!avatarsRes.ok || !weaponsRes.ok || !locsRes.ok) throw new Error('Failed to fetch ZZZ metadata');
   const [avatars, weapons, locs] = await Promise.all([avatarsRes.json(), weaponsRes.json(), locsRes.json()]);
@@ -30,8 +38,8 @@ let giMetaFetchedAt = 0;
 async function fetchGenshinMeta() {
   if (giMetaCache && Date.now() - giMetaFetchedAt < META_TTL_MS) return giMetaCache;
   const [charsRes, locRes] = await Promise.all([
-    fetch(`${META_GI}/characters.json`, { headers: HEADERS }),
-    fetch(`${META_GI}/loc.json`,        { headers: HEADERS }),
+    timedFetch(`${META_GI}/characters.json`, META_TIMEOUT_MS),
+    timedFetch(`${META_GI}/loc.json`, META_TIMEOUT_MS),
   ]);
   if (!charsRes.ok || !locRes.ok) throw new Error('Failed to fetch Genshin metadata');
   const [chars, loc] = await Promise.all([charsRes.json(), locRes.json()]);
@@ -168,7 +176,7 @@ const UID_RE = /^\d{9,10}$/;
 async function fetchZZZPlayer(uid) {
   const [meta, enkaRes] = await Promise.all([
     fetchZZZMeta(),
-    fetch(`${ENKA_BASE}/api/zzz/uid/${uid}`, { headers: HEADERS }),
+    timedFetch(`${ENKA_BASE}/api/zzz/uid/${uid}`, PLAYER_TIMEOUT_MS),
   ]);
   if (enkaRes.status === 404) { const e = new Error('UID not found'); e.status = 404; throw e; }
   if (enkaRes.status === 424) { const e = new Error('Enka API is currently unavailable. Please try again later.'); e.status = 424; throw e; }
@@ -193,7 +201,7 @@ async function fetchZZZPlayer(uid) {
 async function fetchGenshinPlayer(uid) {
   const [meta, enkaRes] = await Promise.all([
     fetchGenshinMeta(),
-    fetch(`${ENKA_BASE}/api/uid/${uid}`, { headers: HEADERS }),
+    timedFetch(`${ENKA_BASE}/api/uid/${uid}`, PLAYER_TIMEOUT_MS),
   ]);
   if (enkaRes.status === 404) { const e = new Error('UID not found'); e.status = 404; throw e; }
   if (!enkaRes.ok) { const e = new Error(`Enka API error: ${enkaRes.status}`); e.status = 502; throw e; }
@@ -226,7 +234,7 @@ let hsrMetaFetchedAt = 0;
 
 async function fetchHSRMeta() {
   if (hsrMetaCache && Date.now() - hsrMetaFetchedAt < META_TTL_MS) return hsrMetaCache;
-  const res = await fetch(`${META_HSR}/avatars.json`, { headers: HEADERS });
+  const res = await timedFetch(`${META_HSR}/avatars.json`, META_TIMEOUT_MS);
   if (!res.ok) throw new Error(`Failed to fetch HSR metadata: ${res.status}`);
   hsrMetaCache    = await res.json();
   hsrMetaFetchedAt = Date.now();
@@ -309,7 +317,7 @@ function getHSRRegion(uid) {
 async function fetchHSRPlayer(uid) {
   const [avatars, enkaRes] = await Promise.all([
     fetchHSRMeta(),
-    fetch(`${ENKA_BASE}/api/hsr/uid/${uid}`, { headers: HEADERS }),
+    timedFetch(`${ENKA_BASE}/api/hsr/uid/${uid}`, PLAYER_TIMEOUT_MS),
   ]);
 
   if (enkaRes.status === 404) { const e = new Error('UID not found'); e.status = 404; throw e; }
@@ -333,4 +341,21 @@ async function fetchHSRPlayer(uid) {
   };
 }
 
-module.exports = { fetchZZZPlayer, fetchGenshinPlayer, fetchHSRPlayer };
+// A timeout (on the request or while reading the body) surfaces as a clear 504
+// instead of a generic 500. The signal also covers the metadata fetches.
+const withTimeoutError = (fn) => async (uid) => {
+  try {
+    return await fn(uid);
+  } catch (err) {
+    if (err?.name !== 'TimeoutError') throw err;
+    const e = new Error('Enka took too long to respond. Please try again later.');
+    e.status = 504;
+    throw e;
+  }
+};
+
+module.exports = {
+  fetchZZZPlayer:     withTimeoutError(fetchZZZPlayer),
+  fetchGenshinPlayer: withTimeoutError(fetchGenshinPlayer),
+  fetchHSRPlayer:     withTimeoutError(fetchHSRPlayer),
+};

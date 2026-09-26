@@ -90,14 +90,6 @@ export function toggleFavChar(char) {
 export const writeFavCharsLocal = (list) => save(k(CHARS_KEY), list)
 
 /** Persist a reordered characters list and sync order to DB. Use from drag handlers. */
-export function saveFavChars(list) {
-  save(k(CHARS_KEY), list)
-  if (_authFetch) {
-    const ids = list.map(c => c.dbId || c.id).filter(Boolean)
-    _authFetch(`${API}/characters/favorites/reorder`, { method: 'PATCH', body: JSON.stringify({ ids }) }).catch(() => {})
-  }
-}
-
 // ── Favorite artworks ─────────────────────────────────────────────────────
 export const getFavArtworks  = () => load(k(FAV_ART_KEY))
 export const isFavArtwork    = (id) => load(k(FAV_ART_KEY)).some((a) => a.id === id)

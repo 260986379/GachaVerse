@@ -16,9 +16,10 @@ They exist because most of this code is security-relevant and fails *quietly* wh
 |---|---|
 | `client-ip-resolution` | which `X-Forwarded-For` hop identifies the user, per access path |
 | `global-rate-limit` | 100/min per client; `/internal` and `/api/admin` exempt |
-| `enka-rate-limit` | 1 outbound Enka call per client per 120s; cache hits are free |
+| `enka-rate-limit` | via account linking: 1 Enka call per client per 120s, global ceiling ("Enka needs to cool down"), cache hits free |
+| `enka-timeout` | every Enka/metadata request has a timeout and our User-Agent; a timeout surfaces as 504 |
 | `game-account-snapshot` | linking stores a server-fetched snapshot; profile views never call Enka; refresh cooldown |
-| `player-lookup-guard` | TTL clamping, cache keys, window expiry |
+| `player-lookup-guard` | TTL clamping, cache keys, per-client and global window expiry |
 | `cache-memory-bounds` | byte accounting cannot drift; eviction order |
 | `image-url-validation` | only `data:image/*` is storable |
 | `input-length-caps` | caption 500, comment 2000, bio 500 |

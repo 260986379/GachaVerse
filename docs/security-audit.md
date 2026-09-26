@@ -146,6 +146,13 @@ A blocked request returns **429** with a `Retry-After` header and a JSON `{ mess
 
 **Not fixed by this change:** the limiter is in-memory and per-instance, so the effective ceiling is 1-per-120s × instance count. Acceptable at `min-instances=0` and current traffic; a shared store would be needed at scale. The separate "No Rate Limiting Anywhere" finding below is still open.
 
+### Update (2026-09-26) — public lookup route removed, global ceiling added (#48)
+
+- **`GET /api/games/:id/player/:uid` no longer exists.** Linked accounts now store a server-fetched snapshot on `user_game_accounts.snapshot` (`services/playerSnapshot.js`), and profile views read that instead of calling Enka. Enka is called only from two authenticated routes: `PUT /api/users/me/game-accounts/:gameId` (link) and `POST /api/users/me/game-accounts/:gameId/refresh` (owner only, once per 10 minutes per account). The `AccountPage.jsx` auto-lookup-on-every-visit described above is gone.
+- **Global outbound ceiling** in `playerLookupGuard.js`: at most `GLOBAL_MAX` Enka calls per 60 s per instance (default 6, `ENKA_GLOBAL_MAX_PER_MIN` overrides). Checked before the per-client limit, so a client's budget is not spent while the global ceiling is exhausted. Blocked requests get 429 + `Retry-After` with `reason: "global"` and an "Enka needs to cool down" message; a refused refresh leaves the stored snapshot in place.
+- **Per-instance caveat, sized for:** with `maxScale=10` the fleet-wide ceiling is up to 10 × 6 = 60 calls/min. Enka publishes no tolerated rate, so this is a conservative guess to revise.
+- The per-UID TTL cache and the per-client 120 s limit are unchanged. Tests: `enka-rate-limit`, `player-lookup-guard`, `game-account-snapshot`.
+
 ---
 
 <details>
@@ -492,7 +499,7 @@ Defaults to `'change_this_secret_in_production'`. Auth currently uses Firebase t
 - `TASK_SECRET` defaulting to `''` is safe — `requireTaskSecret` explicitly returns 503 if empty.
 - Auth middleware correctly verifies Firebase ID tokens server-side — no JWT forgery risk.
 - `assignRole` checks the actor's role server-side — users cannot self-promote.
-- Board/post/comment deletes all use `AND user_id=$N` — users can't delete other people's content.
+- Board/post/comment deletes all use `AND user_id=$N` for regular users — they can't delete other people's content. `Owner`/`Dev` can delete any board, post or board comment as a moderation takedown (boards since 2026-09-26, #50).
 - Comment delete properly allows board owners to remove comments on their own boards.
 - `BOARD_LIMIT = 10` prevents board spam per user.
 - All DB queries use parameterized `$1` placeholders — no SQL injection risk.
@@ -511,7 +518,7 @@ Defaults to `'change_this_secret_in_production'`. Auth currently uses Firebase t
 
 1. ~~**Add auth to all `/api/admin/*` routes**~~ — ✅ done 2026-09-20
 2. ~~**Install `express-rate-limit` globally**~~ — ✅ done 2026-09-25 (100/min per IP on /api; /internal and /api/admin exempt)
-3. ~~**Add tighter rate limit + response cache to `/api/games/:id/player/:uid`**~~ — ✅ done 2026-09-25 (1 Enka call per IP per 120s + per-UID TTL cache)
+3. ~~**Add tighter rate limit + response cache to `/api/games/:id/player/:uid`**~~ — ✅ done 2026-09-25 (1 Enka call per IP per 120s + per-UID TTL cache); route removed 2026-09-26 in favour of stored snapshots, plus a global Enka ceiling (#48)
 4. ~~**Add `LIMIT` + pagination to `getAllPosts`, `getGameMedia`, `getReviews`, `getUserReviews`**~~ — ✅ all four done 2026-09-25 (`getGameMedia` via payload trim + CDN cache + safety ceiling; reviews paginated with server-computed totals and a Load more control)
 5. ~~**Rate limit or require auth on `POST /api/suggestions`**~~ — ✅ done 2026-09-25 (10/hour per user-or-IP + Joi validation; stays anonymous by design)
 6. ~~**Add length caps to caption / comment text / bio / review body**~~ — ✅ all done 2026-09-25 (caption 500, comment 2000, bio 500, review body 500)

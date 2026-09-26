@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import {
   getFavVideos, getFavChars, getFavArtworks,
   toggleFavVideo, toggleFavChar, toggleFavArtwork, getFollowedGames, saveFollowedGames,
-  saveFavVideos, saveFavChars, saveFavArtworks,
+  saveFavVideos, saveFavArtworks,
   writeFavVideosLocal, writeFavCharsLocal, writeFavArtworksLocal,
   getProfileBanner, setProfileBanner, clearProfileBanner,
   getProfilePfp, setProfilePfp, clearProfilePfp,
@@ -1296,11 +1296,6 @@ export default function AccountPage() {
     (next) => setFavVideos([...favRegular, ...next]),
     (next) => saveFavVideos([...favRegular, ...next]),
   )
-  const charsDrag = useDragReorder(
-    favChars,
-    (next) => setFavChars(next),
-    (next) => saveFavChars(next),
-  )
   const artworksDrag = useDragReorder(
     favArtworks,
     (next) => setFavArtworks(next),
@@ -1706,14 +1701,7 @@ export default function AccountPage() {
                   {favChars.length > 0 ? (
                     <div className="profile-char-grid">
                       {favChars.map((c, i) => (
-                        <div
-                          key={c.id ?? i}
-                          className="fav-drag-item"
-                          draggable
-                          onDragStart={charsDrag.onDragStart(i)}
-                          onDragOver={charsDrag.onDragOver(i)}
-                          onDragEnd={charsDrag.onDragEnd}
-                        >
+                        <div key={c.id ?? i} className="fav-item">
                           <CharCard char={c} onClick={() => handleCharClick(c)} />
                           <button
                             className="fav-item__unfav"
