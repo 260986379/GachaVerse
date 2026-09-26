@@ -38,7 +38,11 @@ const env = import.meta.env
 
 const firebaseConfig = {
   apiKey:            env.VITE_FIREBASE_API_KEY             || 'AIzaSyByVS5wk-vZDZQr3C9sbFmgDFmarjkl32E',
-  authDomain:        env.VITE_FIREBASE_AUTH_DOMAIN         || 'gachaverse-497204.firebaseapp.com',
+  // Must be the domain the site is served from. Google sign-in uses a redirect,
+  // and browsers partition storage by site: with authDomain on firebaseapp.com
+  // the redirect result is unreadable on mygachalist.com and the user comes back
+  // signed out. Firebase Hosting serves /__/auth/handler on the custom domain.
+  authDomain:        env.VITE_FIREBASE_AUTH_DOMAIN         || 'mygachalist.com',
   projectId:         env.VITE_FIREBASE_PROJECT_ID          || 'gachaverse-497204',
   storageBucket:     env.VITE_FIREBASE_STORAGE_BUCKET      || 'gachaverse-497204.firebasestorage.app',
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '50606435860',

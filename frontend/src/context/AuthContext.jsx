@@ -156,6 +156,9 @@ export function AuthProvider({ children }) {
             email:      e.customData?.email || '',
             credential: GoogleAuthProvider.credentialFromError(e),
           })
+        } else {
+          // Anything else used to vanish silently, leaving the user signed out with no clue why.
+          console.error('[Auth] Google redirect sign-in failed:', e.code, e.message)
         }
       })
   }, [])

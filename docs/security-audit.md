@@ -361,6 +361,8 @@ http://localhost/*
 http://127.0.0.1/*
 ```
 
+**Update (2026-09-26):** the custom domain is now live. Verified via the Identity Toolkit and API Keys APIs: authorized domains and the key's referrers both include `mygachalist.com` and `www.mygachalist.com`. The frontend's `authDomain` moved from `gachaverse-497204.firebaseapp.com` to `mygachalist.com`, because browsers that partition third-party storage lose the `signInWithRedirect` result when the auth handler is on a different site from the app (Google sign-in returned the user signed out). This requires `https://mygachalist.com/__/auth/handler` in the OAuth web client's authorized redirect URIs.
+
 **Port-less localhost patterns are deliberate.** `http://localhost:*/*` is *not* honoured — it blocked local dev outright — and an explicit `http://localhost:5173/*` matches only that one port, which breaks when Vite drifts to 5174. Bare `http://localhost/*` matches any port. Verified: 5173, 5174 and 3000 all pass.
 
 All 27 `apiTargets` were confirmed byte-identical before and after, so nothing was silently widened while adding the browser restriction.
