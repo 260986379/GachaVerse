@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { auth } from '../firebase'
 import {
@@ -21,7 +21,11 @@ const NAV = [
 export default function SettingsPage() {
   const navigate = useNavigate()
   const { user, authFetch, refreshUser, logout } = useAuth()
-  const [active, setActive] = useState('profile')
+  // ?tab=profile|account opens a specific tab (new accounts land on profile).
+  const [searchParams] = useSearchParams()
+  const [active, setActive] = useState(
+    NAV.some(n => n.id === searchParams.get('tab')) ? searchParams.get('tab') : 'profile'
+  )
 
   // ── Username ───────────────────────────────────────────────────────────
   const [username,       setUsername]       = useState(user?.username || '')

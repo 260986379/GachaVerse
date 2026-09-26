@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -44,6 +45,15 @@ export function AuthProvider({ children }) {
   const [pendingLink, setPendingLink]   = useState(null) // { email, credential }
   const skipSyncRef = useRef(false) // true while signUpWithEmail is in flight
 
+  // New accounts land on Settings → Profile to set their picture and username.
+  // Covers both email sign-up and Google sign-up (which finishes after a redirect,
+  // in the auth-state listener below). Held in a ref so the listener, created
+  // once, always calls the current navigate.
+  const navigate = useNavigate()
+  const navigateRef = useRef(navigate)
+  navigateRef.current = navigate
+  const goToNewAccountSetup = () => navigateRef.current('/settings?tab=profile')
+
   // Track Firebase auth state and sync with backend
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
@@ -56,9 +66,10 @@ export function AuthProvider({ children }) {
           return
         }
         try {
-          const { user: dbUser } = await syncWithBackend(fbUser)
+          const { user: dbUser, isNew } = await syncWithBackend(fbUser)
           setCurrentUser(dbUser.id)   // scope all localStorage to this user
           setUser(dbUser)
+          if (isNew) goToNewAccountSetup()
 
           // ── Legacy image migration ───────────────────────────────────────
           // Images saved before login are under __guest or unscoped keys.
@@ -145,6 +156,7 @@ export function AuthProvider({ children }) {
       await updateProfile(credential.user, { displayName: username })
       const { user: dbUser, isNew } = await syncWithBackend(credential.user, username)
       setUser(dbUser)
+      if (isNew) goToNewAccountSetup()
       return { user: dbUser, isNew }
     } finally {
       skipSyncRef.current = false

@@ -46,9 +46,9 @@ export default function AuthModal({ onClose, defaultTab = 'login' }) {
         await signInWithEmail(email, password)
         onClose()
       } else {
-        const { isNew } = await signUpWithEmail(email, password, username)
+        // A new account is sent to Settings → Profile by AuthContext.
+        await signUpWithEmail(email, password, username)
         onClose()
-        if (isNew) navigate('/settings')
       }
     } catch (e) {
       setError(friendlyError(e))
