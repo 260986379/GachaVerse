@@ -278,6 +278,12 @@ const CREATE_USER_GAME_ACCOUNTS = `
   );
 `;
 
+// Stored Enka profile for linked accounts (ZZZ / Genshin / HSR); see services/playerSnapshot.js.
+const ALTER_USER_GAME_ACCOUNTS_ADD_SNAPSHOT = `
+  ALTER TABLE user_game_accounts ADD COLUMN IF NOT EXISTS snapshot JSONB;
+  ALTER TABLE user_game_accounts ADD COLUMN IF NOT EXISTS snapshot_fetched_at TIMESTAMP;
+`;
+
 const CREATE_BOARDS = `
   CREATE TABLE IF NOT EXISTS boards (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -422,6 +428,7 @@ const ALL_TABLES = [
   CREATE_USER_FAVORITE_CHARACTERS,
   CREATE_USER_FAVORITE_ARTWORKS,
   CREATE_USER_GAME_ACCOUNTS,
+  ALTER_USER_GAME_ACCOUNTS_ADD_SNAPSHOT,
   CREATE_BOARDS,
   CREATE_PROFILE_NOTES,
   CREATE_USER_NOTIFICATIONS,

@@ -338,21 +338,9 @@ function AgentDetailModal({ agent, onClose }) {
 
 function PublicGameAccountView({ game, profileUsername, onBack }) {
   const viewCfg = GAME_VIEW_CONFIG[game.id] ?? DEFAULT_VIEW_CONFIG
-  const [playerData,  setPlayerData]  = useState(null)
-  const [loading,     setLoading]     = useState(true)
-  const [error,       setError]       = useState(null)
+  // The snapshot saved when the owner linked (or last refreshed) the account.
+  const playerData = game.snapshot ?? null
   const [activeAgent, setActiveAgent] = useState(null)
-
-  useEffect(() => {
-    fetch(`/api/games/${game.id}/player/${game.uid}`)
-      .then(async r => {
-        const data = await r.json()
-        if (!r.ok) throw new Error(data.message || 'Failed to load profile')
-        return data
-      })
-      .then(data => { setPlayerData(data); setLoading(false) })
-      .catch(err => { setError(err.message); setLoading(false) })
-  }, [game.id, game.uid])
 
   const roster = playerData ? (playerData[viewCfg.rosterKey] ?? []) : []
 
@@ -365,14 +353,16 @@ function PublicGameAccountView({ game, profileUsername, onBack }) {
             {playerData ? playerData.nickname : game.name}
           </h2>
           <span className="ga-header__status">
-            {playerData ? viewCfg.headerStatus(playerData) : loading ? 'Loading…' : 'Account not linked'}
+            {playerData ? viewCfg.headerStatus(playerData) : `UID ${game.uid}`}
           </span>
         </div>
         {playerData?.bio && <p className="ga-header__bio">{playerData.bio}</p>}
       </div>
 
-      {loading && <p className="ga-loading">Loading profile…</p>}
-      {error   && <p className="ga-loading" style={{ color: 'rgba(255,100,100,0.8)' }}>{error}</p>}
+      {!playerData && <p className="ga-loading">No account data saved yet.</p>}
+      {playerData && game.snapshotFetchedAt && (
+        <p className="ga-updated">Updated {new Date(game.snapshotFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+      )}
 
       {playerData && (
         <>
@@ -540,16 +530,11 @@ export default function UserProfilePage() {
     get(`${API}/users/${profile.id}/favorites/artworks`, setFavArtworks)
   }, [profile?.id])
 
-  /* Fetch player data for each linked account to populate showcase cards */
+  /* Showcase cards use the snapshot stored on each linked account — no Enka calls */
   useEffect(() => {
-    if (gameAccounts.length === 0) return
-    gameAccounts.forEach(a => {
-      if (!a.uid) return
-      fetch(`/api/games/${a.game_id}/player/${a.uid}`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => { if (data) setLinkedPlayerData(prev => ({ ...prev, [a.game_id]: data })) })
-        .catch(() => {})
-    })
+    setLinkedPlayerData(Object.fromEntries(
+      gameAccounts.filter(a => a.snapshot).map(a => [a.game_id, a.snapshot])
+    ))
   }, [gameAccounts])
 
   /* Check follow status once profile + auth are both ready */
@@ -778,7 +763,7 @@ export default function UserProfilePage() {
             {/* Game Account Showcase */}
             {(() => {
               const linkedGames = gameAccounts
-                .map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid } : null })
+                .map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid, snapshot: a.snapshot, snapshotFetchedAt: a.snapshot_fetched_at } : null })
                 .filter(Boolean)
               if (linkedGames.length === 0) return null
               return (

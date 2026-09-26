@@ -1302,6 +1302,14 @@
   font-family: inherit;
 }
 
+.ga-reload-btn:disabled { opacity: 0.5; cursor: default; }
+
+.ga-updated {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.3);
+  margin-right: 0.2rem;
+}
+
 .ga-reload-btn:hover {
   color: rgba(255, 255, 255, 0.6);
   border-color: rgba(255, 255, 255, 0.18);

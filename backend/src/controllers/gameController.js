@@ -1,12 +1,6 @@
 const { query } = require('../config/db');
-const { fetchZZZPlayer, fetchGenshinPlayer, fetchHSRPlayer } = require('../services/enkaService');
 const playerGuard = require('../services/playerLookupGuard');
-
-const PLAYER_FETCHERS = {
-  'zenless-zone-zero': fetchZZZPlayer,
-  'genshin-impact':    fetchGenshinPlayer,
-  'honkai-star-rail':  fetchHSRPlayer,
-};
+const { SNAPSHOT_FETCHERS: PLAYER_FETCHERS, UID_RE } = require('../services/playerSnapshot');
 
 // Resolves a route param that may be a UUID or a slug to a game row.
 const resolveGame = async (idOrSlug) => {
@@ -139,15 +133,13 @@ const getAllArt = async (req, res, next) => {
   }
 };
 
-const UID_RE = /^\d{9,10}$/;
-
 const getPlayer = async (req, res, next) => {
   try {
     const { id: gameId, uid } = req.params;
     if (!UID_RE.test(uid)) {
       return res.status(400).json({ message: 'Invalid UID format — must be 9–10 digits.' });
     }
-    const fetcher = PLAYER_FETCHERS[gameId];
+    const fetcher = Object.hasOwn(PLAYER_FETCHERS, gameId) ? PLAYER_FETCHERS[gameId] : null;
     if (!fetcher) return res.status(404).json({ message: 'No player API available for this game.' });
 
     // Served from cache costs Enka nothing, so it never spends the caller's budget.

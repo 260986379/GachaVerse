@@ -17,6 +17,7 @@ They exist because most of this code is security-relevant and fails *quietly* wh
 | `client-ip-resolution` | which `X-Forwarded-For` hop identifies the user, per access path |
 | `global-rate-limit` | 100/min per client; `/internal` and `/api/admin` exempt |
 | `enka-rate-limit` | 1 outbound Enka call per client per 120s; cache hits are free |
+| `game-account-snapshot` | linking stores a server-fetched snapshot; profile views never call Enka; refresh cooldown |
 | `player-lookup-guard` | TTL clamping, cache keys, window expiry |
 | `cache-memory-bounds` | byte accounting cannot drift; eviction order |
 | `image-url-validation` | only `data:image/*` is storable |

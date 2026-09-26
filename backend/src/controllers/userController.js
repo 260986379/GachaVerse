@@ -4,6 +4,7 @@ const { imageSource } = require('../utils/imageSource');
 const { query, pool } = require('../config/db');
 const { admin } = require('../config/firebase');
 const { createUserNotification } = require('./userNotificationController');
+const snapshotService = require('../services/playerSnapshot');
 
 const PROTECTED_ROLES = ['Owner', 'Dev', 'VIP'];
 
@@ -378,11 +379,24 @@ const getDirectoryUsers = async (req, res, next) => {
 
 // ── Game Accounts ──────────────────────────────────────────────────────────
 
-/** GET /api/users/:id/game-accounts — public */
+const GAME_ACCOUNT_COLUMNS = 'game_id, uid, linked_at, snapshot, snapshot_fetched_at';
+
+const tooManyLookups = (res, retryAfterSec) => {
+  res.set('Retry-After', String(retryAfterSec));
+  return res.status(429).json({
+    message: `Too many player lookups. Try again in ${retryAfterSec}s.`,
+    retryAfter: retryAfterSec,
+  });
+};
+
+/**
+ * GET /api/users/:id/game-accounts — public.
+ * Includes the stored snapshot, so viewing a profile never calls Enka.
+ */
 const getUserGameAccounts = async (req, res, next) => {
   try {
     const { rows } = await query(
-      'SELECT game_id, uid, linked_at FROM user_game_accounts WHERE user_id = $1',
+      `SELECT ${GAME_ACCOUNT_COLUMNS} FROM user_game_accounts WHERE user_id = $1`,
       [req.params.id]
     );
     res.json(rows);
@@ -391,20 +405,85 @@ const getUserGameAccounts = async (req, res, next) => {
   }
 };
 
-/** PUT /api/users/me/game-accounts/:gameId — upsert UID */
+/**
+ * PUT /api/users/me/game-accounts/:gameId — link (or change) a UID.
+ * For Enka games the profile is fetched here, server-side, and stored with the
+ * UID; the client only ever sends a UID, so it cannot plant a fake snapshot.
+ * An unknown UID fails the link rather than saving an empty account.
+ */
 const upsertGameAccount = async (req, res, next) => {
   try {
     const { uid } = req.body;
     if (!uid) return res.status(400).json({ message: 'uid is required.' });
+    const { gameId } = req.params;
+
+    let snapshot = null;
+    if (snapshotService.hasSnapshot(gameId)) {
+      if (!snapshotService.UID_RE.test(uid)) {
+        return res.status(400).json({ message: 'Invalid UID format — must be 9–10 digits.' });
+      }
+      const result = await snapshotService.fetchForStorage(gameId, uid, req);
+      if (!result.data) return tooManyLookups(res, result.retryAfterSec);
+      snapshot = result.data;
+    }
 
     const { rows } = await query(
-      `INSERT INTO user_game_accounts (user_id, game_id, uid)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (user_id, game_id) DO UPDATE SET uid = EXCLUDED.uid, linked_at = NOW()
-       RETURNING game_id, uid, linked_at`,
-      [req.user.id, req.params.gameId, uid]
+      `INSERT INTO user_game_accounts (user_id, game_id, uid, snapshot, snapshot_fetched_at)
+       VALUES ($1, $2, $3, $4::jsonb, CASE WHEN $4::jsonb IS NULL THEN NULL ELSE NOW() END)
+       ON CONFLICT (user_id, game_id) DO UPDATE
+         SET uid = EXCLUDED.uid, linked_at = NOW(),
+             snapshot = EXCLUDED.snapshot, snapshot_fetched_at = EXCLUDED.snapshot_fetched_at
+       RETURNING ${GAME_ACCOUNT_COLUMNS}`,
+      [req.user.id, gameId, uid, snapshot ? JSON.stringify(snapshot) : null]
     );
     res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/users/me/game-accounts/:gameId/refresh — owner re-fetches their
+ * stored snapshot from Enka. Limited to once per REFRESH_COOLDOWN_MS per account.
+ */
+const refreshGameAccount = async (req, res, next) => {
+  try {
+    const { gameId } = req.params;
+    if (!snapshotService.hasSnapshot(gameId)) {
+      return res.status(400).json({ message: 'This game does not support account refresh.' });
+    }
+
+    const { rows } = await query(
+      'SELECT uid, snapshot_fetched_at FROM user_game_accounts WHERE user_id = $1 AND game_id = $2',
+      [req.user.id, gameId]
+    );
+    if (rows.length === 0) return res.status(404).json({ message: 'No linked account for this game.' });
+
+    const { uid, snapshot_fetched_at: fetchedAt } = rows[0];
+    if (fetchedAt) {
+      const waitMs = new Date(fetchedAt).getTime() + snapshotService.REFRESH_COOLDOWN_MS - Date.now();
+      if (waitMs > 0) {
+        const retryAfterSec = Math.ceil(waitMs / 1000);
+        res.set('Retry-After', String(retryAfterSec));
+        return res.status(429).json({
+          message: `This account was refreshed recently. Try again in ${Math.ceil(retryAfterSec / 60)} min.`,
+          retryAfter: retryAfterSec,
+        });
+      }
+    }
+
+    const result = await snapshotService.fetchForStorage(gameId, uid, req);
+    if (!result.data) return tooManyLookups(res, result.retryAfterSec);
+
+    const { rows: updated } = await query(
+      `UPDATE user_game_accounts SET snapshot = $3::jsonb, snapshot_fetched_at = NOW()
+       WHERE user_id = $1 AND game_id = $2
+       RETURNING ${GAME_ACCOUNT_COLUMNS}`,
+      [req.user.id, gameId, JSON.stringify(result.data)]
+    );
+    // Unlinked while Enka was being fetched.
+    if (updated.length === 0) return res.status(404).json({ message: 'No linked account for this game.' });
+    res.json(updated[0]);
   } catch (err) {
     next(err);
   }
@@ -550,5 +629,6 @@ module.exports = {
   getFollowing,
   getUserGameAccounts,
   upsertGameAccount,
+  refreshGameAccount,
   removeGameAccount,
   assignRole, updateMeSchema };

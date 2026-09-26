@@ -18,6 +18,7 @@ const {
   getFollowing,
   getUserGameAccounts,
   upsertGameAccount,
+  refreshGameAccount,
   removeGameAccount,
   assignRole,
 } = require('../controllers/userController');
@@ -46,6 +47,7 @@ router.delete('/me/games/:id',                     authenticateToken, removeUser
 // Linked game accounts (UID)
 router.get('/:id/game-accounts',                   getUserGameAccounts);
 router.put('/me/game-accounts/:gameId',            authenticateToken, upsertGameAccount);
+router.post('/me/game-accounts/:gameId/refresh',   authenticateToken, refreshGameAccount);
 router.delete('/me/game-accounts/:gameId',         authenticateToken, removeGameAccount);
 
 // Follows

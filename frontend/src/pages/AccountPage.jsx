@@ -622,36 +622,63 @@ function GameAccountView({ game, onBack }) {
   const [error,       setError]       = useState(null)
   const [changing,    setChanging]    = useState(false)
   const [activeAgent, setActiveAgent] = useState(null)
+  const [fetchedAt,   setFetchedAt]   = useState(null)
+  const [refreshing,  setRefreshing]  = useState(false)
+  const [refreshMsg,  setRefreshMsg]  = useState(null)
 
-  // Auto-load if a UID was previously saved on the server
+  const applyAccount = (account) => {
+    setPlayerData(account.snapshot)
+    setFetchedAt(account.snapshot_fetched_at)
+  }
+
+  // Show the snapshot saved on the account; opening this view never calls Enka.
   useEffect(() => {
     if (!user?.id) return
     authFetch(`/api/users/${user.id}/game-accounts`)
       .then(r => r.json())
       .then(accounts => {
         const linked = Array.isArray(accounts) ? accounts.find(a => a.game_id === game.id) : null
-        if (linked) fetchPlayer(linked.uid)
+        if (!linked) return
+        if (linked.snapshot) applyAccount(linked)
+        else setUid(linked.uid) // linked before snapshots existed: pressing Link loads it
       })
       .catch(() => {})
   }, [game.id])
 
+  // Linking fetches the profile once on the server and saves it with the UID.
   const fetchPlayer = async (targetUid) => {
     setLoading(true)
     setError(null)
     try {
-      const res  = await fetch(`/api/games/${game.id}/player/${targetUid}`)
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Failed to load profile')
-      await authFetch(`/api/users/me/game-accounts/${game.id}`, {
+      const res  = await authFetch(`/api/users/me/game-accounts/${game.id}`, {
         method: 'PUT',
         body: JSON.stringify({ uid: targetUid }),
-      }).catch(() => {})
-      setPlayerData(data)
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Failed to link account')
+      if (!data.snapshot) throw new Error('Account linked, but stats are not available for this game yet.')
+      applyAccount(data)
+      setRefreshMsg(null)
       setChanging(false)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    setRefreshMsg(null)
+    try {
+      const res  = await authFetch(`/api/users/me/game-accounts/${game.id}/refresh`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Failed to refresh')
+      applyAccount(data)
+    } catch (err) {
+      setRefreshMsg(err.message)
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -667,6 +694,8 @@ function GameAccountView({ game, onBack }) {
       await authFetch(`/api/users/me/game-accounts/${game.id}`, { method: 'DELETE' })
     } catch {}
     setPlayerData(null)
+    setFetchedAt(null)
+    setRefreshMsg(null)
     setUid('')
     setError(null)
     setChanging(false)
@@ -760,6 +789,10 @@ function GameAccountView({ game, onBack }) {
               <div className="profile-section__header">
                 <h2 className="profile-section__title">{viewCfg.rosterLabel}</h2>
                 <div className="ga-account-actions">
+                  {fetchedAt && <span className="ga-updated">Updated {timeAgoShort(fetchedAt)}</span>}
+                  <button className="ga-reload-btn" onClick={handleRefresh} disabled={refreshing}>
+                    {refreshing ? 'Refreshing…' : 'Refresh'}
+                  </button>
                   <button className="ga-reload-btn" onClick={() => { setUid(''); setChanging(true) }}>
                     Change UID
                   </button>
@@ -768,6 +801,7 @@ function GameAccountView({ game, onBack }) {
                   </button>
                 </div>
               </div>
+              {refreshMsg && <p className="ga-uid-error">{refreshMsg}</p>}
               {roster.length > 0 ? (
                 <div className="ga-agents-grid">
                   {roster.map(a => (
@@ -1102,38 +1136,8 @@ export default function AccountPage() {
       .catch(() => {})
   }, [user?.id])
 
-  // Load game account showcase
-  useEffect(() => {
-    if (!user?.id) return
-    authFetch(`/api/users/${user.id}/game-accounts`)
-      .then(r => r.json())
-      .then(accounts => {
-        if (!Array.isArray(accounts)) return
-        const games = accounts.map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid } : null }).filter(Boolean)
-        setShowcaseGames(games)
-      })
-      .catch(() => {})
-  }, [user?.id])
-
-  useEffect(() => {
-    if (showcaseGames.length === 0) return
-    showcaseGames.forEach(game => {
-      if (!game.uid || !ACCOUNT_FEATURE_GAMES.has(game.id)) return
-      fetch(`/api/games/${game.id}/player/${game.uid}`)
-        .then(r => r.ok ? r.json() : null)
-        .then(data => { if (data) setShowcasePlayerData(prev => ({ ...prev, [game.id]: data })) })
-        .catch(() => {})
-    })
-  }, [showcaseGames])
-
-  const handleRemoveShowcaseGame = async (gameId) => {
-    try {
-      await authFetch(`/api/users/me/game-accounts/${gameId}`, { method: 'DELETE' })
-    } catch {}
-    setShowcasePlayerData(prev => { const next = { ...prev }; delete next[gameId]; return next })
-    refreshShowcase()
-  }
-
+  // Load game account showcase. Stats come from the snapshot stored on each
+  // linked account, so this never calls Enka.
   const refreshShowcase = () => {
     if (!user?.id) return
     authFetch(`/api/users/${user.id}/game-accounts`)
@@ -1142,8 +1146,22 @@ export default function AccountPage() {
         if (!Array.isArray(accounts)) return
         const games = accounts.map(a => { const g = GAMES.find(g => g.id === a.game_id); return g ? { ...g, uid: a.uid } : null }).filter(Boolean)
         setShowcaseGames(games)
+        setShowcasePlayerData(Object.fromEntries(
+          accounts
+            .filter(a => a.snapshot && ACCOUNT_FEATURE_GAMES.has(a.game_id))
+            .map(a => [a.game_id, a.snapshot])
+        ))
       })
       .catch(() => {})
+  }
+
+  useEffect(refreshShowcase, [user?.id])
+
+  const handleRemoveShowcaseGame = async (gameId) => {
+    try {
+      await authFetch(`/api/users/me/game-accounts/${gameId}`, { method: 'DELETE' })
+    } catch {}
+    refreshShowcase()
   }
 
 
