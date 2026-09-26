@@ -32,6 +32,15 @@ function Footer() {
         owners. MyGachaList is not affiliated with, endorsed by, or sponsored by any of the
         game publishers or developers listed.
       </p>
+      <p className="site-footer__legal">
+        <button className="site-footer__legal-link" onClick={() => navigate('/about#terms')}>
+          Terms of Service
+        </button>
+        {' · '}
+        <button className="site-footer__legal-link" onClick={() => navigate('/about#privacy')}>
+          Privacy Policy
+        </button>
+      </p>
       {isMod && (
         <button className="site-footer__mod-btn" onClick={() => navigate('/mod')}>
           Moderation

@@ -8,6 +8,7 @@ import BoardLightbox from '../components/ui/BoardLightbox'
 import YouTubeEmbed  from '../components/ui/YouTubeEmbed'
 import ImageLightbox from '../components/ui/ImageLightbox'
 import GameCard from '../components/GameCard'
+import { formatBirthday } from '../utils/birthday'
 import './AccountPage.css'
 import './UserProfilePage.css'
 
@@ -678,7 +679,7 @@ export default function UserProfilePage() {
                 {profile.birthday && (
                   <InfoRow
                     label="Birthday"
-                    value={new Date(profile.birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                    value={formatBirthday(profile.birthday)}
                   />
                 )}
                 <InfoRow

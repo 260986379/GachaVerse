@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AuthModal from '../components/ui/AuthModal'
+import { formatBirthday } from '../utils/birthday'
 import './UserPage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
@@ -153,7 +154,7 @@ export default function UserPage() {
               {profile.birthday && (
                 <div className="user-info-row">
                   <span>🎂</span>
-                  <span>{new Date(profile.birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</span>
+                  <span>{formatBirthday(profile.birthday)}</span>
                 </div>
               )}
               <div className="user-info-row">

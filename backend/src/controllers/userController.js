@@ -1,7 +1,8 @@
 const Joi = require('joi');
 const { USERNAME_MAX, BIO_MAX } = require('../utils/limits');
 const { imageSource } = require('../utils/imageSource');
-const { query } = require('../config/db');
+const { query, pool } = require('../config/db');
+const { admin } = require('../config/firebase');
 const { createUserNotification } = require('./userNotificationController');
 
 const PROTECTED_ROLES = ['Owner', 'Dev', 'VIP'];
@@ -14,7 +15,9 @@ const canSeeDebug = (user) => user?.role === 'Owner' || user?.role === 'Dev';
 const getUserProfile = async (req, res, next) => {
   try {
     const { rows } = await query(
-      `SELECT id, username, avatar_url, banner_url, bio, birthday, role, created_at,
+      `SELECT id, username, avatar_url, banner_url, bio,
+              to_char(birthday, 'MM-DD') AS birthday, -- public: month/day only, never the year
+              role, created_at,
               (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
               (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
        FROM users WHERE id = $1`,
@@ -34,7 +37,9 @@ const getUserProfile = async (req, res, next) => {
 const getUserByUsername = async (req, res, next) => {
   try {
     const { rows } = await query(
-      `SELECT id, username, avatar_url, banner_url, bio, birthday, role, created_at,
+      `SELECT id, username, avatar_url, banner_url, bio,
+              to_char(birthday, 'MM-DD') AS birthday, -- public: month/day only, never the year
+              role, created_at,
               (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
               (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
        FROM users WHERE username = $1`,
@@ -465,6 +470,68 @@ const assignRole = async (req, res, next) => {
   }
 };
 
+/**
+ * DELETE /api/users/me — permanently delete the caller's account.
+ * Body: { confirm: <exact username> } — the UI makes the user type it.
+ *
+ * One DELETE on users does the work; the foreign keys in models/schema.js decide
+ * what happens to everything else:
+ *
+ *   Cascade (removed with the user) — the user's own personal data and content:
+ *     posts, comments, user_games, user_follows (both directions),
+ *     user_favorite_videos / _characters / _artworks, user_game_accounts, boards
+ *     (and every board_comment on them), board_comments the user wrote,
+ *     game_reviews (and their review_upvotes), review_upvotes the user gave,
+ *     profile_notes (written and received), user_notifications (received and
+ *     ones where they were the actor).
+ *     Nothing needs anonymising to keep other users' threads intact: board
+ *     comments and reviews are flat. comments.parent_comment_id also cascades,
+ *     so replies under a deleted post comment go too, but the frontend has no
+ *     way to create post comments or replies, so no such threads exist.
+ *
+ *   Anonymise (ON DELETE SET NULL) — rows that belong to moderation, not to the
+ *   user: reports.reporter_id / resolved_by and suggestions.submitter_id /
+ *   reviewed_by. The report or suggestion stays for moderators with no link back
+ *   to the person. A report's content_preview is a snapshot of the reported
+ *   content (possibly someone else's), kept as moderation evidence.
+ *
+ * The Firebase Auth record is deleted inside the transaction, before COMMIT: if
+ * Firebase fails, the rollback leaves the account fully intact instead of
+ * leaving a sign-in that points at nothing (or data with no way to sign in).
+ */
+const deleteMe = async (req, res, next) => {
+  if (req.body?.confirm !== req.user.username) {
+    return res.status(400).json({ message: 'Type your username exactly to confirm account deletion.' });
+  }
+  // The Owner account runs the site; hand the role to someone else first.
+  if (req.user.role === 'Owner') {
+    return res.status(403).json({ message: 'The Owner account cannot be deleted. Transfer the Owner role first.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rowCount } = await client.query('DELETE FROM users WHERE id = $1', [req.user.id]);
+    if (rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'User not found' });
+    }
+    try {
+      await admin.auth().deleteUser(req.user.firebase_uid);
+    } catch (err) {
+      // Already gone from Firebase is the outcome we want; anything else aborts.
+      if (err.code !== 'auth/user-not-found') throw err;
+    }
+    await client.query('COMMIT');
+    res.status(204).end();
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    next(err);
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   getUserProfile,
   getUserByUsername,
@@ -472,6 +539,7 @@ module.exports = {
   getCommunityUsers,
   getDirectoryUsers,
   updateMe,
+  deleteMe,
   getUserGames,
   addUserGame,
   removeUserGame,

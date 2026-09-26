@@ -87,6 +87,11 @@
 }
 
 /* ── Sections ─────────────────────────────────────────────────── */
+/* Keeps #terms / #privacy clear of the fixed navbar when jumped to. */
+.about-section[id] {
+  scroll-margin-top: 6rem;
+}
+
 .about-section__title {
   margin: 0 0 1rem;
   font-size: 1.15rem;
@@ -100,6 +105,12 @@
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.75;
+}
+
+.about-section__meta {
+  margin: -0.25rem 0 0.75rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .about-section__body:last-child {

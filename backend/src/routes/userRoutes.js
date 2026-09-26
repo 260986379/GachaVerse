@@ -7,6 +7,7 @@ const {
   getCommunityUsers,
   getDirectoryUsers,
   updateMe, updateMeSchema,
+  deleteMe,
   getUserGames,
   addUserGame,
   removeUserGame,
@@ -35,6 +36,7 @@ router.get('/search',                optionalAuth, searchUsers);
 router.get('/by-username/:username', optionalAuth, getUserByUsername);
 router.get('/:id',                   optionalAuth, getUserProfile);
 router.patch('/me',                  authenticateToken, validate(updateMeSchema), updateMe);
+router.delete('/me',                 authenticateToken, deleteMe);
 
 // Games
 router.get('/:id/games',                           getUserGames);

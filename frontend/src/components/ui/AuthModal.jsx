@@ -23,6 +23,7 @@ export default function AuthModal({ onClose, defaultTab = 'login' }) {
   }, [onClose])
 
   const switchTab = (t) => { setTab(t); setError('') }
+  const openLegal = (section) => { onClose(); navigate(`/about#${section}`) }
 
   const handleGoogle = () => {
     setError('')
@@ -204,6 +205,15 @@ export default function AuthModal({ onClose, defaultTab = 'login' }) {
                     required
                     autoComplete="new-password"
                   />
+                )}
+
+                {tab === 'signup' && (
+                  <p className="auth-legal">
+                    By creating an account you agree to our{' '}
+                    <button type="button" className="auth-link" onClick={() => openLegal('terms')}>Terms of Service</button>
+                    {' '}and{' '}
+                    <button type="button" className="auth-link" onClick={() => openLegal('privacy')}>Privacy Policy</button>.
+                  </p>
                 )}
 
                 <button className="auth-submit-btn" type="submit" disabled={loading}>
