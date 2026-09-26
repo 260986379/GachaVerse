@@ -313,6 +313,19 @@ Applied to `boards.image_url` (required), `users.avatar_url` and `users.banner_u
 
 **To allow external URLs again**, add an http(s) branch to `imageSource` **and** a host allowlist. Re-opening it without one reinstates every problem above.
 
+### Update (2026-09-26) — images moved to Firebase Storage (#45)
+
+The accepted shape is now **only a Firebase Storage download URL in the caller's own folder for that field**: `https://firebasestorage.googleapis.com/v0/b/<our bucket>/o/users%2F<caller's firebase uid>%2F<avatar|banner|board>%2F<id>.jpg?alt=media&token=<token>`. Inline data URLs are rejected. This is the "host allowlist" branch described above, made stricter than a host check:
+
+- **Own folder, right field.** `validate()` passes the caller's Firebase uid as Joi context; a URL into another user's folder, or a board file used as an avatar, is rejected. A host-only check would let a user point at someone else's file, and a later delete (which removes the file a row points at) would then delete that user's image.
+- **Exact URL shape.** https only, our bucket only, one encoded object name matching the layout, only `alt=media` + `token`, no userinfo, port or fragment, max 500 chars. Tests: `image-url-validation`.
+- **Storage rules** (`storage.rules`): public `get` of a single file, no listing; signed-in users may only *create* JPEGs under 2 MB in `users/<own uid>/<avatar|banner|board>/`; no client overwrite or delete. Checked with `backend/scripts/testStorageRules.js` (Rules API, 18 cases).
+- **Deletion removes the file**, not just the row: board delete (owner and moderator), report "Resolve & Delete", avatar/banner replace or removal, and account deletion (whole `users/<uid>/` folder). Implemented against the Cloud Storage JSON API in `services/storageFiles.js`, since the production image omits `@google-cloud/storage` (#53). Tests: `storage-cleanup`, `storage-files`.
+- **Existing images backfilled** by `scripts/backfillImagesToStorage.js`: 9 images (838 KB) moved and byte-verified; no data URLs remain.
+- **Request body limit lowered from 10mb to 100kb** (`app.js`). 10mb existed only for inline images; `IMAGE_DATA_URL_MAX` is removed.
+
+The SSRF concern above still holds: the backend never fetches these URLs; deletion works from the parsed object name.
+
 ---
 
 <details>
@@ -525,5 +538,5 @@ Defaults to `'change_this_secret_in_production'`. Auth currently uses Firebase t
 5. ~~**Rate limit or require auth on `POST /api/suggestions`**~~ — ✅ done 2026-09-25 (10/hour per user-or-IP + Joi validation; stays anonymous by design)
 6. ~~**Add length caps to caption / comment text / bio / review body**~~ — ✅ all done 2026-09-25 (caption 500, comment 2000, bio 500, review body 500)
 7. ~~**Move Firebase config to env variables**~~ — ✅ done 2026-09-25 (VITE_ overrides with committed fallbacks; downgraded to Low — authorized domains and email-enumeration protection were already correct). Referrer restrictions on the browser key also applied. Firebase App Check remains the open hardening step.
-8. ~~**Validate URL fields** (`image_url`, `avatar_url`, `banner_url`, `reference_link`)~~ — ✅ done 2026-09-25 (data:image/* only on user-writable paths; `reference_link` covered by the suggestions fix). SSRF sink and tracking-pixel vector both closed.
+8. ~~**Validate URL fields** (`image_url`, `avatar_url`, `banner_url`, `reference_link`)~~ — ✅ done 2026-09-25 (data:image/* only on user-writable paths, replaced 2026-09-26 by own-folder Firebase Storage URLs only, #45; `reference_link` covered by the suggestions fix). SSRF sink and tracking-pixel vector both closed.
 9. ~~**Remove `JWT_SECRET` fallback default**~~ — ✅ done 2026-09-25 (secret, dead `utils/jwt.js` and the `jsonwebtoken` dependency all removed; auth is Firebase-only)

@@ -28,6 +28,11 @@ require.cache[fbPath] = { id: fbPath, filename: fbPath, loaded: true,
     deleteUser: async (uid) => { if (firebaseError) throw firebaseError; deleted.push(uid); },
   }) } } };
 
+// Stored-file cleanup is tested in storage-cleanup / storage-files; never touch the bucket here.
+const sfPath = require.resolve(path.join(BE, 'services/storageFiles.js'));
+require.cache[sfPath] = { id: sfPath, filename: sfPath, loaded: true,
+  exports: { deleteImageByUrl: async () => {}, deletePrefix: async () => {}, deleteObject: async () => {} } };
+
 const app = require(path.join(BE, 'app.js'));
 let pass = 0, fail = 0;
 const check = (n, c, e) => { if (c) { pass++; console.log('  PASS  ' + n); } else { fail++; console.log('  FAIL  ' + n + (e !== undefined ? '\n        got: ' + e : '')); } };

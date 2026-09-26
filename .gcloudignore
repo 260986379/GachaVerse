@@ -1,0 +1,23 @@
+# Files `gcloud builds submit` must NOT upload to the Cloud Build bucket.
+#
+# Without this file gcloud only reads the root .gitignore, so nested ignores such
+# as backend/.gitignore were skipped and every deploy uploaded the Firebase admin
+# key (backend/firebase-service-account.json) with the source.
+# Creating this file turns that fallback off, so the root .gitignore is included
+# explicitly below.
+
+.gcloudignore
+.git
+.gitignore
+#!include:.gitignore
+
+# Secrets and local config (mirrors backend/.gitignore and frontend/.gitignore)
+**/firebase-service-account.json
+**/.env
+**/.env.*
+!frontend/.env.example
+
+# Dependencies and build output — Cloud Build installs and builds its own
+**/node_modules/
+**/dist/
+**/*.log

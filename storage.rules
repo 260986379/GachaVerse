@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// Firebase Storage rules for user-uploaded images (#45).
+//
+// Layout: users/<firebase uid>/<avatar|banner|board>/<id>.jpg
+// The backend's imageSource validator (backend/src/utils/imageSource.js)
+// accepts exactly this shape, and only for the caller's own uid.
+//
+// - Anyone may fetch a single file by its URL (they are public avatars and
+//   board images), but nobody may list folders.
+// - A signed-in user may only create files in their own folder, as images,
+//   under the size cap. The client compresses first (compressImage), but that
+//   is bypassable, so the cap lives here.
+// - Files are never overwritten or deleted from the client: every upload gets
+//   a new name, and deletion is done by the backend with admin credentials
+//   (which bypass these rules) when a board, avatar, banner or account goes.
+// - Everything else is denied.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{uid}/{kind}/{fileName} {
+      allow get: if true;
+
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && kind in ['avatar', 'banner', 'board']
+        && fileName.matches('[A-Za-z0-9-]{1,64}[.]jpg')
+        && request.resource.size > 0
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

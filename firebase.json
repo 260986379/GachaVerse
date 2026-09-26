@@ -1,7 +1,11 @@
 {
   "hosting": {
     "public": "frontend/dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "/api/**",
@@ -15,5 +19,8 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }

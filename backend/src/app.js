@@ -24,7 +24,9 @@ const concertHallRoutes   = require('./routes/concertHallRoutes');
 const app = express();
 
 app.use(corsMiddleware);
-app.use(express.json({ limit: '10mb' }));
+// 100kb (Express's default). It was 10mb only because images used to arrive
+// inline as base64; they now go to Firebase Storage and only a URL is sent (#45).
+app.use(express.json({ limit: '100kb' }));
 app.use(morgan('dev'));
 
 // Global per-IP rate limit for the public API. Mounted before any /api route.

@@ -13,6 +13,7 @@ import {
   sendPasswordResetEmail,
 } from '../firebase'
 import { setCurrentUser, setAuthFetch } from '../utils/bookmarks'
+import { uploadImage } from '../utils/imageUpload'
 
 const AuthContext = createContext(null)
 
@@ -68,9 +69,20 @@ export function AuthProvider({ children }) {
               localStorage.getItem(`${base}__guest`)        ||
               localStorage.getItem(base)                    ||
               null
+            // Guest images are data URLs; the API only accepts Storage URLs now (#45),
+            // so upload them first. Anything else (e.g. a stale URL) is skipped.
+            const toUpload = []
+            if (!dbUser.avatar_url) { const v = find('gv_profile_pfp');    if (v?.startsWith('data:image/')) toUpload.push(['avatar_url', 'avatar', v]) }
+            if (!dbUser.banner_url) { const v = find('gv_profile_banner'); if (v?.startsWith('data:image/')) toUpload.push(['banner_url', 'banner', v]) }
             const payload = {}
-            if (!dbUser.avatar_url) { const v = find('gv_profile_pfp');    if (v) payload.avatar_url = v }
-            if (!dbUser.banner_url) { const v = find('gv_profile_banner'); if (v) payload.banner_url = v }
+            for (const [col, kind, dataUrl] of toUpload) {
+              try {
+                const blob = await (await fetch(dataUrl)).blob()
+                payload[col] = await uploadImage(blob, kind)
+              } catch (err) {
+                console.error(`[Auth] Guest ${kind} upload failed:`, err)
+              }
+            }
             if (Object.keys(payload).length > 0) {
               const token = await fbUser.getIdToken()
               fetch(`${API}/users/me`, {

@@ -52,7 +52,8 @@ const server = app.listen(0, async () => {
   const huge = 'a'.repeat(500000);
   inserts = [];
   r = await post(valid({ entry_name: huge }), '203.0.113.18');
-  check('500KB entry_name rejected (was insertable before)', r.status === 400, r.status);
+  // 400 from validation, or 413 from the 100kb request limit that now runs first.
+  check('500KB entry_name rejected (was insertable before)', [400, 413].includes(r.status), r.status);
   check('  -> nothing inserted', inserts.length === 0, inserts.length);
 
   console.log('\n--- game_name conditional requirement ---');

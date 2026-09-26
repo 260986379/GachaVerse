@@ -27,4 +27,7 @@ module.exports = {
   GCP_LOCATION:       process.env.GCP_LOCATION       || 'us-central1',
   CLOUD_TASKS_QUEUE:  process.env.CLOUD_TASKS_QUEUE  || 'youtube-ingestion',
   CLOUD_RUN_URL:      process.env.CLOUD_RUN_URL      || '',
+
+  // Firebase Storage bucket for user-uploaded images (avatars, banners, boards; #45)
+  FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET || 'gachaverse-497204.firebasestorage.app',
 };

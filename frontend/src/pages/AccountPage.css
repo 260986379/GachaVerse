@@ -927,6 +927,12 @@
   padding: 1rem;
 }
 
+.board-modal__error {
+  margin: -0.5rem 0 0.75rem;
+  font-size: 0.75rem;
+  color: #e05555;
+}
+
 .board-modal__caption {
   display: block;
   width: 100%;

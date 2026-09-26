@@ -3,15 +3,16 @@ const { createUserNotification } = require('./userNotificationController');
 const Joi = require('joi');
 const { CAPTION_MAX, COMMENT_MAX, GAME_LABEL_MAX } = require('../utils/limits');
 const { imageSource } = require('../utils/imageSource');
+const { deleteImageByUrl } = require('../services/storageFiles');
 
 /**
- * image_url is validated by imageSource (http(s) URL or data:image/* only);
- * caption is free text and is capped tightly.
+ * image_url is validated by imageSource (a Storage file in the caller's own
+ * board folder, or a legacy data:image/* value); caption is capped tightly.
  */
 const addBoardSchema = Joi.object({
   game_id:   Joi.string().trim().max(GAME_LABEL_MAX).allow('', null).optional(),
   game_name: Joi.string().trim().max(GAME_LABEL_MAX).allow('', null).optional(),
-  image_url: imageSource.required()
+  image_url: imageSource('board').required()
     .messages({ 'any.required': 'image_url is required.', 'string.empty': 'image_url is required.' }),
   caption:   Joi.string().trim().max(CAPTION_MAX).allow('', null).optional(),
 });
@@ -70,12 +71,14 @@ const addBoard = async (req, res, next) => {
 const deleteBoard = async (req, res, next) => {
   try {
     const isMod = ['Owner', 'Dev'].includes(req.user.role);
-    const { rowCount } = isMod
-      ? await query('DELETE FROM boards WHERE id = $1', [req.params.id])
-      : await query('DELETE FROM boards WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
+    const { rowCount, rows } = isMod
+      ? await query('DELETE FROM boards WHERE id = $1 RETURNING image_url', [req.params.id])
+      : await query('DELETE FROM boards WHERE id = $1 AND user_id = $2 RETURNING image_url', [req.params.id, req.user.id]);
     if (rowCount === 0) {
       return res.status(404).json({ message: 'Board not found or not yours.' });
     }
+    // Remove the stored image too, or a takedown leaves it reachable by URL.
+    await deleteImageByUrl(rows?.[0]?.image_url);
     res.json({ message: 'Board deleted.' });
   } catch (err) {
     next(err);

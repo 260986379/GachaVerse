@@ -21,7 +21,9 @@ They exist because most of this code is security-relevant and fails *quietly* wh
 | `game-account-snapshot` | linking stores a server-fetched snapshot; profile views never call Enka; refresh cooldown |
 | `player-lookup-guard` | TTL clamping, cache keys, per-client and global window expiry |
 | `cache-memory-bounds` | byte accounting cannot drift; eviction order |
-| `image-url-validation` | only `data:image/*` is storable |
+| `image-url-validation` | image columns accept only `data:image/*` (legacy) or a Storage file in the caller's own folder for that field (#45) |
+| `storage-cleanup` | deleting a board (owner/mod/report), replacing an avatar/banner, or deleting an account also deletes the stored file(s) |
+| `storage-files` | Storage deletes hit only our bucket, 404 is fine, failures are logged not thrown, no broad-prefix deletes |
 | `input-length-caps` | caption 500, comment 2000, bio 500 |
 | `review-body-cap` | review body 500; rating 1–10 |
 | `posts-pagination`, `reviews-pagination`, `game-media` | LIMIT applied, response shape, clamping |

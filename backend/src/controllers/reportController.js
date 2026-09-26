@@ -1,4 +1,5 @@
 const { query } = require('../config/db');
+const { deleteImageByUrl } = require('../services/storageFiles');
 
 const requireMod = (req, res, next) => {
   if (!['Owner', 'Dev'].includes(req.user?.role)) {
@@ -70,7 +71,7 @@ const getReports = async (req, res, next) => {
 };
 
 const CONTENT_DELETE_SQL = {
-  board:  'DELETE FROM boards         WHERE id = $1',
+  board:  'DELETE FROM boards         WHERE id = $1 RETURNING image_url',
   review: 'DELETE FROM game_reviews   WHERE id = $1',
   note:   'DELETE FROM profile_notes  WHERE id = $1',
 };
@@ -93,7 +94,11 @@ const resolveReport = async (req, res, next) => {
 
     if (action === 'resolve') {
       const deleteSql = CONTENT_DELETE_SQL[content_type];
-      if (deleteSql) await query(deleteSql, [content_id]);
+      if (deleteSql) {
+        const deleted = await query(deleteSql, [content_id]);
+        // A board takedown must remove the stored image, not just the row.
+        if (content_type === 'board') await deleteImageByUrl(deleted.rows?.[0]?.image_url);
+      }
 
       // Mark all pending reports for the same content as resolved
       await query(

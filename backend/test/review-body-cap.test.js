@@ -33,7 +33,8 @@ const server=app.listen(0,async()=>{
   writes=[];
   check('1000 chars (old UI cap) rejected', (await post({rating:8,body:'a'.repeat(1000)})).status===400);
   check('5000 chars rejected',      (await post({rating:8,body:'a'.repeat(5000)})).status===400);
-  check('1MB body rejected',        (await post({rating:8,body:'a'.repeat(1000000)})).status===400);
+  // Now stopped earlier, by the 100kb request limit (413), before validation (400).
+  check('1MB body rejected',        [400,413].includes((await post({rating:8,body:'a'.repeat(1000000)})).status));
   check('  -> nothing written',     writes.length===0, writes.length);
 
   console.log('\n--- body stays optional ---');

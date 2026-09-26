@@ -8,6 +8,7 @@ import {
   EmailAuthProvider,
   linkWithCredential,
 } from 'firebase/auth'
+import { uploadImageFile } from '../utils/imageUpload'
 import './SettingsPage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
@@ -16,25 +17,6 @@ const NAV = [
   { id: 'profile', label: 'Profile' },
   { id: 'account', label: 'Account' },
 ]
-
-function compressImage(file, maxW, maxH, quality = 0.88) {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      let { width, height } = img
-      if (width > maxW) { height = Math.round(height * maxW / width); width = maxW }
-      if (height > maxH) { width = Math.round(width * maxH / height); height = maxH }
-      const canvas = document.createElement('canvas')
-      canvas.width = width; canvas.height = height
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-      resolve(canvas.toDataURL('image/jpeg', quality))
-    }
-    img.onerror = reject
-    img.src = url
-  })
-}
 
 export default function SettingsPage() {
   const navigate = useNavigate()
@@ -73,8 +55,9 @@ export default function SettingsPage() {
     if (!file) return
     setAvatarMsg('')
     try {
-      const dataUrl = await compressImage(file, 400, 533, 0.88)
-      await authFetch(`${API}/users/me`, { method: 'PATCH', body: JSON.stringify({ avatar_url: dataUrl }) })
+      const url = await uploadImageFile(file, 'avatar')
+      const res = await authFetch(`${API}/users/me`, { method: 'PATCH', body: JSON.stringify({ avatar_url: url }) })
+      if (!res.ok) throw new Error(`Saving avatar failed: ${res.status}`)
       await refreshUser()
       setAvatarMsg('✓ Profile picture updated.')
     } catch { setAvatarMsg('Failed to update picture.') }

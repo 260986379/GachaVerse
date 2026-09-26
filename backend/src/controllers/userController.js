@@ -5,6 +5,7 @@ const { query, pool } = require('../config/db');
 const { admin } = require('../config/firebase');
 const { createUserNotification } = require('./userNotificationController');
 const snapshotService = require('../services/playerSnapshot');
+const { deleteImageByUrl, deletePrefix } = require('../services/storageFiles');
 
 const PROTECTED_ROLES = ['Owner', 'Dev', 'VIP'];
 
@@ -61,15 +62,16 @@ const getUserByUsername = async (req, res, next) => {
  * leaves the column unchanged while an explicit null clears it. Validation must
  * preserve that distinction, so nothing here is required.
  *
- * avatar_url and banner_url are validated by imageSource (http(s) URL or
- * data:image/* only). bio is free text and capped tightly.
+ * avatar_url and banner_url are validated by imageSource (a Storage file in the
+ * caller's own avatar/banner folder, or a legacy data:image/* value). bio is
+ * free text and capped tightly.
  */
 const updateMeSchema = Joi.object({
   username:   Joi.string().trim().min(1).max(USERNAME_MAX).allow(null).optional(),
   bio:        Joi.string().trim().max(BIO_MAX).allow('', null).optional(),
   birthday:   Joi.date().iso().allow('', null).optional(),
-  avatar_url: imageSource.allow('', null).optional(),
-  banner_url: imageSource.allow('', null).optional(),
+  avatar_url: imageSource('avatar').allow('', null).optional(),
+  banner_url: imageSource('banner').allow('', null).optional(),
 });
 
 /** PATCH /api/users/me — update bio, username, birthday, avatar_url, banner_url */
@@ -109,6 +111,12 @@ const updateMe = async (req, res, next) => {
 
     if (fields.length === 0) return res.status(400).json({ message: 'Nothing to update.' });
 
+    // Old image values, so a replaced or removed avatar/banner file can be deleted.
+    const changesImage = 'avatar_url' in req.body || 'banner_url' in req.body;
+    const before = changesImage
+      ? (await query('SELECT avatar_url, banner_url FROM users WHERE id = $1', [req.user.id])).rows[0]
+      : null;
+
     fields.push(`updated_at = NOW()`);
     values.push(req.user.id);
 
@@ -117,6 +125,11 @@ const updateMe = async (req, res, next) => {
        RETURNING id, username, email, avatar_url, banner_url, bio, birthday, role, created_at`,
       values
     );
+    if (before) {
+      for (const col of ['avatar_url', 'banner_url']) {
+        if (col in req.body && before[col] && before[col] !== rows[0][col]) await deleteImageByUrl(before[col]);
+      }
+    }
     res.json(rows[0]);
   } catch (err) {
     next(err);
@@ -605,6 +618,8 @@ const deleteMe = async (req, res, next) => {
       if (err.code !== 'auth/user-not-found') throw err;
     }
     await client.query('COMMIT');
+    // Uploaded images live under users/<firebase uid>/ — remove the whole folder.
+    await deletePrefix(`users/${req.user.firebase_uid}/`);
     res.status(204).end();
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});

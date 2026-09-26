@@ -18,6 +18,7 @@ import GameCard from '../components/GameCard'
 import { GAMES } from '../data/games'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
+import { compressImage, blobToDataUrl, uploadImage, IMAGE_SIZES } from '../utils/imageUpload'
 import './AccountPage.css'
 import './UserProfilePage.css'
 
@@ -878,35 +879,56 @@ function CharCard({ char, onClick }) {
 
 function BoardUploadModal({ onAdd, onClose }) {
   const [gameId, setGameId] = useState(SHOWCASE_GAMES[0].id)
-  const [imageDataUrl, setImageDataUrl] = useState('')
+  const [imageBlob, setImageBlob] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState('')
   const [caption, setCaption] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
   const fileRef = useRef(null)
+
+  // Release the preview's object URL when it is replaced or the modal closes.
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl) }, [previewUrl])
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0]
-    if (!file) return
-    const dataUrl = await compressImage(file, 900, 1400, 0.88)
-    setImageDataUrl(dataUrl)
     e.target.value = ''
+    if (!file) return
+    setError('')
+    try {
+      const { maxW, maxH } = IMAGE_SIZES.board
+      const blob = await compressImage(file, maxW, maxH)
+      setImageBlob(blob)
+      setPreviewUrl(URL.createObjectURL(blob))
+    } catch {
+      setError('That file could not be read as an image.')
+    }
   }
 
-  const handleSubmit = (e) => {
+  // The image is uploaded only on submit, so abandoning the modal leaves nothing behind.
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!imageDataUrl) return
-    const game = SHOWCASE_GAMES.find((g) => g.id === gameId)
-    onAdd({ gameId, gameName: game.name, imageUrl: imageDataUrl, caption: caption.trim() })
-    onClose()
+    if (!imageBlob || saving) return
+    setSaving(true)
+    setError('')
+    try {
+      const game = SHOWCASE_GAMES.find((g) => g.id === gameId)
+      await onAdd({ gameId, gameName: game.name, imageBlob, caption: caption.trim() })
+      onClose()
+    } catch (err) {
+      setError(err.message || 'Upload failed. Please try again.')
+      setSaving(false)
+    }
   }
 
   // Close on Escape
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    const onKey = (e) => { if (e.key === 'Escape' && !saving) onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, saving])
 
   return (
-    <div className="board-modal-overlay" onClick={onClose}>
+    <div className="board-modal-overlay" onClick={() => { if (!saving) onClose() }}>
       <div className="board-modal" onClick={(e) => e.stopPropagation()}>
         <button className="board-modal__close" onClick={onClose}>✕</button>
         <h3 className="board-modal__title">Add to Board</h3>
@@ -926,8 +948,8 @@ function BoardUploadModal({ onAdd, onClose }) {
             className="board-modal__upload"
             onClick={() => fileRef.current?.click()}
           >
-            {imageDataUrl
-              ? <img src={imageDataUrl} alt="preview" />
+            {previewUrl
+              ? <img src={previewUrl} alt="preview" />
               : <span className="board-modal__upload-hint">Click to upload image</span>
             }
             <input
@@ -947,35 +969,15 @@ function BoardUploadModal({ onAdd, onClose }) {
             rows={2}
           />
 
-          <button className="board-modal__submit" type="submit" disabled={!imageDataUrl}>
-            Add to Board
+          {error && <p className="board-modal__error">{error}</p>}
+
+          <button className="board-modal__submit" type="submit" disabled={!imageBlob || saving}>
+            {saving ? 'Uploading…' : 'Add to Board'}
           </button>
         </form>
       </div>
     </div>
   )
-}
-
-// Compress an image file to a JPEG data URL via canvas.
-// maxW / maxH cap dimensions to keep base64 payloads reasonable.
-function compressImage(file, maxW, maxH, quality = 0.85) {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      let { width, height } = img
-      if (width > maxW) { height = Math.round(height * maxW / width); width = maxW }
-      if (height > maxH) { width = Math.round(width * maxH / height); height = maxH }
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
-      resolve(canvas.toDataURL('image/jpeg', quality))
-    }
-    img.onerror = reject
-    img.src = url
-  })
 }
 
 // ── Drag-to-reorder ───────────────────────────────────────────────────────
@@ -1181,30 +1183,45 @@ export default function AccountPage() {
     }
   }
 
+  // Signed in: upload to Storage and save the URL. Guest: keep it in this browser only.
+  const saveProfileImage = async (file, kind) => {
+    const { maxW, maxH } = IMAGE_SIZES[kind]
+    const blob = await compressImage(file, maxW, maxH)
+    let src
+    if (isLoggedIn) {
+      src = await uploadImage(blob, kind)
+      const res = await authFetch('/api/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify({ [kind === 'avatar' ? 'avatar_url' : 'banner_url']: src }),
+      })
+      if (!res.ok) throw new Error(`Saving ${kind} failed: ${res.status}`)
+      refreshUser()
+    } else {
+      src = await blobToDataUrl(blob)
+    }
+    return src
+  }
+
   const handleBannerUpload = async (e) => {
     const file = e.target.files?.[0]
-    if (!file) return
-    const dataUrl = await compressImage(file, 1500, 500, 0.88)
-    setProfileBanner(dataUrl)
-    setBannerSrc(dataUrl)
     e.target.value = ''
-    if (isLoggedIn) {
-      await authFetch('/api/users/me', { method: 'PATCH', body: JSON.stringify({ banner_url: dataUrl }) })
-      refreshUser()
-    }
+    if (!file) return
+    try {
+      const src = await saveProfileImage(file, 'banner')
+      setProfileBanner(src)
+      setBannerSrc(src)
+    } catch (err) { console.error('[Account] banner upload failed:', err) }
   }
 
   const handlePfpUpload = async (e) => {
     const file = e.target.files?.[0]
-    if (!file) return
-    const dataUrl = await compressImage(file, 400, 533, 0.88)
-    setProfilePfp(dataUrl)
-    setPfpSrc(dataUrl)
     e.target.value = ''
-    if (isLoggedIn) {
-      await authFetch('/api/users/me', { method: 'PATCH', body: JSON.stringify({ avatar_url: dataUrl }) })
-      refreshUser()
-    }
+    if (!file) return
+    try {
+      const src = await saveProfileImage(file, 'avatar')
+      setProfilePfp(src)
+      setPfpSrc(src)
+    } catch (err) { console.error('[Account] avatar upload failed:', err) }
   }
 
   const resetBanner = async () => {
@@ -1235,22 +1252,21 @@ export default function AccountPage() {
     }
   }
 
+  // Throws on failure so the upload modal can show the error.
   const handleAddBoard = async (boardData) => {
-    try {
-      const res = await authFetch('/api/boards', {
-        method: 'POST',
-        body: JSON.stringify({
-          game_id:   boardData.gameId,
-          game_name: boardData.gameName,
-          image_url: boardData.imageUrl,
-          caption:   boardData.caption,
-        }),
-      })
-      if (res.ok) {
-        const newBoard = await res.json()
-        setBoards(prev => [...prev, newBoard])
-      }
-    } catch {}
+    const imageUrl = await uploadImage(boardData.imageBlob, 'board')
+    const res = await authFetch('/api/boards', {
+      method: 'POST',
+      body: JSON.stringify({
+        game_id:   boardData.gameId,
+        game_name: boardData.gameName,
+        image_url: imageUrl,
+        caption:   boardData.caption,
+      }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.message || 'Could not save the board.')
+    setBoards(prev => [...prev, data])
   }
 
   const handleDeleteBoard = async (id) => {

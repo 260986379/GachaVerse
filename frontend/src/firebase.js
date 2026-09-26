@@ -15,6 +15,7 @@ import {
   linkWithCredential,
   sendPasswordResetEmail,
 } from 'firebase/auth'
+import { getStorage } from 'firebase/storage'
 
 // Firebase web config.
 //
@@ -51,9 +52,12 @@ const firebaseConfig = {
 
 const app  = initializeApp(firebaseConfig)
 const auth = getAuth(app)
+// User-uploaded images (avatars, banners, boards); see utils/imageUpload.js and storage.rules
+const storage = getStorage(app)
 
 export {
   auth,
+  storage,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
