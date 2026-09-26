@@ -1,109 +1,12 @@
 # GachaVerse
 
-> The Ultimate Gacha Social Hub
+> The Ultimate Gacha Social Hub — live at **[mygachalist.com](https://mygachalist.com)**
 
 **Mission:** To create the premier centralized, multi-game social platform where gacha game enthusiasts can connect, share their passion, track their journey via user-curated content, and discover all the latest news and events in a vibrant, visually engaging environment.
 
 **USP:** GachaVerse offers a "Pinterest-like" visual experience for showcasing gacha achievements and content, fostering a strong cross-game community, and providing a unified hub for news and events across multiple titles — all within an ethical, user-centric framework.
 
----
-
-## Guiding Principles
-
-1. **Community First** — Empowering players to connect, share, and celebrate their gacha journey.
-2. **Visual Excellence** — An intuitive, beautiful, and engaging user interface.
-3. **Ethical & Transparent** — Strictly adhering to game Terms of Service. No unauthorized data scraping.
-4. **Multi-Game Convenience** — A single destination for all gacha interests.
-5. **Reliable & Up-to-Date** — Delivering accurate news and event information.
-
----
-
-## Project Roadmap
-
-### Phase 0 — Research, Planning & Foundation *(1–2 Months)*
-
-**Goal:** Validate the concept, define the core product, establish legal and technical foundations.
-
-- **Market Research:** Analyze existing platforms (Reddit, Discord, Fandom, Prydwen, KeqingMains, Game8). Identify underserved areas and high-engagement content patterns.
-- **Target Games:** Identify 2–3 initial games for MVP (e.g., Genshin Impact, Honkai: Star Rail).
-- **Branding & Legal:** Name, logo, domain, legal structure, ToS, Privacy Policy.
-- **Product Spec:** Wireframes, mockups, detailed feature backlog, tech stack selection.
-- **Pre-Launch:** "Coming Soon" landing page with email sign-up. Start building presence on relevant subreddits and Discord servers.
-
----
-
-### Phase 1 — Minimum Viable Product *(3–6 Months)*
-
-**Goal:** Launch a stable, engaging platform for 1–2 target games, attract early adopters, validate core social features.
-
-**Features:**
-
-- **User Authentication** — Email/password, Google/Discord login. User profiles with avatar, bio, display name.
-- **My Gacha Showcase** — Users manually add characters from a pre-populated database, upload screenshots of builds/pulls, and write descriptions. *No direct game account access.*
-- **Content Feed** — Image/text/link posts, tagging system (`#GenshinImpact`, `#LuckyPull`, etc.), likes, comments, and filters by game/tag/following.
-- **Curated News & Events** — Official announcements, patch notes, character reveals, event schedules for initial games (team-managed, links to original sources).
-- **Basic Search & Discovery** — Search by user, game, or tag. "Trending" section by engagement.
-- **Admin/Moderation Tools** — User/post/comment management and ToS enforcement.
-
-**Marketing:** Targeted outreach on Reddit/Discord, influencer collaborations, launch contests, active community management.
-
-**Monetization:** Free-to-use. Focus entirely on user acquisition and engagement.
-
----
-
-### Phase 2 — Feature Expansion & Multi-Game Support *(6–12 Months Post-MVP)*
-
-**Goal:** Expand game coverage, deepen social interaction, enhance profiles, grow the user base significantly.
-
-**Features:**
-
-- **Expanded Game Coverage** — Add 3–5 more popular games based on demand.
-- **Advanced Showcase** — Build templates, user-inputted pull tracker/wish history, achievement badges, profile banners and themes.
-- **Advanced Content** — Video embeds (YouTube/Twitch), community polls, long-form guides and articles.
-- **Private Messaging** — Direct conversations between users.
-- **Groups/Clubs** — Public or private groups with dedicated feeds and discussions.
-- **Personalized Discovery** — "For You" feed, "People You Might Know," notification system.
-- **User-Submitted News** — Community submissions with moderation queue.
-
-**Monetization:**
-- Display advertising (non-intrusive, native).
-- **GachaVerse Pro** subscription — ad-free, enhanced customization, increased storage, early feature access, priority support.
-- Affiliate marketing with reputable gaming partners.
-
----
-
-### Phase 3 — Optimization, Scaling & Strategic Positioning *(12–24 Months Post-MVP)*
-
-**Goal:** Achieve significant user growth, establish GachaVerse as a market leader, position for official developer partnerships.
-
-**Features:**
-
-- Performance and infrastructure scaling for millions of users.
-- Internal analytics (aggregated/anonymous data only).
-- Verified Creator program, moderator recruitment, mentorship programs.
-- Full localization (Japanese, Korean, Chinese, Spanish, etc.).
-- Native iOS and Android mobile apps.
-- Limited read-only API for content creators (game data from curated database, not user accounts).
-
-**Monetization:** Maximized ad revenue, growing premium subscriptions, initial strategic developer sponsorships (marketing collaboration, not API access yet).
-
----
-
-### Phase 4 — Market Dominance & Lucrative Partnerships *(24+ Months)*
-
-**Goal:** Establish GachaVerse as the undisputed leader in gacha social platforms. Secure major developer partnerships and achieve sustainable revenue.
-
-**Key Achievements:**
-- Global industry recognition and trust.
-- Millions of monthly active users with high session times.
-- Self-sustaining community ecosystem.
-
-**Monetization:**
-- Premium ad placements and exclusive gaming company ad deals.
-- Robust, stable premium subscription base.
-- **Major Developer Partnerships** — Co-branded events, exclusive reveals, large-scale sponsorships.
-- **Limited Official API Access** — Under formal legal agreements with developers, for specific non-sensitive data points (e.g., official character data in showcases).
-- Merchandise sales.
+> Product vision, roadmap, team and monetization plan live in [docs/product-plan.md](docs/product-plan.md).
 
 ---
 
@@ -111,63 +14,161 @@
 
 | Layer | Technology |
 |---|---|
-| Frontend | React + Vite |
-| Backend | Node.js + Express |
-| Primary Database | PostgreSQL |
-| Flexible Content Store | MongoDB (future) |
-| Search | Elasticsearch (future) |
-| Caching | Redis (future) |
-| Cloud Hosting | AWS / GCP / Azure |
-| CDN | Cloudflare / AWS CloudFront |
-| Media Processing | Cloud-based image/video optimization |
-| Moderation | AI moderation services + human moderators |
+| Frontend | React 18 + Vite 5, React Router 7 |
+| Backend | Node.js 20 + Express 5 |
+| Database | PostgreSQL on **Neon** (AWS `us-east-2`) |
+| Auth | **Firebase Auth** — Google + email/password; backend verifies ID tokens via `firebase-admin` |
+| Frontend hosting | **Firebase Hosting** — serves the SPA and rewrites `/api/**` to Cloud Run |
+| Backend hosting | **Google Cloud Run** (`us-central1`), image built by Cloud Build |
+| Secrets | **Google Secret Manager** (`DATABASE_URL`, `YOUTUBE_API_KEY`, `TASK_SECRET`, …) |
+| Scheduled jobs | **Cloud Scheduler → Cloud Tasks** — hourly YouTube ingestion |
+| Validation | Joi |
+| Rate limiting | express-rate-limit, plus a dedicated guard for the Enka lookup |
+| Logging | morgan (requests) + winston (errors) |
+| CI | GitHub Actions |
+| External APIs | YouTube Data API v3, [enka.network](https://enka.network) (player profiles) |
+
+**Architecture note:** the database is on AWS while the backend is on GCP, so every query crosses clouds (~30 ms, measured). Keep per-request query counts low and prefer caching over extra round trips.
 
 ---
 
-## Team
+## Local development
 
-**Core Founders:**
-- **Product Visionary / CEO** — Vision, strategy, marketing, community building, business development.
-- **Lead Full-Stack Developer** — Core platform architecture and development.
-- **UI/UX Designer** — Visual and interactive experience (critical for the Pinterest-like feel).
+```bash
+cd backend  && npm install && npm run dev    # http://localhost:5000
+cd frontend && npm install && npm run dev    # http://localhost:5173
+```
 
-**Future Hires (as revenue allows):** Frontend/backend developers, community managers, content curators, marketing/SEO specialist, data analyst.
+Vite proxies `/api/*` to the backend, mirroring the Firebase Hosting rewrite used in production.
 
-**Funding:** Bootstrapped through initial phases. Seed funding from angel investors or VCs to be pursued after MVP validation and demonstrated user growth.
-
----
-
-## Critical Success Factors
-
-1. Exceptional, fast, beautiful user experience.
-2. Vibrant, welcoming, actively managed community.
-3. Accurate and timely official news; high-quality moderated user content.
-4. Strict ethical adherence — absolutely no ToS violations.
-5. Scalable architecture from day one.
-6. Patience and adaptability.
+`backend/.env` is required locally and is gitignored. It needs at minimum `DATABASE_URL`. Add `TASK_SECRET` (any random value — it only has to match itself locally) if you want to exercise `/internal/*` or `/api/admin/*`.
 
 ---
 
-## Key Challenges & Mitigations
+## Making a change
 
-| Challenge | Mitigation |
+1. **Branch** — `git checkout -b short-description`. Direct commits to `main` work, but a branch lets CI run before the change lands on `main`.
+2. **Make the change.**
+3. **Add or update a test** if it touches behaviour that can fail quietly — see below.
+4. **Run the tests.**
+5. **Commit, push, check CI, deploy.**
+
+### What deserves a test
+
+Most of this backend fails *silently* when broken: a rate limiter keyed on the wrong value still returns 200, a loosened validator still accepts valid input. If a change touches any of these, pin it with a test:
+
+- anything using the client's IP (`utils/clientIp.js`)
+- rate limits, quotas or caches
+- input validation and length caps
+- authorization checks (`authenticateToken`, `requireMod`, `requireTaskSecret`)
+- SQL with `LIMIT` / `OFFSET`, or placeholder numbering
+
+Conventions and gotchas: [backend/test/README.md](backend/test/README.md).
+
+---
+
+## Tests
+
+```bash
+cd backend
+npm test                  # all suites (~8s)
+npm test -- client-ip     # only suites whose filename matches
+npm test -- --verbose     # show every suite's output, not just failures
+```
+
+### Reading the output
+
+```
+  PASS  client-ip-resolution.test.js       25 assertions    49ms
+  FAIL  suggestions.test.js                28 assertions    497ms
+        ...full output of the failing suite...
+
+----------------------------------------------------------------
+FAILED  1 of 12 suites: suggestions.test.js
+        283 assertions passed, 2 failed
+```
+
+- A **failing suite prints its full output automatically** — `--verbose` is not needed to diagnose it.
+- `crashed` instead of an assertion count means the suite threw before finishing (usually a syntax or import error), not that an assertion failed.
+- The runner **exits non-zero** on any failure, which is what CI keys on.
+
+Tests need no database, no network and no secrets — the pg pool, `enkaService`, auth middleware and Google's IP ranges are all stubbed. A suite that needs real egress is a bug in the test.
+
+### When a test fails after a deliberate change
+
+Update the assertion to the new contract; do not delete it. Several of these tests encode a trade-off chosen on purpose, and the test is where that decision is recorded.
+
+---
+
+## Commit and push
+
+```bash
+git add -A
+git status                # confirm no stray files, and that NEW files are included
+git commit -m "fix(security): cap review body at 500 chars"
+git push
+```
+
+**New files are the usual footgun.** Several modules are imported by others (`utils/limits.js`, `utils/imageSource.js`, `utils/clientIp.js`, `utils/googleRanges.js`, `services/playerLookupGuard.js`). Leaving a new file out of a commit produces a backend that **will not boot** — and local tests will not catch it, because your copy still has the file. Check `git status` before committing.
+
+If you change `package.json`, commit `package-lock.json` with it. `npm ci` fails on drift, which breaks both CI and the Docker build.
+
+---
+
+## CI
+
+Pushing triggers [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
+
+| Job | What it does |
 |---|---|
-| Cold start (no users, no content) | Hyper-focus on 1–2 active communities at launch; contests with desirable prizes; incentivize early creators |
-| Content moderation at scale | Clear guidelines from day one; robust reporting tools; trusted community moderators; AI moderation tools |
-| Technical scalability | Cloud-native architecture; performance optimization every sprint; aggressive caching |
-| Monetization without alienating users | Start fully free; introduce ads slowly after growth; make premium genuinely valuable |
-| ToS compliance | Strictly user-generated/manual showcase model; clearly communicate no game account access; never use unofficial APIs |
-| Keeping up with multiple games | Start limited; community-submitted news with moderation; automate character list imports from public wikis |
+| `backend-tests` | `npm ci` + `npm test` on Node 20 — the same version as the container |
+| `frontend-build` | `npm ci` + `npm run build` — catches broken imports before a deploy does |
+
+```bash
+gh run watch              # block until the current run finishes
+gh run view --log-failed  # show only what failed
+```
+
+**CI does not gate deployment.** Pushing does not deploy, and deploying does not check CI. The two are independent, which is why running `npm test` locally before deploying matters.
+
+Frontend lint is deliberately excluded from CI: the existing code has ~150 pre-existing violations, so it would fail from day one and train everyone to ignore a red badge. Worth enabling once those are cleared.
 
 ---
 
-## Planning & Tools
+## Deploying
 
-| Category | Tool |
-|---|---|
-| Project Management | Notion or Asana |
-| Documentation | Notion / Google Workspace |
-| Version Control | Git + GitHub (this repo) |
+```powershell
+.\deploy.ps1
+```
+
+`deploy.ps1` is **gitignored and local-only** — it lives on the maintainer's machine, not in this repo. It runs:
+
+1. `gcloud run services update` — applies scaling settings
+2. `gcloud builds submit --config cloudbuild.yaml` — builds the backend image **and** the frontend, then deploys the frontend to Firebase Hosting
+3. `gcloud run deploy` — rolls out the new backend image
+
+### Before you run it
+
+- **It ships the frontend and backend together.** Whatever is in your working tree goes live. Check `git status` first — uncommitted frontend work will deploy alongside your backend fix.
+- **It does not run the tests.** Run `npm test` yourself first, or add a gate to the top of the script.
+- **A push does not deploy.** The `deploy-backend` Cloud Build trigger is disabled; deployment is always this manual step.
+- **Backend changes need a deploy to take effect.** Editing `backend/` and pushing changes nothing in production until `deploy.ps1` runs.
+
+### After deploying
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" "https://mygachalist.com/api/hello"
+```
+
+`200` means the new revision is serving. For anything touching auth, rate limiting or images, exercise the real feature in a browser — the API being up does not mean the change works.
+
+---
+
+## Configuration and secrets
+
+- **Never commit secrets.** `backend/.env`, `frontend/.env` and `firebase-service-account.json` are gitignored.
+- Production secrets live in **Google Secret Manager** and are mounted into Cloud Run as environment variables. Changing one means updating the secret and redeploying.
+- `frontend/.env.example` documents the frontend variables. Those are **public identifiers, not secrets** — Vite inlines them into the client bundle, so they are readable by anyone who opens the site.
 
 ---
 
@@ -175,25 +176,15 @@
 
 | Doc | Description |
 |---|---|
-| [MCP Servers](docs/mcp-servers.md) | How to connect Claude to your database, GitHub, and other tools |
-
----
-
-## Local Development Setup
-
-See the [dev environment setup guide](#) for instructions on running the frontend and backend locally.
-
-**Quick start:**
-
-```bash
-# Backend (port 5000)
-cd backend && npm run dev
-
-# Frontend (port 5173)
-cd frontend && npm run dev
-```
-
-Frontend proxies all `/api/*` requests to the backend automatically.
+| [docs/architecture.md](docs/architecture.md) | How the pieces fit together |
+| [docs/local-dev-setup.md](docs/local-dev-setup.md) | Full local environment setup |
+| [docs/schema.sql](docs/schema.sql) | Database schema |
+| [docs/security-audit.md](docs/security-audit.md) | Security findings, what was fixed and why, and open follow-ups |
+| [backend/test/README.md](backend/test/README.md) | Test conventions and gotchas |
+| [docs/stack.md](docs/stack.md) | Stack decisions |
+| [docs/running-costs.md](docs/running-costs.md) | Infrastructure costs |
+| [docs/product-plan.md](docs/product-plan.md) | Mission, roadmap, team |
+| [docs/monetization.md](docs/monetization.md) | Monetization plan |
 
 ---
 

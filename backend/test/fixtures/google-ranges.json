@@ -1,0 +1,15 @@
+{
+  "syncToken": "test-fixture",
+  "creationTime": "2026-09-25T00:00:00.000000",
+  "prefixes": [
+    { "ipv4Prefix": "8.8.4.0/24" },
+    { "ipv4Prefix": "8.8.8.0/24" },
+    { "ipv4Prefix": "34.64.0.0/10" },
+    { "ipv4Prefix": "35.192.0.0/14" },
+    { "ipv4Prefix": "66.102.0.0/20" },
+    { "ipv4Prefix": "66.249.64.0/19" },
+    { "ipv4Prefix": "107.178.192.0/18" },
+    { "ipv6Prefix": "2001:4860::/32" },
+    { "ipv6Prefix": "2404:6800::/32" }
+  ]
+}
