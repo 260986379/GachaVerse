@@ -66,13 +66,13 @@ const addBoard = async (req, res, next) => {
   }
 };
 
-/** DELETE /api/boards/:id — authenticated, only the owner can delete */
+/** DELETE /api/boards/:id — authenticated; the owner, or Owner/Dev as a takedown */
 const deleteBoard = async (req, res, next) => {
   try {
-    const { rowCount } = await query(
-      'DELETE FROM boards WHERE id = $1 AND user_id = $2',
-      [req.params.id, req.user.id]
-    );
+    const isMod = ['Owner', 'Dev'].includes(req.user.role);
+    const { rowCount } = isMod
+      ? await query('DELETE FROM boards WHERE id = $1', [req.params.id])
+      : await query('DELETE FROM boards WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
     if (rowCount === 0) {
       return res.status(404).json({ message: 'Board not found or not yours.' });
     }
