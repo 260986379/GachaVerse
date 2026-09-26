@@ -24,6 +24,7 @@ They exist because most of this code is security-relevant and fails *quietly* wh
 | `review-body-cap` | review body 500; rating 1–10 |
 | `posts-pagination`, `reviews-pagination`, `game-media` | LIMIT applied, response shape, clamping |
 | `suggestions` | 10/hour per user-or-IP, field validation |
+| `error-handler` | unexpected errors return a generic 500; `err.status` errors keep their message; full detail still logged |
 
 ## Conventions
 
