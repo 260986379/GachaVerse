@@ -341,6 +341,8 @@ function GameOverScreen({ score, total, playedRounds, onPlayAgain, onExit }) {
 /* ── Game session ────────────────────────────────────────── */
 
 const GUESS_TIME = 30
+// Player volume (0–100). YouTube defaults to 100, which is loud for a guessing game.
+const PLAYER_VOLUME = 40
 
 function GameSession({ config, onExit, onPlayAgain }) {
   const [videos,       setVideos]       = useState(null)
@@ -407,7 +409,7 @@ function GameSession({ config, onExit, onPlayAgain }) {
           start: videos[0].highlight_start || 0,
         },
         events: {
-          onReady: (e) => { playerReadyRef.current = true; e.target.playVideo() },
+          onReady: (e) => { playerReadyRef.current = true; e.target.setVolume(PLAYER_VOLUME); e.target.playVideo() },
         },
       })
     })
