@@ -27,11 +27,14 @@ const { getPublicFavVideos }    = require('../controllers/videoFavoriteControlle
 const { getPublicFavChars }     = require('../controllers/characterFavoriteController');
 const { getPublicFavArtworks }  = require('../controllers/artworkFavoriteController');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
+const { anonymousCache } = require('../middleware/cacheControl');
 
 // Community / Search / Directory
-router.get('/community',             optionalAuth, getCommunityUsers);
-router.get('/directory',             optionalAuth, getDirectoryUsers);
-router.get('/search',                optionalAuth, searchUsers);
+// Signed-out views are CDN-cached for 60s (#49); moderators see Debug accounts,
+// so signed-in responses stay private.
+router.get('/community',             anonymousCache(60), optionalAuth, getCommunityUsers);
+router.get('/directory',             anonymousCache(60), optionalAuth, getDirectoryUsers);
+router.get('/search',                anonymousCache(60), optionalAuth, searchUsers);
 
 // Profile
 router.get('/by-username/:username', optionalAuth, getUserByUsername);

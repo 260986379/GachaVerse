@@ -21,7 +21,7 @@ const getUserProfile = async (req, res, next) => {
               to_char(birthday, 'MM-DD') AS birthday, -- public: month/day only, never the year
               role, created_at,
               (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
-              (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
+              users.followers_count
        FROM users WHERE id = $1`,
       [req.params.id]
     );
@@ -43,7 +43,7 @@ const getUserByUsername = async (req, res, next) => {
               to_char(birthday, 'MM-DD') AS birthday, -- public: month/day only, never the year
               role, created_at,
               (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
-              (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
+              users.followers_count
        FROM users WHERE username = $1`,
       [req.params.username]
     );
@@ -310,11 +310,11 @@ const searchUsers = async (req, res, next) => {
     const seeDebug = canSeeDebug(req.user)
     const { rows } = await query(
       `SELECT id, username, avatar_url, banner_url, bio, role,
-              (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
+              followers_count
        FROM users
        WHERE username ILIKE $1
          AND ($2 OR role != 'Debug')
-       ORDER BY (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) DESC
+       ORDER BY followers_count DESC
        LIMIT 20`,
       [`%${q}%`, seeDebug]
     )
@@ -336,16 +336,13 @@ const getCommunityUsers = async (req, res, next) => {
     const seeDebug = canSeeDebug(req.user)
     const { rows } = await query(
       `SELECT u.id, u.username, u.avatar_url, u.banner_url, u.role,
-              (SELECT COUNT(*) FROM user_follows WHERE following_id = u.id) AS followers_count
+              u.followers_count
        FROM users u
        WHERE u.avatar_url IS NOT NULL AND u.avatar_url <> ''
          AND u.banner_url IS NOT NULL AND u.banner_url <> ''
          AND ($1 OR u.role != 'Debug')
-       ORDER BY
-         COALESCE(
-           (SELECT MAX(b.created_at) FROM boards b WHERE b.user_id = u.id),
-           u.created_at
-         ) DESC
+       -- Matches idx_users_community: last_board_at is kept by a trigger (#57).
+       ORDER BY COALESCE(u.last_board_at, u.created_at) DESC
        LIMIT 20`,
       [seeDebug]
     );
@@ -368,19 +365,13 @@ const getDirectoryUsers = async (req, res, next) => {
     const seeDebug = canSeeDebug(req.user)
     const { rows } = await query(
       `SELECT id, username, avatar_url, banner_url, bio, role,
-              (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
+              followers_count
        FROM users
        WHERE ($1 OR role != 'Debug')
-       ORDER BY
-         CASE
-           WHEN (avatar_url IS NOT NULL AND avatar_url <> '')
-            AND (banner_url IS NOT NULL AND banner_url <> '') THEN 0
-           WHEN (avatar_url IS NOT NULL AND avatar_url <> '')
-             OR (banner_url IS NOT NULL AND banner_url <> '') THEN 1
-           ELSE 2
-         END ASC,
-         (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) DESC,
-         created_at DESC
+       -- Matches idx_users_directory: profile_tier is a stored generated column
+       -- (0 = avatar + banner, 1 = one image, 2 = none), followers_count is
+       -- kept by a trigger (#57).
+       ORDER BY profile_tier ASC, followers_count DESC, created_at DESC
        LIMIT 100`,
       [seeDebug]
     )
@@ -524,7 +515,7 @@ async function _getCounts(userId) {
   const { rows } = await query(
     `SELECT
        (SELECT COUNT(*) FROM user_follows WHERE follower_id  = $1) AS following_count,
-       (SELECT COUNT(*) FROM user_follows WHERE following_id = $1) AS followers_count`,
+       (SELECT followers_count FROM users WHERE id = $1) AS followers_count`,
     [userId]
   );
   return rows[0];

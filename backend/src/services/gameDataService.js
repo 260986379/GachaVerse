@@ -358,4 +358,7 @@ const ensureInitialGameAndIngestionLogs = async () => {
 module.exports = {
   seedInitialGames,
   ensureInitialGameAndIngestionLogs,
+  // Part of the startup-migration fingerprint (models/migrate.js): changing any
+  // of this seed data makes the next start re-run the seeding.
+  SEED_DATA: { SEED_GAMES, ZZZ_LORE_VIDEOS, NIKKE_LORE_VIDEOS },
 };

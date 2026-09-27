@@ -1,28 +1,18 @@
 const config = require('./src/config');
 const app = require('./src/app');
-const { testConnection, query } = require('./src/config/db');
-const { ALL_TABLES } = require('./src/models/schema');
-const { ensureInitialGameAndIngestionLogs } = require('./src/services/gameDataService');
+const { testConnection } = require('./src/config/db');
+const { migrate } = require('./src/models/migrate');
 const { startIngestionJobs } = require('./src/services/ingestionScheduler');
 const googleRanges = require('./src/utils/googleRanges');
-
-const initDb = async () => {
-  for (const sql of ALL_TABLES) {
-    try {
-      await query(sql);
-    } catch (err) {
-      // Log but continue — some migrations may fail on existing data (e.g. constraint checks)
-      console.warn('[initDb] migration step skipped:', err.message.split('\n')[0]);
-    }
-  }
-  await ensureInitialGameAndIngestionLogs();
-};
 
 const start = async () => {
   await testConnection();
   try {
-    await initDb();
-    console.log('Database schema ready');
+    // One query when schema and seed data are unchanged; see models/migrate.js.
+    const { skipped, failures } = await migrate();
+    console.log(skipped
+      ? 'Database schema ready (unchanged, skipped)'
+      : `Database schema ready (applied${failures ? `, ${failures} step(s) failed; will retry next start` : ''})`);
   } catch (err) {
     console.error('DB init error:', err.message);
   }

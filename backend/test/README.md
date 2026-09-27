@@ -31,6 +31,9 @@ They exist because most of this code is security-relevant and fails *quietly* wh
 | `suggestions` | 10/hour per user-or-IP, field validation |
 | `account-deletion` | `DELETE /api/users/me` needs the exact username; Owner blocked; Firebase failure rolls back the DB |
 | `board-delete` | owner or Owner/Dev can delete a board; anyone else (incl. VIP) gets 404 |
+| `cache-headers` | which GET responses the CDN may share (#49): per-viewer endpoints only when signed out, with `Vary: Authorization`; errors never cached; 304 keeps the header |
+| `startup-migrate` | server start skips schema/seed steps in one query when unchanged; runs them when changed; a failed step is retried next start |
+| `user-list-queries` | directory/community/search/profile read stored sort keys (no per-user subqueries); migration provides the columns, triggers and indexes (#57). Real-Postgres benchmark: `scripts/benchUserLists.js` |
 | `error-handler` | unexpected errors return a generic 500; `err.status` errors keep their message; full detail still logged |
 
 ## Conventions

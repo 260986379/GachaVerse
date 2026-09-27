@@ -396,6 +396,82 @@ const CREATE_SUGGESTIONS = `
   CREATE INDEX IF NOT EXISTS idx_suggestions_status ON suggestions(status, created_at DESC);
 `;
 
+// ── #57: stop user/board lists from scanning every user on each request ──
+// Directory, community and search used correlated subqueries (follower COUNT,
+// latest board MAX) evaluated for EVERY user just to pick the top 20/100, and
+// board lists sorted all boards. These keep the sort keys on the rows, kept in
+// step by triggers, with indexes so each list reads its top N off an index.
+const ADD_USER_LIST_SORT_KEYS = `
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS followers_count INT NOT NULL DEFAULT 0;
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS last_board_at TIMESTAMP;
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_tier SMALLINT GENERATED ALWAYS AS (
+    CASE
+      WHEN (avatar_url IS NOT NULL AND avatar_url <> '')
+       AND (banner_url IS NOT NULL AND banner_url <> '') THEN 0
+      WHEN (avatar_url IS NOT NULL AND avatar_url <> '')
+        OR (banner_url IS NOT NULL AND banner_url <> '') THEN 1
+      ELSE 2
+    END
+  ) STORED;
+
+  -- Follower count follows user_follows: insert, delete, and cascades from
+  -- account deletion (#51) all fire these.
+  CREATE OR REPLACE FUNCTION users_followers_count_sync() RETURNS trigger AS $$
+  BEGIN
+    IF TG_OP = 'INSERT' THEN
+      UPDATE users SET followers_count = followers_count + 1 WHERE id = NEW.following_id;
+    ELSE
+      UPDATE users SET followers_count = GREATEST(followers_count - 1, 0) WHERE id = OLD.following_id;
+    END IF;
+    RETURN NULL;
+  END $$ LANGUAGE plpgsql;
+  DROP TRIGGER IF EXISTS trg_user_follows_count ON user_follows;
+  CREATE TRIGGER trg_user_follows_count AFTER INSERT OR DELETE ON user_follows
+    FOR EACH ROW EXECUTE FUNCTION users_followers_count_sync();
+
+  -- Latest board per user: set on insert, recomputed for that user on delete.
+  CREATE OR REPLACE FUNCTION users_last_board_sync() RETURNS trigger AS $$
+  BEGIN
+    IF TG_OP = 'INSERT' THEN
+      UPDATE users SET last_board_at = GREATEST(COALESCE(last_board_at, NEW.created_at), NEW.created_at)
+       WHERE id = NEW.user_id;
+    ELSE
+      UPDATE users SET last_board_at = (SELECT MAX(created_at) FROM boards WHERE user_id = OLD.user_id)
+       WHERE id = OLD.user_id;
+    END IF;
+    RETURN NULL;
+  END $$ LANGUAGE plpgsql;
+  DROP TRIGGER IF EXISTS trg_boards_last_board ON boards;
+  CREATE TRIGGER trg_boards_last_board AFTER INSERT OR DELETE ON boards
+    FOR EACH ROW EXECUTE FUNCTION users_last_board_sync();
+
+  -- Reconcile from source of truth (runs whenever the schema fingerprint changes).
+  UPDATE users u SET followers_count = c.n
+    FROM (SELECT users.id, COUNT(f.following_id)::int AS n
+            FROM users LEFT JOIN user_follows f ON f.following_id = users.id
+           GROUP BY users.id) c
+   WHERE c.id = u.id AND u.followers_count IS DISTINCT FROM c.n;
+  UPDATE users u SET last_board_at = b.m
+    FROM (SELECT users.id, MAX(boards.created_at) AS m
+            FROM users LEFT JOIN boards ON boards.user_id = users.id
+           GROUP BY users.id) b
+   WHERE b.id = u.id AND u.last_board_at IS DISTINCT FROM b.m;
+
+  CREATE INDEX IF NOT EXISTS idx_users_directory
+    ON users (profile_tier, followers_count DESC, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_users_community
+    ON users ((COALESCE(last_board_at, created_at)) DESC)
+    WHERE avatar_url IS NOT NULL AND avatar_url <> '' AND banner_url IS NOT NULL AND banner_url <> '';
+  CREATE INDEX IF NOT EXISTS idx_boards_created ON boards (created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_boards_game_created ON boards (game_id, created_at DESC);
+`;
+
+// Username search is ILIKE '%q%', which no b-tree index can serve.
+const ADD_USERNAME_TRIGRAM_INDEX = `
+  CREATE EXTENSION IF NOT EXISTS pg_trgm;
+  CREATE INDEX IF NOT EXISTS idx_users_username_trgm ON users USING gin (username gin_trgm_ops);
+`;
+
 const ALL_TABLES = [
   CREATE_USERS,
   ALTER_USERS_ADD_FIREBASE_UID,
@@ -441,6 +517,8 @@ const ALL_TABLES = [
   CREATE_REPORTS,
   ALTER_USER_NOTIFICATIONS_ADD_FOLLOW,
   CREATE_SUGGESTIONS,
+  ADD_USER_LIST_SORT_KEYS,
+  ADD_USERNAME_TRIGRAM_INDEX,
 ];
 
 module.exports = { ALL_TABLES };

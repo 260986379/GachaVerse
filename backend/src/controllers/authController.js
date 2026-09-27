@@ -15,7 +15,7 @@ const syncUser = async (req, res, next) => {
     const USER_SELECT = `
       SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at,
              (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
-             (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
+             users.followers_count
       FROM users`;
 
     // Try to find by firebase_uid first
@@ -83,7 +83,7 @@ const getMe = async (req, res, next) => {
     const { rows } = await query(
       `SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at,
               (SELECT COUNT(*) FROM user_follows WHERE follower_id = users.id)  AS following_count,
-              (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count
+              users.followers_count
        FROM users WHERE id = $1`,
       [req.user.id]
     );

@@ -1,17 +1,11 @@
-const { query } = require('../src/config/db');
-const { ALL_TABLES } = require('../src/models/schema');
+// Runs every schema + seed step now, regardless of the fingerprint the server
+// uses to skip unchanged startups (src/models/migrate.js).
+const { migrate } = require('../src/models/migrate');
 
 async function run() {
-  for (let i = 0; i < ALL_TABLES.length; i++) {
-    try {
-      await query(ALL_TABLES[i]);
-    } catch (err) {
-      console.error(`❌ Migration [${i}] failed:`, err.message);
-      console.error('SQL:', ALL_TABLES[i].slice(0, 120));
-    }
-  }
-  console.log('Migration complete.');
-  process.exit(0);
+  const { failures } = await migrate({ force: true });
+  console.log(failures ? `Migration complete, ${failures} step(s) failed.` : 'Migration complete.');
+  process.exit(failures ? 1 : 0);
 }
 
 run().catch(e => { console.error(e.message); process.exit(1); });

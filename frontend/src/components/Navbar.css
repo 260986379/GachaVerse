@@ -65,6 +65,30 @@
   color: #fff;
 }
 
+.navbar__support {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 94, 91, 0.35);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ff7a78;
+  font-size: 0.83rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.navbar__support:hover {
+  border-color: rgba(255, 94, 91, 0.7);
+  background: rgba(255, 94, 91, 0.12);
+  color: #ff9a98;
+}
+
 .navbar__search {
   display: flex;
   align-items: center;
@@ -338,6 +362,12 @@ button.navbar__profile-btn:hover {
     padding: 0.4rem 0.6rem;
   }
   .navbar__search-placeholder {
+    display: none;
+  }
+  .navbar__support {
+    padding: 0.4rem 0.6rem;
+  }
+  .navbar__support-label {
     display: none;
   }
 }

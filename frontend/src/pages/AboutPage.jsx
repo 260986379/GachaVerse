@@ -59,7 +59,7 @@ const RULES = [
 const FAQ = [
   {
     title: 'Is MyGachaList free to use?',
-    desc: 'Yes, completely free. There are no paywalls, subscriptions, or premium tiers.',
+    desc: 'Yes. Everything you can do on MyGachaList today, including profiles, reviews, boards, and linking your game accounts, is free and will stay free. To help cover server costs, we may add optional ways to support the site, such as donations, cosmetic extras like profile themes, and ads. None of these will put existing features behind a paywall.',
   },
   {
     title: 'Which games are supported?',

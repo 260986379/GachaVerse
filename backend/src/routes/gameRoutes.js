@@ -1,14 +1,16 @@
 const router = require('express').Router();
+const { publicCache } = require('../middleware/cacheControl');
 const { getAllGames, getGameById, getCharactersByGameId, getGameNews, getGameMedia, getGameArt, getAllArt, getTrendingGames, getLatestVideoDates } = require('../controllers/gameController');
 
-router.get('/', getAllGames);
-router.get('/trending',           getTrendingGames);
+// CDN-cached (#49): identical for every viewer and slow-changing.
+router.get('/', publicCache(300), getAllGames);
+router.get('/trending',           publicCache(300), getTrendingGames);
 router.get('/latest-video-dates', getLatestVideoDates);
 router.get('/art/all',            getAllArt);
-router.get('/:id', getGameById);
-router.get('/:id/characters', getCharactersByGameId);
+router.get('/:id', publicCache(300), getGameById);
+router.get('/:id/characters', publicCache(600), getCharactersByGameId);
 router.get('/:id/news', getGameNews);
 router.get('/:id/media', getGameMedia);
-router.get('/:id/art', getGameArt);
+router.get('/:id/art', publicCache(300), getGameArt);
 
 module.exports = router;

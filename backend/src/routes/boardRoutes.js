@@ -4,9 +4,11 @@ const { getBoards, addBoard, deleteBoard, getAllBoards, getBoardsByGame,
         addBoardSchema, addBoardCommentSchema } = require('../controllers/boardController');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const { validate } = require('../middleware/validation');
+const { publicCache } = require('../middleware/cacheControl');
 
-router.get('/all',                             getAllBoards);
-router.get('/game/:gameId',                    getBoardsByGame);
+// CDN-cached for 60s (#49): same for every viewer; a new board shows up for others within a minute.
+router.get('/all',                             publicCache(60), getAllBoards);
+router.get('/game/:gameId',                    publicCache(60), getBoardsByGame);
 router.get('/user/:userId',                    getBoards);
 router.post('/',                               authenticateToken, validate(addBoardSchema), addBoard);
 router.delete('/:id',                          authenticateToken, deleteBoard);
