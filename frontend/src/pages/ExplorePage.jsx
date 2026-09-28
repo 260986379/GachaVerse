@@ -9,18 +9,62 @@ import './ExplorePage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
+const TRENDING_STORAGE_KEY = 'gv:trending'
+// Shown until /games/trending responds on a first visit (no cached copy yet)
+const FALLBACK_TRENDING = ['zenless-zone-zero', 'nikke', 'genshin-impact', 'honkai-star-rail']
+  .map(slug => ({ slug }))
+
+function resolveTrending(data) {
+  return data
+    .map(({ slug, videoId, videoTitle }) => {
+      const game = GAMES.find(g => g.id === slug)
+      if (!game) return null
+      return {
+        ...game,
+        youtubeId:    videoId    ?? game.youtubeId,
+        youtubeTitle: videoTitle ?? game.youtubeTitle,
+      }
+    })
+    .filter(Boolean)
+}
+
+function initialTrending() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(TRENDING_STORAGE_KEY))
+    if (Array.isArray(cached)) {
+      const resolved = resolveTrending(cached)
+      if (resolved.length > 0) return resolved
+    }
+  } catch { /* storage unavailable or corrupt: use fallback */ }
+  return resolveTrending(FALLBACK_TRENDING)
+}
+
+const trendingSignature = (games) => games.map(g => `${g.id}:${g.youtubeId}`).join('|')
+
 function SpotlightHero({ games }) {
   const [index, setIndex] = useState(0)
   const navigate = useNavigate()
   const playerRef = useRef(null)
   const embedWrapRef = useRef(null)
-  const firstRender = useRef(true)
-  const game = games[index]
+  const loadedVideoRef = useRef(null)
+  const gamesLengthRef = useRef(games.length)
+  gamesLengthRef.current = games.length
+
+  // Back to the first slide when the list is replaced (cached/fallback → fresh data)
+  const [prevGames, setPrevGames] = useState(games)
+  if (games !== prevGames) {
+    setPrevGames(games)
+    setIndex(0)
+  }
+
+  const game = games[index] ?? games[0]
+  const currentVideoRef = useRef(null)
+  currentVideoRef.current = game?.youtubeId
 
   // Mount the IFrame API player once inside the embed wrap
   useEffect(() => {
     const wrap = embedWrapRef.current
-    if (!wrap || !games[0]?.youtubeId) return
+    if (!wrap || !currentVideoRef.current) return
     if (window.matchMedia('(max-width: 640px)').matches) return
 
     const container = document.createElement('div')
@@ -30,10 +74,11 @@ function SpotlightHero({ games }) {
 
     loadYTApi(() => {
       if (!wrap.isConnected) return
+      loadedVideoRef.current = currentVideoRef.current
       playerRef.current = new window.YT.Player(container, {
         width: '100%',
         height: '100%',
-        videoId: games[0].youtubeId,
+        videoId: loadedVideoRef.current,
         playerVars: { autoplay: 1, mute: 1, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
         events: {
           onReady: (e) => {
@@ -45,7 +90,7 @@ function SpotlightHero({ games }) {
           },
           onStateChange: (e) => {
             if (e.data === window.YT.PlayerState.ENDED) {
-              setIndex(i => (i + 1) % games.length)
+              setIndex(i => (i + 1) % gamesLengthRef.current)
             }
           },
         },
@@ -60,14 +105,14 @@ function SpotlightHero({ games }) {
     }
   }, [])
 
-  // Load the new video when index changes (skip on first render)
+  // Load the new video when the slide or the list changes
   useEffect(() => {
-    if (firstRender.current) { firstRender.current = false; return }
-    const g = games[index]
-    if (playerRef.current && g?.youtubeId) {
-      playerRef.current.loadVideoById(g.youtubeId)
+    const videoId = game?.youtubeId
+    if (playerRef.current && videoId && videoId !== loadedVideoRef.current) {
+      loadedVideoRef.current = videoId
+      playerRef.current.loadVideoById(videoId)
     }
-  }, [index])
+  }, [game?.youtubeId])
 
   const go = (dir) => setIndex(i => (i + dir + games.length) % games.length)
 
@@ -325,25 +370,21 @@ function CommunitySection() {
 }
 
 export default function ExplorePage() {
-  const [trendingGames, setTrendingGames] = useState([])
+  // Render the hero immediately from the last response (or a static fallback)
+  // instead of waiting on the backend, then swap in fresh data if it differs.
+  const [trendingGames, setTrendingGames] = useState(initialTrending)
 
   useEffect(() => {
     fetch(`${API}/games/trending`)
       .then(r => r.json())
       .then(data => {
         if (!Array.isArray(data)) return
-        const resolved = data
-          .map(({ slug, videoId, videoTitle }) => {
-            const game = GAMES.find(g => g.id === slug)
-            if (!game) return null
-            return {
-              ...game,
-              youtubeId:    videoId    ?? game.youtubeId,
-              youtubeTitle: videoTitle ?? game.youtubeTitle,
-            }
-          })
-          .filter(Boolean)
-        setTrendingGames(resolved)
+        const resolved = resolveTrending(data)
+        if (resolved.length === 0) return
+        try { localStorage.setItem(TRENDING_STORAGE_KEY, JSON.stringify(data)) } catch { /* ignore */ }
+        setTrendingGames(prev =>
+          trendingSignature(prev) === trendingSignature(resolved) ? prev : resolved
+        )
       })
       .catch(() => {})
   }, [])

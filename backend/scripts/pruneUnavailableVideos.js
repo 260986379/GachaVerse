@@ -1,10 +1,11 @@
 /**
  * Check all published YouTube videos against the YouTube Data API and mark
- * any that are unavailable (privated, deleted, etc.) with status='unavailable'.
+ * any that are unavailable (privated, deleted, rejected, embedding disabled)
+ * with status='unavailable'.
  * Those rows are already filtered out by the media API (WHERE status='published').
  *
  * Usage:
- *   node scripts/pruneUnavailableVideos.js [gameSlug]
+ *   node scripts/pruneUnavailableVideos.js [gameSlug] [--dry-run]
  *
  * With no argument, checks every game. Pass a slug to limit to one game:
  *   node scripts/pruneUnavailableVideos.js genshin-impact
@@ -18,7 +19,7 @@ const BATCH = 50; // YouTube API max per videos.list call
 
 const checkBatch = async (ids) => {
   const params = new URLSearchParams({
-    part: 'id',
+    part: 'status',
     id: ids.join(','),
     key: config.YOUTUBE_API_KEY,
     maxResults: BATCH,
@@ -26,11 +27,18 @@ const checkBatch = async (ids) => {
   const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`);
   if (!res.ok) throw new Error(`YouTube API error: ${res.status} ${await res.text()}`);
   const data = await res.json();
-  return new Set((data.items || []).map((i) => i.id));
+  // Private and deleted videos are simply absent from the response
+  return new Set(
+    (data.items || [])
+      .filter((i) => i.status?.embeddable !== false && ['processed', 'uploaded'].includes(i.status?.uploadStatus))
+      .map((i) => i.id)
+  );
 };
 
 const main = async () => {
-  const gameSlug = process.argv[2] || null;
+  const args = process.argv.slice(2);
+  const dryRun = args.includes('--dry-run');
+  const gameSlug = args.find((a) => !a.startsWith('--')) || null;
 
   await testConnection();
 
@@ -78,6 +86,11 @@ const main = async () => {
 
   if (!unavailable.length) {
     console.log('All videos are available — nothing to update.');
+    return;
+  }
+
+  if (dryRun) {
+    console.log(`[dry-run] Would mark ${unavailable.length} video(s) as unavailable.`);
     return;
   }
 

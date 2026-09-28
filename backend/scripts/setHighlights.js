@@ -46,6 +46,7 @@ const TIMESTAMPS = {
   "b-CpMW3kSjw": 76, // Wuthering Waves EP 2.0 | Roccia Theme Song - One
   "887Hr8i3gGE": 48, // Wuthering Waves EP1.4 | A Million Possibilities
   A8bokOYnYxw: 79, // Wuthering Waves EP2.1 — Brant - "THE KING OF WAYWARD SOULS (SELF PROCLAIMED) (BUT DESTINED)"
+  FIEt1VxlDvs: 72, // Wuthering Waves EP3.2 — Sigrika - "L!!!!ght"
 
   /// HSR
   J9wcfTVUZNE: 90, // EP: Of Snow and Ember | Honkai: Star Rail

@@ -209,3 +209,8 @@ export const GAMES = [
   },
 ];
 
+// Games with working pages. The rest show as "Coming Soon" in the library and
+// are left out of the search pop-up. Add an id here when a game goes live.
+export const IMPLEMENTED_GAME_IDS = new Set([
+  'zenless-zone-zero', 'nikke', 'genshin-impact', 'honkai-star-rail', 'wuthering-waves',
+])

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
-import { GAMES } from '../data/games'
+import { GAMES, IMPLEMENTED_GAME_IDS } from '../data/games'
+import { useAuth } from '../context/AuthContext'
 import { isFollowingGame, toggleFollowGame } from '../utils/bookmarks'
 import NewsFeedTab from '../components/game/NewsFeedTab'
 import MediaTab from '../components/game/MediaTab'
@@ -93,6 +94,14 @@ export default function GamePage() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const game = GAMES.find((g) => g.id === gameId)
+  const { user, loadingAuth } = useAuth()
+
+  // Coming Soon games: Owner/Dev may preview them; anyone else who reaches the
+  // URL directly gets a message with a button back to the home page. Wait for
+  // auth to load first, so a mod refreshing the page doesn't see the message.
+  const isMod    = ['Owner', 'Dev'].includes(user?.role)
+  const upcoming = !!game && !IMPLEMENTED_GAME_IDS.has(game.id)
+  const blocked  = upcoming && !loadingAuth && !isMod
 
   const initialTab     = location.state?.openTab     ?? searchParams.get('tab') ?? TABS[0]
   const initialVideoId = location.state?.openVideoId ?? searchParams.get('video') ?? null
@@ -131,6 +140,19 @@ export default function GamePage() {
       <div className="game-page game-not-found">
         <h2>Game not found</h2>
         <button onClick={() => navigate('/')}>Back to Explore</button>
+      </div>
+    )
+  }
+
+  // Still checking who's signed in: show nothing rather than flash the page.
+  if (upcoming && loadingAuth) return <div className="game-page game-not-found" />
+
+  if (blocked) {
+    return (
+      <div className="game-page game-not-found">
+        <h2>This game isn&apos;t implemented yet</h2>
+        <p className="game-not-found__sub">{game.name} is coming soon.</p>
+        <button onClick={() => navigate('/', { replace: true })}>Back to home page</button>
       </div>
     )
   }

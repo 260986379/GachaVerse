@@ -5,7 +5,31 @@
 .game-not-found {
   text-align: center;
   margin-top: 4rem;
-  padding: 2rem;
+  padding: 4rem 1.5rem 2rem;
+}
+
+.game-not-found__sub {
+  margin: 0.5rem 0 1.5rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.95rem;
+}
+
+.game-not-found button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.game-not-found button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ── Hero ──────────────────────────────────────────────── */

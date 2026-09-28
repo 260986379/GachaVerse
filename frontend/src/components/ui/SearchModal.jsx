@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GAMES } from '../../data/games'
+import { GAMES, IMPLEMENTED_GAME_IDS } from '../../data/games'
 import { useAuth } from '../../context/AuthContext'
 import { getRoleStyle } from '../../utils/roles'
 import './SearchModal.css'
 import './UserSearchModal.css'
 
+// Only games with working pages; "Coming Soon" ones stay in the library only.
+const AVAILABLE    = GAMES.filter((g) => IMPLEMENTED_GAME_IDS.has(g.id))
 const TRENDING_IDS = ['nikke', 'zenless-zone-zero']
-const TRENDING = GAMES.filter((g) => TRENDING_IDS.includes(g.id))
-const MORE     = GAMES.filter((g) => !TRENDING_IDS.includes(g.id)).slice(0, 5)
+const TRENDING = AVAILABLE.filter((g) => TRENDING_IDS.includes(g.id))
+const MORE     = AVAILABLE.filter((g) => !TRENDING_IDS.includes(g.id)).slice(0, 5)
 const API      = import.meta.env.VITE_API_URL || '/api'
 
 export default function SearchModal({ onClose, initialMode = 'games', initialUsers = [] }) {
@@ -74,7 +76,7 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
 
   // ── Game results ──────────────────────────────────────────────────────────
   const gameResults = q
-    ? GAMES.filter(g =>
+    ? AVAILABLE.filter(g =>
         g.name.toLowerCase().includes(q) ||
         g.genre.toLowerCase().includes(q) ||
         g.developer?.toLowerCase().includes(q) ||

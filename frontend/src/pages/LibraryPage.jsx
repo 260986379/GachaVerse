@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { GAMES } from '../data/games'
+import { GAMES, IMPLEMENTED_GAME_IDS } from '../data/games'
 import GameCard from '../components/GameCard'
 import { useAuth } from '../context/AuthContext'
 import SuggestEntry from '../components/ui/SuggestEntry'
@@ -7,10 +7,10 @@ import './LibraryPage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 const GENRE_FILTERS = ['All', 'Action RPG', 'Turn-Based RPG', 'Tactical RPG', 'Tower Defense RPG', 'Shooter RPG']
-const IMPLEMENTED_IDS = new Set(['zenless-zone-zero', 'nikke', 'genshin-impact', 'honkai-star-rail', 'wuthering-waves'])
 
 export default function LibraryPage() {
   const { user } = useAuth()
+  // Owner/Dev can open Coming Soon games to preview them; everyone else sees them locked.
   const isMod = ['Owner', 'Dev'].includes(user?.role)
   const [filter, setFilter] = useState('All')
   const [latestDates, setLatestDates] = useState({})
@@ -35,8 +35,8 @@ export default function LibraryPage() {
   }
 
   const base = filter === 'All' ? GAMES : GAMES.filter(g => g.genre === filter)
-  const implemented = base.filter(g =>  IMPLEMENTED_IDS.has(g.id)).slice().sort(sortByDate)
-  const upcoming    = base.filter(g => !IMPLEMENTED_IDS.has(g.id)).slice().sort(sortByDate)
+  const implemented = base.filter(g =>  IMPLEMENTED_GAME_IDS.has(g.id)).slice().sort(sortByDate)
+  const upcoming    = base.filter(g => !IMPLEMENTED_GAME_IDS.has(g.id)).slice().sort(sortByDate)
 
   return (
     <div className="library-page">

@@ -100,6 +100,14 @@
   background: rgba(0, 0, 0, 0.5);
 }
 
+/* Not clickable, so no hover "lift" either. */
+.game-card--locked:hover .game-card__poster {
+  transform: none;
+}
+.game-card--locked:hover .game-card__overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
 .game-card__coming-soon {
   font-size: 0.7rem;
   font-weight: 700;
