@@ -36,12 +36,39 @@ const requireStripe = (res) => {
 };
 
 /**
+ * True when Stripe no longer has this customer under the current key: deleted in
+ * the dashboard, or created with a key from the other mode (test vs live).
+ */
+const customerIsGone = async (customerId) => {
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    return !!customer.deleted;
+  } catch (err) {
+    if (err.code === 'resource_missing') return true;
+    throw err;
+  }
+};
+
+/** Unlinks a customer id Stripe no longer has, so the next checkout creates a new one. */
+const forgetCustomer = async (userId, customerId) => {
+  console.warn(`[Billing] Stripe customer ${customerId} no longer exists; unlinking it from user ${userId}`);
+  await query(
+    'UPDATE users SET stripe_customer_id = NULL WHERE id = $1 AND stripe_customer_id = $2',
+    [userId, customerId]
+  );
+};
+
+/**
  * Returns the user's Stripe customer id, creating the customer on first use.
  * The customer exists before Checkout so a user never ends up with two.
  */
 const getOrCreateCustomer = async (user) => {
   const { rows } = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [user.id]);
-  if (rows[0]?.stripe_customer_id) return rows[0].stripe_customer_id;
+  const saved = rows[0]?.stripe_customer_id;
+  if (saved) {
+    if (!(await customerIsGone(saved))) return saved;
+    await forgetCustomer(user.id, saved);
+  }
 
   const customer = await stripe.customers.create({
     email: user.email,
@@ -94,10 +121,18 @@ const createPortalSession = async (req, res, next) => {
     if (!customer) {
       return res.status(400).json({ message: 'No billing account yet. Become a member first.' });
     }
-    const session = await stripe.billingPortal.sessions.create({
-      customer,
-      return_url: `${config.FRONTEND_URL}/account`,
-    });
+    let session;
+    try {
+      session = await stripe.billingPortal.sessions.create({
+        customer,
+        return_url: `${config.FRONTEND_URL}/account`,
+      });
+    } catch (err) {
+      // The customer is the only Stripe object this call references.
+      if (err.code !== 'resource_missing') throw err;
+      await forgetCustomer(req.user.id, customer);
+      return res.status(400).json({ message: 'No billing account found. Become a member to start a new one.' });
+    }
     res.json({ url: session.url });
   } catch (err) {
     next(err);

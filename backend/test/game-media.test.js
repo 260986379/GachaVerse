@@ -43,7 +43,7 @@ const server = app.listen(0, async () => {
   console.log('\n--- caching ---');
   check('Cache-Control set', !!r.headers['cache-control'], r.headers['cache-control']);
   check('  -> public', /public/.test(r.headers['cache-control'] || ''), r.headers['cache-control']);
-  check('  -> max-age=300', /max-age=300/.test(r.headers['cache-control'] || ''), r.headers['cache-control']);
+  check('  -> max-age=1800', /max-age=1800/.test(r.headers['cache-control'] || ''), r.headers['cache-control']);
 
   console.log('\n--- response shape unchanged (bare array) ---');
   check('still a bare array, not {items,hasMore}', Array.isArray(r.body), JSON.stringify(r.body).slice(0,60));
@@ -68,7 +68,8 @@ const server = app.listen(0, async () => {
   gameMissing = true;
   const nf = await get('/api/games/nope/media');
   check('unknown game -> 404', nf.status === 404, nf.status);
-  check('  -> 404 not cached', !nf.headers['cache-control'], nf.headers['cache-control']);
+  // publicCache rewrites any non-200 to no-store so the CDN never keeps an error.
+  check('  -> 404 not cached (no-store)', nf.headers['cache-control'] === 'no-store', nf.headers['cache-control']);
 
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   server.close(() => process.exit(fail ? 1 : 0));

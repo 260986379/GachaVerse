@@ -35,7 +35,7 @@ const server = app.listen(0, async () => {
 
   console.log('\n--- same for every viewer: always shareable ---');
   for (const [p, s] of [
-    ['/api/games', 300], ['/api/games/trending', 300], ['/api/games/zzz', 300],
+    ['/api/games', 300], ['/api/games/trending', 1800], ['/api/games/zzz', 300],
     ['/api/games/zzz/characters', 600], ['/api/games/zzz/art', 300],
     ['/api/boards/all', 60], ['/api/boards/game/zzz', 60],
   ]) {
