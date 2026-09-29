@@ -47,6 +47,7 @@ const TIMESTAMPS = {
   "887Hr8i3gGE": 48, // Wuthering Waves EP1.4 | A Million Possibilities
   A8bokOYnYxw: 79, // Wuthering Waves EP2.1 — Brant - "THE KING OF WAYWARD SOULS (SELF PROCLAIMED) (BUT DESTINED)"
   FIEt1VxlDvs: 72, // Wuthering Waves EP3.2 — Sigrika - "L!!!!ght"
+  QLKK5iTbkOs: 120, // Wuthering Waves EP 1.2 | By Moon's Grace
 
   /// HSR
   J9wcfTVUZNE: 90, // EP: Of Snow and Ember | Honkai: Star Rail
