@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import {
   getFavVideos, getFavChars, getFavArtworks,
   toggleFavVideo, toggleFavChar, toggleFavArtwork, getFollowedGames, saveFollowedGames,
@@ -14,10 +14,12 @@ import SharePopover  from '../components/ui/SharePopover'
 import ImageLightbox from '../components/ui/ImageLightbox'
 import AuthModal    from '../components/ui/AuthModal'
 import ReportModal  from '../components/ui/ReportModal'
+import MembershipModal from '../components/ui/MembershipModal'
 import GameCard from '../components/GameCard'
 import { GAMES } from '../data/games'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
+import { profileBadges, isMember, hasActiveSubscription, hasPaymentProblem, displayRole } from '../utils/membership'
 import { compressImage, blobToDataUrl, uploadImage, IMAGE_SIZES } from '../utils/imageUpload'
 import './AccountPage.css'
 import './UserProfilePage.css'
@@ -1040,6 +1042,19 @@ export default function AccountPage() {
   const [reviewsOpen,    setReviewsOpen]    = useState(false)
   const [reviewStats,    setReviewStats]    = useState(null)
 
+  // Membership popup (#65). Stripe Checkout returns to /account?upgraded=1,
+  // which opens it straight away to show the membership activating.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const justUpgraded = searchParams.get('upgraded') === '1'
+  const [membershipOpen, setMembershipOpen] = useState(justUpgraded)
+  const closeMembership = () => {
+    setMembershipOpen(false)
+    if (justUpgraded) {
+      searchParams.delete('upgraded')
+      setSearchParams(searchParams, { replace: true })
+    }
+  }
+
   const [bannerSrc, setBannerSrc] = useState(null)
   const [pfpSrc,    setPfpSrc]    = useState(null)
   const bannerInputRef = useRef(null)
@@ -1368,7 +1383,7 @@ export default function AccountPage() {
           <aside className="profile-sidebar">
             <h2 className="profile-sidebar__name">
               {isLoggedIn
-                ? <><span style={{ fontSize: '1.35em', ...getRoleStyle(user.role) }}>{user.username}</span>'s Profile</>
+                ? <><span style={{ fontSize: '1.35em', ...getRoleStyle(displayRole(user)) }}>{user.username}</span>'s Profile</>
                 : 'Guest Profile'
               }
             </h2>
@@ -1471,9 +1486,23 @@ export default function AccountPage() {
 
             </div>
 
-            {/* My Reviews + View Notes buttons — outside the card */}
+            {/* Membership + My Reviews + View Notes buttons — outside the card */}
             {isLoggedIn && (
               <>
+                {/* Hidden for staff/VIP/Member roles, who have membership without paying */}
+                {hasPaymentProblem(user) ? (
+                  <button className="up-note-btn up-note-btn--warn" onClick={() => setMembershipOpen(true)}>
+                    ⚠ Membership: payment failed
+                  </button>
+                ) : hasActiveSubscription(user) ? (
+                  <button className="up-note-btn up-note-btn--member" onClick={() => setMembershipOpen(true)}>
+                    ✦ Membership
+                  </button>
+                ) : !isMember(user) && (
+                  <button className="up-note-btn up-note-btn--member" onClick={() => setMembershipOpen(true)}>
+                    ✦ Become a Member
+                  </button>
+                )}
                 <button className="up-note-btn" onClick={() => setReviewsOpen(true)}>
                   ★ My Reviews
                   {reviewStats?.total_upvotes > 0 && (
@@ -1504,25 +1533,32 @@ export default function AccountPage() {
               />
             ) : (
               <>
-                {/* Badges — only shown for non-Regular roles */}
-                {isLoggedIn && user.role !== 'Regular' && (
-                  <section className="profile-section">
-                    <div className="profile-section__header">
-                      <h2 className="profile-section__title">Badges</h2>
-                    </div>
-                    <div className="profile-badges">
-                      <span
-                        className="profile-badge"
-                        style={{
-                          '--badge-color': getRoleStyle(user.role).color,
-                          '--badge-glow':  getRoleGlow(user.role) ?? 'transparent',
-                        }}
-                      >
-                        {user.role}
-                      </span>
-                    </div>
-                  </section>
-                )}
+                {/* Badges — the user's role (unless Regular) and, for paying
+                    subscribers without the Member role, a Member badge (#65) */}
+                {isLoggedIn && (() => {
+                  const badges = profileBadges(user)
+                  return badges.length > 0 && (
+                    <section className="profile-section">
+                      <div className="profile-section__header">
+                        <h2 className="profile-section__title">Badges</h2>
+                      </div>
+                      <div className="profile-badges">
+                        {badges.map(badge => (
+                          <span
+                            key={badge}
+                            className="profile-badge"
+                            style={{
+                              '--badge-color': getRoleStyle(badge).color,
+                              '--badge-glow':  getRoleGlow(badge) ?? 'transparent',
+                            }}
+                          >
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                    </section>
+                  )
+                })()}
 
                 {/* Board */}
                 <section className="profile-section">
@@ -1777,7 +1813,7 @@ export default function AccountPage() {
       {activeBoard && (
         <BoardLightbox
           board={activeBoard}
-          boardOwner={user ? { id: user.id, username: user.username, avatar_url: user.avatar_url, role: user.role } : null}
+          boardOwner={user ? { id: user.id, username: user.username, avatar_url: user.avatar_url, role: displayRole(user) } : null}
           onClose={() => setActiveBoard(null)}
         />
       )}
@@ -1805,6 +1841,9 @@ export default function AccountPage() {
           tab={followModal}
           onClose={() => setFollowModal(null)}
         />
+      )}
+      {membershipOpen && isLoggedIn && (
+        <MembershipModal justUpgraded={justUpgraded} onClose={closeMembership} />
       )}
       {notesOpen && (
         <ViewNotesModal

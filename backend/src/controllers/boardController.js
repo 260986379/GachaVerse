@@ -3,6 +3,7 @@ const { createUserNotification } = require('./userNotificationController');
 const Joi = require('joi');
 const { CAPTION_MAX, COMMENT_MAX, GAME_LABEL_MAX } = require('../utils/limits');
 const { imageSource } = require('../utils/imageSource');
+const { isSubscriberSql } = require('../utils/membership');
 const { deleteImageByUrl } = require('../services/storageFiles');
 
 /**
@@ -128,7 +129,7 @@ const getComments = async (req, res, next) => {
   try {
     const { rows } = await query(
       `SELECT bc.id, bc.text, bc.created_at, bc.user_id,
-              u.username, u.avatar_url, u.role
+              u.username, u.avatar_url, u.role, ${isSubscriberSql('u')}
        FROM board_comments bc
        JOIN users u ON u.id = bc.user_id
        WHERE bc.board_id = $1

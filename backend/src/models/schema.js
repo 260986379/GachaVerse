@@ -174,17 +174,17 @@ const ALTER_USERS_PASSWORD_NULLABLE = `
 `;
 
 const ALTER_USERS_ADD_BANNER_URL = `
-  ALTER TABLE users ADD COLUMN IF NOT EXISTS banner_url VARCHAR(500);
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS banner_url TEXT;
 `;
 
 const ALTER_USERS_ADD_BIRTHDAY = `
   ALTER TABLE users ADD COLUMN IF NOT EXISTS birthday DATE;
 `;
 
-const ALTER_USERS_IMAGES_TO_TEXT = `
-  ALTER TABLE users ALTER COLUMN avatar_url TYPE TEXT;
-  ALTER TABLE users ALTER COLUMN banner_url TYPE TEXT;
-`;
+// ALTER_USERS_IMAGES_TO_TEXT (avatar_url/banner_url VARCHAR -> TEXT) was removed:
+// every database already has both as TEXT, and Postgres rejects the ALTER once
+// the generated profile_tier column depends on them, which failed a step on every
+// run and stopped migrate.js from recording its fingerprint (#46).
 
 const ALTER_USERS_ADD_ROLE = `
   ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(10) NOT NULL DEFAULT 'Regular';
@@ -194,6 +194,16 @@ const ALTER_USERS_ADD_DEBUG_ROLE = `
   ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
   ALTER TABLE users ADD CONSTRAINT users_role_check
     CHECK (role IN ('Owner', 'Dev', 'VIP', 'Member', 'Regular', 'Debug'));
+`;
+
+// Paid membership state from Stripe webhooks (#65). Kept apart from `role` so a
+// webhook never overwrites a staff role or a manually granted VIP.
+const ALTER_USERS_ADD_SUBSCRIPTION = `
+  ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT UNIQUE,
+    ADD COLUMN IF NOT EXISTS subscription_status TEXT,
+    ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS subscription_cancel_at_period_end BOOLEAN NOT NULL DEFAULT FALSE;
 `;
 
 const CREATE_USER_FOLLOWS = `
@@ -478,9 +488,9 @@ const ALL_TABLES = [
   ALTER_USERS_PASSWORD_NULLABLE,
   ALTER_USERS_ADD_BANNER_URL,
   ALTER_USERS_ADD_BIRTHDAY,
-  ALTER_USERS_IMAGES_TO_TEXT,
   ALTER_USERS_ADD_ROLE,
   ALTER_USERS_ADD_DEBUG_ROLE,
+  ALTER_USERS_ADD_SUBSCRIPTION,
   CREATE_GAMES,
   CREATE_CHARACTERS,
   ALTER_CHARACTERS_ADD_FACTION,

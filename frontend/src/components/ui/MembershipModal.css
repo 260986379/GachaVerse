@@ -1,0 +1,226 @@
+/* ── Membership popup (#65) ───────────────────────────────────── */
+
+/* Sidebar button that opens it, next to My Reviews / View Notes */
+.up-note-btn--member {
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.35);
+  background: rgba(96, 165, 250, 0.08);
+}
+.up-note-btn--member:hover {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #bfdbfe;
+}
+.up-note-btn--warn {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.08);
+}
+.up-note-btn--warn:hover {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.55);
+  color: #fcd34d;
+}
+
+.membership-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.membership-modal {
+  background: #13131f;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  border-radius: 12px;
+  width: min(460px, 100%);
+  box-shadow: 0 0 40px rgba(96, 165, 250, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.membership-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.membership-modal__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.membership-modal__close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.membership-modal__close:hover { color: rgba(255, 255, 255, 0.8); }
+
+.membership-modal__body {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.membership-modal__pitch,
+.membership-modal__status {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.membership-modal__notice {
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 8px;
+  color: #bfdbfe;
+  font-size: 0.85rem;
+}
+
+.membership-modal__active {
+  color: #60a5fa;
+  font-weight: 700;
+  text-shadow: 0 0 14px rgba(96, 165, 250, 0.6);
+}
+
+.membership-modal__warn  { color: #fbbf24; }
+.membership-modal__error { margin: 0; font-size: 0.8rem; color: #f87171; }
+
+.membership-modal__fine {
+  margin: 0;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+
+/* Perks list */
+.membership-perks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.membership-perk {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.membership-perk__icon {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+  font-size: 0.85rem;
+}
+
+.membership-perk__title {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.membership-perk__text {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Plan dropdown + Subscribe */
+.membership-checkout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.membership-checkout__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.membership-checkout__row {
+  display: flex;
+  gap: 0.6rem;
+}
+@media (max-width: 420px) {
+  .membership-checkout__row { flex-direction: column; }
+}
+
+.membership-checkout__select {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.7rem;
+  background: #0d0d16;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.membership-checkout__select:focus {
+  outline: none;
+  border-color: rgba(96, 165, 250, 0.7);
+}
+
+.membership-checkout__btn {
+  padding: 0.55rem 1.3rem;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.membership-checkout__btn:hover:not(:disabled) { background: #1d4ed8; }
+.membership-checkout__btn:disabled { opacity: 0.6; cursor: default; }
+
+.membership-modal__manage {
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.membership-modal__manage:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+.membership-modal__manage:disabled { opacity: 0.6; cursor: default; }

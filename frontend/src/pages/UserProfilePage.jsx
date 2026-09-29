@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
+import { profileBadges, displayRole } from '../utils/membership'
 import { GAMES } from '../data/games'
 import AuthModal from '../components/ui/AuthModal'
 import BoardLightbox from '../components/ui/BoardLightbox'
@@ -607,7 +608,7 @@ export default function UserProfilePage() {
           {/* ── Sidebar ── */}
           <aside className="profile-sidebar">
             <h2 className="profile-sidebar__name">
-              <span style={{ fontSize: '1.35em', ...getRoleStyle(profile.role) }}>{profile.username}</span>'s Profile
+              <span style={{ fontSize: '1.35em', ...getRoleStyle(displayRole(profile)) }}>{profile.username}</span>'s Profile
             </h2>
 
             <div className="profile-sidebar__card">
@@ -698,8 +699,8 @@ export default function UserProfilePage() {
             )}
 
             {!selectedAccount && (<>
-            {/* Badges — only shown for non-Regular roles, or always shown to Owner/Dev for assignment */}
-            {(profile.role !== 'Regular' || canAssignRoles) && (
+            {/* Badges — shown when there is one to show, or always to Owner/Dev for assignment */}
+            {(profileBadges(profile).length > 0 || canAssignRoles) && (
               <section className="profile-section">
                 <div className="profile-section__header">
                   <h2 className="profile-section__title">Badges</h2>
@@ -716,17 +717,20 @@ export default function UserProfilePage() {
                     </select>
                   )}
                 </div>
-                {profile.role !== 'Regular' && (
+                {profileBadges(profile).length > 0 && (
                   <div className="profile-badges">
-                    <span
-                      className="profile-badge"
-                      style={{
-                        '--badge-color': getRoleStyle(profile.role).color,
-                        '--badge-glow':  getRoleGlow(profile.role) ?? 'transparent',
-                      }}
-                    >
-                      {profile.role}
-                    </span>
+                    {profileBadges(profile).map(badge => (
+                      <span
+                        key={badge}
+                        className="profile-badge"
+                        style={{
+                          '--badge-color': getRoleStyle(badge).color,
+                          '--badge-glow':  getRoleGlow(badge) ?? 'transparent',
+                        }}
+                      >
+                        {badge}
+                      </span>
+                    ))}
                   </div>
                 )}
               </section>
@@ -985,7 +989,7 @@ export default function UserProfilePage() {
       {activeBoard && (
         <BoardLightbox
           board={activeBoard}
-          boardOwner={profile ? { id: profile.id, username: profile.username, avatar_url: profile.avatar_url, role: profile.role } : null}
+          boardOwner={profile ? { id: profile.id, username: profile.username, avatar_url: profile.avatar_url, role: displayRole(profile) } : null}
           onClose={() => { setActiveBoard(null); setSearchParams({}) }}
         />
       )}

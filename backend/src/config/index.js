@@ -30,4 +30,12 @@ module.exports = {
 
   // Firebase Storage bucket for user-uploaded images (avatars, banners, boards; #45)
   FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET || 'gachaverse-497204.firebasestorage.app',
+
+  // Stripe paid membership (#65). Billing routes refuse to run without the secret key.
+  STRIPE_SECRET_KEY:     process.env.STRIPE_SECRET_KEY     || '',
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
+  STRIPE_PRICE_MONTHLY:  process.env.STRIPE_PRICE_MONTHLY  || '',
+  STRIPE_PRICE_YEARLY:   process.env.STRIPE_PRICE_YEARLY   || '',
+  // Where Stripe sends the user back after Checkout / the Customer Portal
+  FRONTEND_URL:          process.env.FRONTEND_URL          || 'http://localhost:5173',
 };

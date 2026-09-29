@@ -2,7 +2,7 @@ const { admin } = require('../config/firebase');
 
 /**
  * Verifies a Firebase ID token sent as "Authorization: Bearer <token>".
- * On success, attaches req.user = { id, firebase_uid, username, email }.
+ * On success, attaches req.user = { id, firebase_uid, username, email, role, subscription_status, ... }.
  */
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -17,7 +17,7 @@ const authenticateToken = async (req, res, next) => {
     // Look up our internal user row by firebase_uid
     const { query } = require('../config/db');
     const { rows } = await query(
-      'SELECT id, username, email, avatar_url, bio, role FROM users WHERE firebase_uid = $1',
+      'SELECT id, username, email, avatar_url, bio, role, subscription_status FROM users WHERE firebase_uid = $1',
       [decoded.uid]
     );
 
@@ -69,7 +69,7 @@ const optionalAuth = async (req, res, next) => {
     const decoded = await admin.auth().verifyIdToken(token);
     const { query } = require('../config/db');
     const { rows } = await query(
-      'SELECT id, username, email, avatar_url, bio, role FROM users WHERE firebase_uid = $1',
+      'SELECT id, username, email, avatar_url, bio, role, subscription_status FROM users WHERE firebase_uid = $1',
       [decoded.uid]
     );
     req.user = rows[0] || null;
