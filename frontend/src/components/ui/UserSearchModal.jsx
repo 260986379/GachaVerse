@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getRoleStyle } from '../../utils/roles'
+import { displayRole } from '../../utils/membership'
 import './SearchModal.css'
 import './UserSearchModal.css'
 
@@ -83,7 +84,7 @@ export default function UserSearchModal({ onClose, initialUsers = [] }) {
                     }
                   </div>
                   <div className="search-modal__result-info">
-                    <span className="search-modal__result-name" style={getRoleStyle(u.role)}>
+                    <span className="search-modal__result-name" style={getRoleStyle(displayRole(u))}>
                       {u.username}
                     </span>
                     <span className="search-modal__result-meta">
@@ -126,7 +127,7 @@ export default function UserSearchModal({ onClose, initialUsers = [] }) {
               }
             </div>
             <div className="search-modal__banner-info">
-              <p className="search-modal__banner-name" style={getRoleStyle(hovered.role)}>
+              <p className="search-modal__banner-name" style={getRoleStyle(displayRole(hovered))}>
                 {hovered.username}
               </p>
               <p className="search-modal__banner-genre">

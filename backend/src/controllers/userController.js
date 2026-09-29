@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const { USERNAME_MAX, BIO_MAX } = require('../utils/limits');
 const { imageSource } = require('../utils/imageSource');
+const { isSubscriberSql } = require('../utils/membership');
 const { query, pool } = require('../config/db');
 const { admin } = require('../config/firebase');
 const { createUserNotification } = require('./userNotificationController');
@@ -20,6 +21,8 @@ const getUserProfile = async (req, res, next) => {
       `SELECT id, username, avatar_url, banner_url, bio,
               to_char(birthday, 'MM-DD') AS birthday, -- public: month/day only, never the year
               role, created_at,
+              -- public: only whether they subscribe, never status or billing dates (#65)
+              ${isSubscriberSql()},
               (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
               users.followers_count
        FROM users WHERE id = $1`,
@@ -42,6 +45,8 @@ const getUserByUsername = async (req, res, next) => {
       `SELECT id, username, avatar_url, banner_url, bio,
               to_char(birthday, 'MM-DD') AS birthday, -- public: month/day only, never the year
               role, created_at,
+              -- public: only whether they subscribe, never status or billing dates (#65)
+              ${isSubscriberSql()},
               (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
               users.followers_count
        FROM users WHERE username = $1`,
@@ -309,7 +314,7 @@ const searchUsers = async (req, res, next) => {
     if (!q) return res.json([])
     const seeDebug = canSeeDebug(req.user)
     const { rows } = await query(
-      `SELECT id, username, avatar_url, banner_url, bio, role,
+      `SELECT id, username, avatar_url, banner_url, bio, role, ${isSubscriberSql()},
               followers_count
        FROM users
        WHERE username ILIKE $1
@@ -335,7 +340,7 @@ const getCommunityUsers = async (req, res, next) => {
   try {
     const seeDebug = canSeeDebug(req.user)
     const { rows } = await query(
-      `SELECT u.id, u.username, u.avatar_url, u.banner_url, u.role,
+      `SELECT u.id, u.username, u.avatar_url, u.banner_url, u.role, ${isSubscriberSql('u')},
               u.followers_count
        FROM users u
        WHERE u.avatar_url IS NOT NULL AND u.avatar_url <> ''
@@ -364,7 +369,7 @@ const getDirectoryUsers = async (req, res, next) => {
   try {
     const seeDebug = canSeeDebug(req.user)
     const { rows } = await query(
-      `SELECT id, username, avatar_url, banner_url, bio, role,
+      `SELECT id, username, avatar_url, banner_url, bio, role, ${isSubscriberSql()},
               followers_count
        FROM users
        WHERE ($1 OR role != 'Debug')

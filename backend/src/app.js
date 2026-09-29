@@ -20,10 +20,16 @@ const reportRoutes        = require('./routes/reportRoutes');
 const suggestionRoutes    = require('./routes/suggestionRoutes');
 const internalRoutes      = require('./routes/internalRoutes');
 const concertHallRoutes   = require('./routes/concertHallRoutes');
+const billingRoutes       = require('./routes/billingRoutes');
+const billingController   = require('./controllers/billingController');
 
 const app = express();
 
 app.use(corsMiddleware);
+// Stripe webhook (#65). Must come before express.json(): signature verification
+// needs the raw request body. Also outside apiLimiter and Firebase auth, since
+// Stripe calls it directly and authenticates with the signature instead.
+app.post('/api/billing/webhook', express.raw({ type: 'application/json', limit: '1mb' }), billingController.webhook);
 // 100kb (Express's default). It was 10mb only because images used to arrive
 // inline as base64; they now go to Firebase Storage and only a URL is sent (#45).
 app.use(express.json({ limit: '100kb' }));
@@ -169,6 +175,7 @@ app.use('/api/reports',       reportRoutes);
 app.use('/api/suggestions',   suggestionRoutes);
 app.use('/internal',          internalRoutes);
 app.use('/api/concert-hall',  concertHallRoutes);
+app.use('/api/billing',       billingRoutes);
 
 app.use(errorHandler);
 

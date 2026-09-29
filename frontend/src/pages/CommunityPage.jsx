@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getRoleStyle } from '../utils/roles'
+import { displayRole } from '../utils/membership'
 import './CommunityPage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
@@ -21,7 +22,7 @@ function UserGridCard({ user }) {
             : <span>{user.username[0].toUpperCase()}</span>
           }
         </div>
-        <p className="cpage-card__name" style={getRoleStyle(user.role)}>
+        <p className="cpage-card__name" style={getRoleStyle(displayRole(user))}>
           {user.username}
         </p>
         <p className="cpage-card__followers">

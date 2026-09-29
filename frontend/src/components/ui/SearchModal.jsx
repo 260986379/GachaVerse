@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { GAMES, IMPLEMENTED_GAME_IDS } from '../../data/games'
 import { useAuth } from '../../context/AuthContext'
 import { getRoleStyle } from '../../utils/roles'
+import { displayRole } from '../../utils/membership'
 import './SearchModal.css'
 import './UserSearchModal.css'
 
@@ -196,7 +197,7 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
                         }
                       </div>
                       <div className="search-modal__result-info">
-                        <span className="search-modal__result-name" style={getRoleStyle(u.role)}>
+                        <span className="search-modal__result-name" style={getRoleStyle(displayRole(u))}>
                           {u.username}
                         </span>
                         <span className="search-modal__result-meta">
@@ -275,7 +276,7 @@ export default function SearchModal({ onClose, initialMode = 'games', initialUse
               }
             </div>
             <div className="search-modal__banner-info">
-              <p className="search-modal__banner-name" style={getRoleStyle(hoveredUser.role)}>
+              <p className="search-modal__banner-name" style={getRoleStyle(displayRole(hoveredUser))}>
                 {hoveredUser.username}
               </p>
               <p className="search-modal__banner-genre">

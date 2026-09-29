@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { getRoleStyle } from '../../utils/roles'
+import { displayRole } from '../../utils/membership'
 import ReportModal from './ReportModal'
 import './BoardLightbox.css'
 
@@ -127,7 +128,7 @@ export default function BoardLightbox({ board, boardOwner, onClose }) {
               <div className="lightbox__author">
                 <Avatar src={boardOwner.avatar_url} name={boardOwner.username} size={34} />
                 <div className="lightbox__author-info">
-                  <span className="lightbox__author-name" style={getRoleStyle(boardOwner.role)}>
+                  <span className="lightbox__author-name" style={getRoleStyle(displayRole(boardOwner))}>
                     {boardOwner.username}
                   </span>
                   <span className="lightbox__author-game">{board.game_name}</span>
@@ -163,7 +164,7 @@ export default function BoardLightbox({ board, boardOwner, onClose }) {
                 <div key={c.id} className="lightbox__comment">
                   <Avatar src={c.avatar_url} name={c.username} size={26} />
                   <div className="lightbox__comment-body">
-                    <span className="lightbox__comment-author" style={getRoleStyle(c.role)}>
+                    <span className="lightbox__comment-author" style={getRoleStyle(displayRole(c))}>
                       {c.username}
                     </span>
                     <span className="lightbox__comment-text">{c.text}</span>

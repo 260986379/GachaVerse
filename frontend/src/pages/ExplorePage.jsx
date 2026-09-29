@@ -5,6 +5,7 @@ import GameCard from '../components/GameCard'
 
 import { loadYTApi } from '../utils/ytApi'
 import { getRoleStyle } from '../utils/roles'
+import { displayRole } from '../utils/membership'
 import './ExplorePage.css'
 
 const API = import.meta.env.VITE_API_URL || '/api'
@@ -315,7 +316,7 @@ function UserCard({ user }) {
         <div className="community-card__avatar">
           <img src={user.avatar_url} alt={user.username} />
         </div>
-        <p className="community-card__name" style={getRoleStyle(user.role)}>
+        <p className="community-card__name" style={getRoleStyle(displayRole(user))}>
           {user.username}
         </p>
         <p className="community-card__followers">

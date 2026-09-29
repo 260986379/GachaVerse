@@ -6,6 +6,7 @@ import AuthModal   from './ui/AuthModal'
 import { useAuth } from '../context/AuthContext'
 import { useNotifications } from '../hooks/useNotifications'
 import { getRoleStyle, getRoleGlow } from '../utils/roles'
+import { displayRole } from '../utils/membership'
 import './Navbar.css'
 
 function ProfileIcon() {
@@ -128,17 +129,17 @@ export default function Navbar() {
                           : <ProfileIcon />
                         }
                       </div>
-                      <span className="navbar__dropdown-username" style={getRoleStyle(user.role)}>{user.username}</span>
+                      <span className="navbar__dropdown-username" style={getRoleStyle(displayRole(user))}>{user.username}</span>
                       <span
                         className="navbar__dropdown-role-badge"
                         style={{
-                          color:      getRoleStyle(user.role).color,
-                          borderColor: getRoleStyle(user.role).color,
-                          boxShadow:  getRoleGlow(user.role) ? `0 0 8px ${getRoleGlow(user.role)}` : 'none',
-                          textShadow: getRoleStyle(user.role).textShadow ?? 'none',
+                          color:      getRoleStyle(displayRole(user)).color,
+                          borderColor: getRoleStyle(displayRole(user)).color,
+                          boxShadow:  getRoleGlow(displayRole(user)) ? `0 0 8px ${getRoleGlow(displayRole(user))}` : 'none',
+                          textShadow: getRoleStyle(displayRole(user)).textShadow ?? 'none',
                         }}
                       >
-                        {user.role}
+                        {displayRole(user)}
                       </span>
                     </div>
                     <div className="navbar__dropdown-divider" />

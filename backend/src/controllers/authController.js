@@ -14,6 +14,7 @@ const syncUser = async (req, res, next) => {
 
     const USER_SELECT = `
       SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at,
+             subscription_status, subscription_current_period_end, subscription_cancel_at_period_end,
              (SELECT COUNT(*) FROM user_follows WHERE follower_id  = users.id) AS following_count,
              users.followers_count
       FROM users`;
@@ -82,6 +83,7 @@ const getMe = async (req, res, next) => {
   try {
     const { rows } = await query(
       `SELECT id, username, email, avatar_url, banner_url, bio, birthday, role, created_at,
+              subscription_status, subscription_current_period_end, subscription_cancel_at_period_end,
               (SELECT COUNT(*) FROM user_follows WHERE follower_id = users.id)  AS following_count,
               users.followers_count
        FROM users WHERE id = $1`,
